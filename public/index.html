@@ -5,324 +5,242 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ma liste de souhaits</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg:        #f7f5f2;
-  --white:     #ffffff;
-  --ink:       #1a1a1a;
-  --ink2:      #555;
-  --ink3:      #999;
-  --border:    #e4e0db;
-  --border2:   #ccc9c3;
-  --accent:    #1a1a1a;
-  --accent-bg: #f0ede9;
-  --green:     #2d6a4f;
-  --green-bg:  #edf5f0;
-  --red:       #c0392b;
-  --red-bg:    #fdf0ee;
-  --gold:      #b5840c;
-  --gold-bg:   #fdf6e3;
-  --shadow:    0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --bg: #f7f5f2; --white: #fff; --ink: #1a1a1a; --ink2: #555; --ink3: #999;
+  --border: #e4e0db; --border2: #ccc9c3;
+  --green: #2d6a4f; --green-bg: #edf5f0; --green-border: #b5d9c7;
+  --red: #c0392b; --red-bg: #fdf0ee; --red-border: #eec5c0;
+  --blue: #2563eb; --blue-bg: #eff4ff; --blue-border: #bdd2f5;
+  --gold: #b5840c; --gold-bg: #fdf6e3;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  --radius: 12px;
 }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 15px; }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-/* ── HEADER ─────────────────────────────────────── */
-.header {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 62px;
-  position: sticky; top: 0; z-index: 100;
-}
-.logo {
-  font-family: 'Instrument Serif', serif;
-  font-size: 22px;
-  letter-spacing: -0.3px;
-  color: var(--ink);
-}
+/* ── HEADER ─────────────────────────── */
+.hdr { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 58px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+.logo { font-family: 'Instrument Serif', serif; font-size: 21px; }
 .logo em { font-style: italic; color: var(--ink3); }
-.tab-group { display: flex; gap: 2px; }
-.tab-btn {
-  padding: 7px 16px;
-  border-radius: 7px;
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink2);
-  background: transparent;
-  transition: background .15s, color .15s;
-}
-.tab-btn:hover { background: var(--accent-bg); color: var(--ink); }
+.hdr-right { display: flex; align-items: center; gap: 10px; }
+.hdr-user { font-size: 13px; color: var(--ink2); display: flex; align-items: center; gap: 8px; }
+.badge-admin { font-size: 10px; font-weight: 600; background: var(--ink); color: #fff; padding: 2px 7px; border-radius: 20px; letter-spacing: .4px; }
+.hdr-tabs { display: flex; gap: 2px; }
+.tab-btn { padding: 6px 14px; border-radius: 7px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink2); background: transparent; transition: all .15s; }
+.tab-btn:hover { background: #f0ede9; color: var(--ink); }
 .tab-btn.active { background: var(--ink); color: #fff; }
 
-/* ── LAYOUT ──────────────────────────────────────── */
-.section { display: none; }
-.section.active { display: block; }
-.wrap { max-width: 820px; margin: 0 auto; padding: 40px 24px 80px; }
-
-/* ── ADD FORM ────────────────────────────────────── */
-.add-box {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 40px;
-  box-shadow: var(--shadow);
-}
-.add-box-title {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .6px;
-  text-transform: uppercase;
-  color: var(--ink3);
-  margin-bottom: 14px;
-}
-.row { display: flex; gap: 8px; }
-.inp {
-  flex: 1;
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--border2);
-  border-radius: 9px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  color: var(--ink);
-  background: var(--bg);
-  outline: none;
-  transition: border .15s;
-}
+/* ── MODALS ─────────────────────────── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
+.overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 18px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.2); position: relative; }
+.modal h2 { font-family: 'Instrument Serif', serif; font-size: 24px; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--ink3); margin-bottom: 24px; }
+.modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; cursor: pointer; font-size: 20px; color: var(--ink3); line-height: 1; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--ink3); margin-bottom: 6px; }
+.inp { width: 100%; height: 42px; padding: 0 14px; border: 1px solid var(--border2); border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); background: var(--bg); outline: none; transition: border .15s; }
 .inp:focus { border-color: var(--ink); background: var(--white); }
 .inp::placeholder { color: var(--ink3); }
-.btn {
-  height: 42px;
-  padding: 0 18px;
-  border-radius: 9px;
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  display: inline-flex; align-items: center; gap: 7px;
-  transition: opacity .15s, transform .1s;
-  white-space: nowrap;
-}
-.btn:active { transform: scale(0.97); }
+.modal-footer { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.modal-switch { font-size: 13px; color: var(--ink3); text-align: center; }
+.modal-switch a { color: var(--ink); text-decoration: underline; cursor: pointer; }
+
+/* ── BUTTONS ────────────────────────── */
+.btn { height: 42px; padding: 0 18px; border-radius: 9px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: opacity .15s, transform .1s; white-space: nowrap; }
+.btn:active { transform: scale(.97); }
 .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-full { width: 100%; }
 .btn-dark { background: var(--ink); color: #fff; }
 .btn-dark:hover:not(:disabled) { opacity: .85; }
 .btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--ink2); }
 .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
-.btn-sm { height: 34px; padding: 0 14px; font-size: 13px; border-radius: 7px; }
-.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid #eec5c0; }
+.btn-sm { height: 34px; padding: 0 13px; font-size: 13px; border-radius: 7px; }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
 .btn-danger:hover { background: #fae4e1; }
-.btn-gold { background: var(--ink); color: #fff; width: 100%; justify-content: center; }
-.btn-gold:hover { opacity: .85; }
+.btn-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.btn-green:hover { background: #d9efe5; }
 
-.status-msg {
-  margin-top: 12px; padding: 10px 14px;
-  border-radius: 8px; font-size: 13px; font-weight: 500;
-  display: none;
-}
-.status-msg.show { display: block; }
-.status-msg.loading { background: #eef4fb; color: #2563eb; border: 1px solid #bdd2f5; }
-.status-msg.error   { background: var(--red-bg); color: var(--red); border: 1px solid #eec5c0; }
-.status-msg.success { background: var(--green-bg); color: var(--green); border: 1px solid #b5d9c7; }
+/* ── ALERTS ─────────────────────────── */
+.alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-top: 12px; display: none; }
+.alert.show { display: block; }
+.alert-error   { background: var(--red-bg);  color: var(--red);  border: 1px solid var(--red-border); }
+.alert-success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.alert-info    { background: var(--blue-bg);  color: var(--blue); border: 1px solid var(--blue-border); }
 
-.manual-toggle-row { margin-top: 12px; }
-.manual-form {
-  display: none;
-  margin-top: 16px; padding-top: 16px;
-  border-top: 1px dashed var(--border);
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+/* ── LAYOUT ─────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+.wrap { max-width: 800px; margin: 0 auto; padding: 36px 20px 80px; }
+
+/* ── ADD BOX ────────────────────────── */
+.add-box { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 36px; box-shadow: var(--shadow); }
+.add-box-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--ink3); margin-bottom: 12px; }
+.url-row { display: flex; gap: 8px; }
+.url-row .inp { flex: 1; }
+.manual-form { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); grid-template-columns: 1fr 1fr; gap: 10px; }
 .manual-form.open { display: grid; }
 .manual-form .full { grid-column: 1/-1; }
 .field-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--ink3); margin-bottom: 5px; }
-.field-inp { width: 100%; }
 
-/* ── STATS ───────────────────────────────────────── */
-.stats { display: flex; gap: 10px; margin-bottom: 28px; }
-.stat {
-  flex: 1;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  text-align: center;
-}
-.stat-n {
-  font-family: 'Instrument Serif', serif;
-  font-size: 28px;
-  line-height: 1;
-  color: var(--ink);
-}
-.stat-l { font-size: 11px; color: var(--ink3); font-weight: 500; margin-top: 3px; letter-spacing: .3px; }
+/* ── STATS ──────────────────────────── */
+.stats { display: flex; gap: 10px; margin-bottom: 24px; }
+.stat { flex: 1; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; text-align: center; }
+.stat-n { font-family: 'Instrument Serif', serif; font-size: 26px; color: var(--ink); line-height: 1; }
+.stat-l { font-size: 11px; color: var(--ink3); margin-top: 2px; font-weight: 500; }
 
-/* ── LIST ────────────────────────────────────────── */
-.list { display: flex; flex-direction: column; gap: 1px; }
-
-.item-row {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  display: flex;
-  align-items: stretch;
-  overflow: hidden;
-  transition: box-shadow .2s;
-  position: relative;
-}
+/* ── ITEM ROWS ──────────────────────── */
+.list { display: flex; flex-direction: column; gap: 8px; }
+.item-row { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); display: flex; align-items: stretch; overflow: hidden; transition: box-shadow .2s; }
 .item-row:hover { box-shadow: var(--shadow); }
-.item-row.reserved { opacity: .65; }
-.item-row + .item-row { margin-top: 8px; }
 
-.item-img-wrap {
-  width: 96px;
-  min-width: 96px;
-  background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  padding: 10px;
-  border-right: 1px solid var(--border);
-}
-.item-img { max-width: 100%; max-height: 76px; object-fit: contain; display: block; }
-.item-img-ph { font-size: 28px; opacity: .25; }
+.item-img-wrap { width: 88px; min-width: 88px; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 8px; border-right: 1px solid var(--border); flex-shrink: 0; }
+.item-img { max-width: 100%; max-height: 72px; object-fit: contain; display: block; }
+.item-img-ph { font-size: 22px; opacity: .2; }
 
-.item-content {
-  flex: 1;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 0;
-}
+.item-body { flex: 1; padding: 12px 14px; display: flex; align-items: center; gap: 12px; min-width: 0; }
 .item-info { flex: 1; min-width: 0; }
-.item-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 4px;
-}
-.item-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.item-price {
-  font-family: 'Instrument Serif', serif;
-  font-size: 18px;
-  color: var(--ink);
-}
-.item-price.no-price { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink3); font-weight: 400; }
+.item-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+.item-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.item-price { font-family: 'Instrument Serif', serif; font-size: 17px; }
+.item-price.none { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink3); font-weight: 400; }
 .item-link { font-size: 12px; color: var(--ink3); text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
 .item-link:hover { color: var(--ink); }
-.item-link svg { opacity: .5; }
-.item-reserved-tag {
-  font-size: 11px; font-weight: 600;
-  padding: 3px 9px; border-radius: 20px;
-  background: var(--gold-bg); color: var(--gold);
-  border: 1px solid #e8d195;
-  white-space: nowrap;
-}
 
-.item-actions { display: flex; align-items: center; gap: 8px; padding-right: 14px; flex-shrink: 0; }
+/* participants */
+.participants { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: 22px; }
+.part-empty { font-size: 12px; color: var(--ink3); }
+.chip { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: var(--gold-bg); color: var(--gold); border: 1px solid #e8d195; display: inline-flex; align-items: center; gap: 4px; }
+.chip-rm { cursor: pointer; opacity: .5; font-size: 14px; line-height: 1; background: none; border: none; color: inherit; padding: 0; }
+.chip-rm:hover { opacity: 1; }
 
-/* friend claim inline */
-.claim-inline { display: flex; align-items: center; gap: 8px; }
-.claim-inp {
-  height: 34px; padding: 0 12px;
-  border: 1px solid var(--border2); border-radius: 7px;
-  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink);
-  background: var(--bg); outline: none; transition: border .15s; width: 130px;
-}
-.claim-inp:focus { border-color: var(--ink); background: var(--white); }
-.claim-inp::placeholder { color: var(--ink3); }
-.claim-inp.shake { animation: shake .35s; border-color: var(--red); }
+.item-actions { display: flex; align-items: center; gap: 8px; padding-right: 12px; flex-shrink: 0; }
+.join-area { display: flex; align-items: center; gap: 7px; }
+.join-inp { height: 34px; padding: 0 11px; border: 1px solid var(--border2); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); background: var(--bg); outline: none; transition: border .15s; width: 120px; }
+.join-inp:focus { border-color: var(--ink); background: var(--white); }
+.join-inp::placeholder { color: var(--ink3); }
+.join-inp.shake { animation: shake .35s; border-color: var(--red); }
 @keyframes shake { 0%,100%{transform:translateX(0)} 30%{transform:translateX(-5px)} 70%{transform:translateX(5px)} }
 
-/* ── EMPTY ───────────────────────────────────────── */
-.empty { text-align: center; padding: 80px 24px; color: var(--ink3); }
-.empty-icon { font-size: 40px; margin-bottom: 16px; opacity: .4; display: block; }
-.empty p { font-size: 15px; }
+/* ── EMPTY ──────────────────────────── */
+.empty { text-align: center; padding: 72px 24px; color: var(--ink3); }
+.empty-icon { font-size: 36px; margin-bottom: 14px; display: block; opacity: .3; }
 
-/* ── FRIEND TIP ──────────────────────────────────── */
-.friend-tip {
-  font-size: 13px; color: var(--ink2);
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 10px; padding: 12px 16px;
-  margin-bottom: 24px;
-  display: flex; align-items: center; gap: 8px;
-}
+/* ── TIP BAR ────────────────────────── */
+.tip { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--ink2); margin-bottom: 22px; display: flex; align-items: center; gap: 8px; }
+.tip a { color: var(--ink); text-decoration: underline; cursor: pointer; }
 
-/* ── SPINNER ─────────────────────────────────────── */
-.spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:rot .6s linear infinite; }
-@keyframes rot { to { transform:rotate(360deg); } }
+/* ── SPINNER ────────────────────────── */
+.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: rot .6s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
 
-/* ── RESPONSIVE ──────────────────────────────────── */
-@media (max-width: 600px) {
-  .header { padding: 0 16px; }
-  .wrap { padding: 24px 14px 60px; }
-  .item-img-wrap { width: 72px; min-width: 72px; }
+@media (max-width: 580px) {
+  .hdr { padding: 0 14px; }
+  .wrap { padding: 20px 12px 60px; }
+  .item-img-wrap { width: 64px; min-width: 64px; }
+  .join-inp { width: 95px; }
   .stats { flex-wrap: wrap; }
-  .claim-inp { width: 100px; }
 }
 </style>
 </head>
 <body>
 
-<header class="header">
+<!-- HEADER -->
+<header class="hdr">
   <div class="logo">wishlist<em>.</em></div>
-  <div class="tab-group">
-    <button class="tab-btn active" onclick="switchTab('admin',this)">Ma liste</button>
-    <button class="tab-btn" onclick="switchTab('friend',this)">Vue amis</button>
+  <div class="hdr-right">
+    <div id="hdr-user" class="hdr-user" style="display:none">
+      <span id="hdr-pseudo"></span>
+      <span id="hdr-badge" class="badge-admin" style="display:none">admin</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Déconnexion</button>
+    </div>
+    <button id="btn-open-login" class="btn btn-ghost btn-sm" onclick="openModal('login')" style="display:none">Connexion</button>
+    <div class="hdr-tabs" id="hdr-tabs" style="display:none">
+      <button class="tab-btn active" id="tab-list-btn" onclick="switchTab('list',this)">Liste</button>
+      <button class="tab-btn" id="tab-admin-btn" onclick="switchTab('admin',this)" style="display:none">Gérer</button>
+    </div>
   </div>
 </header>
 
-<!-- ═══ ADMIN ════════════════════════════════════════ -->
-<section class="section active" id="tab-admin">
-  <div class="wrap">
+<!-- MODAL LOGIN -->
+<div class="overlay" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login')">✕</button>
+    <h2>Connexion</h2>
+    <div class="modal-sub">Connecte-toi pour mémoriser ton pseudo.</div>
+    <div class="field"><label>Email</label><input class="inp" id="l-email" type="email" placeholder="ton@email.com" /></div>
+    <div class="field"><label>Mot de passe</label><input class="inp" id="l-pwd" type="password" placeholder="••••••••" /></div>
+    <div class="alert" id="l-alert"></div>
+    <div class="modal-footer">
+      <button class="btn btn-dark btn-full" onclick="doLogin()">Se connecter</button>
+      <div class="modal-switch">Pas de compte ? <a onclick="openModal('register');closeModal('login')">Créer un compte</a></div>
+    </div>
+  </div>
+</div>
 
+<!-- MODAL REGISTER -->
+<div class="overlay" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('register')">✕</button>
+    <h2>Créer un compte</h2>
+    <div class="modal-sub">Plus besoin d'entrer ton prénom à chaque fois.</div>
+    <div class="field"><label>Pseudo (affiché sur les cadeaux)</label><input class="inp" id="r-pseudo" type="text" placeholder="Mathieu" /></div>
+    <div class="field"><label>Email</label><input class="inp" id="r-email" type="email" placeholder="ton@email.com" /></div>
+    <div class="field"><label>Mot de passe</label><input class="inp" id="r-pwd" type="password" placeholder="6 caractères min." /></div>
+    <div class="alert" id="r-alert"></div>
+    <div class="modal-footer">
+      <button class="btn btn-dark btn-full" onclick="doRegister()">Créer mon compte</button>
+      <div class="modal-switch">Déjà un compte ? <a onclick="openModal('login');closeModal('register')">Se connecter</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION : LISTE (vue publique) -->
+<section class="section active" id="tab-list">
+  <div class="wrap">
+    <div class="tip" id="guest-tip">
+      <span>👋</span>
+      <span>Entre ton prénom pour participer à un cadeau — ou <a onclick="openModal('login')">connecte-toi</a> pour mémoriser ton pseudo.</span>
+    </div>
+    <div class="list" id="list-items"></div>
+    <div class="empty" id="list-empty" style="display:none">
+      <span class="empty-icon">✦</span>
+      <p>La liste est vide pour l'instant.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION : ADMIN -->
+<section class="section" id="tab-admin">
+  <div class="wrap">
     <div class="add-box">
-      <div class="add-box-title">Ajouter un article</div>
-      <div class="row">
+      <div class="add-box-label">Ajouter un article</div>
+      <div class="url-row">
         <input class="inp" id="url-inp" type="text" placeholder="Colle un lien (Amazon, Fnac, Cdiscount, LDLC…)" />
         <button class="btn btn-dark" id="fetch-btn" onclick="fetchItem()">
           <span id="fetch-icon">↓</span><span id="fetch-txt">Récupérer</span>
         </button>
         <button class="btn btn-ghost btn-sm" style="height:42px" onclick="toggleManual()" title="Ajouter manuellement">✏️</button>
       </div>
-      <div id="status" class="status-msg"></div>
-
-      <div class="manual-toggle-row">
-      </div>
+      <div class="alert" id="fetch-alert"></div>
       <div class="manual-form" id="manual-form">
         <div class="full">
           <div class="field-lbl">Titre *</div>
-          <input class="inp field-inp" id="m-title" type="text" placeholder="Nom du produit" />
+          <input class="inp" style="width:100%" id="m-title" type="text" placeholder="Nom du produit" />
         </div>
         <div>
           <div class="field-lbl">Prix (€)</div>
-          <input class="inp field-inp" id="m-price" type="text" placeholder="49.99" />
+          <input class="inp" id="m-price" type="text" placeholder="49.99" />
         </div>
         <div>
           <div class="field-lbl">URL image</div>
-          <input class="inp field-inp" id="m-img" type="text" placeholder="https://..." />
+          <input class="inp" id="m-img" type="text" placeholder="https://..." />
         </div>
         <div class="full">
           <div class="field-lbl">Lien produit</div>
-          <input class="inp field-inp" id="m-url" type="text" placeholder="https://..." />
+          <input class="inp" style="width:100%" id="m-url" type="text" placeholder="https://..." />
         </div>
         <div class="full">
           <button class="btn btn-dark" onclick="addManual()">Ajouter manuellement</button>
@@ -332,131 +250,110 @@ body {
 
     <div class="stats" id="stats" style="display:none">
       <div class="stat"><div class="stat-n" id="s-total">0</div><div class="stat-l">articles</div></div>
-      <div class="stat"><div class="stat-n" id="s-res">0</div><div class="stat-l">réservés</div></div>
-      <div class="stat"><div class="stat-n" id="s-free">0</div><div class="stat-l">disponibles</div></div>
+      <div class="stat"><div class="stat-n" id="s-parts">0</div><div class="stat-l">participations</div></div>
     </div>
 
-    <div class="list" id="admin-list"></div>
+    <div class="list" id="admin-items"></div>
     <div class="empty" id="admin-empty" style="display:none">
       <span class="empty-icon">✦</span>
-      <p>Ta liste est vide — colle une URL pour commencer.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ FRIEND ════════════════════════════════════════ -->
-<section class="section" id="tab-friend">
-  <div class="wrap">
-    <div class="friend-tip">
-      <span>🤫</span>
-      Entre ton prénom pour réserver un cadeau — le destinataire ne verra pas qui offre quoi.
-    </div>
-    <div class="list" id="friend-list"></div>
-    <div class="empty" id="friend-empty" style="display:none">
-      <span class="empty-icon">✦</span>
-      <p>La liste est vide pour l'instant.</p>
+      <p>Ajoute ton premier article ci-dessus.</p>
     </div>
   </div>
 </section>
 
 <script>
-// ── Prix : stocké comme float côté serveur, affiché avec centimes ──
-function fmtPrice(p) {
-  if (p === null || p === undefined) return null;
-  const n = parseFloat(p);
-  if (isNaN(n)) return null;
-  return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-}
-
-function esc(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── State ─────────────────────────────────────────────────────
+let me    = null;
 let items = [];
 
-async function load() {
-  try { const r = await fetch('/api/items'); items = await r.json(); render(); } catch(e) { console.error(e); }
-}
-load();
-
-// ── Tab ──────────────────────────────────────────────────────
-function switchTab(tab, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  btn.classList.add('active');
+(async () => {
+  await loadMe();
+  await loadItems();
+  renderHeader();
   render();
+})();
+
+// ── Auth ──────────────────────────────────────────────────────
+async function loadMe() {
+  try { const r = await fetch('/api/auth/me'); me = await r.json(); } catch { me = null; }
 }
 
-// ── Status ───────────────────────────────────────────────────
-function showStatus(msg, type) {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = 'status-msg show ' + type;
-}
-function hideStatus() { document.getElementById('status').className = 'status-msg'; }
-
-function toggleManual() { document.getElementById('manual-form').classList.toggle('open'); }
-
-// ── Fetch from URL ───────────────────────────────────────────
-async function fetchItem() {
-  const url = document.getElementById('url-inp').value.trim();
-  if (!url) { showStatus('Colle une URL d\'abord', 'error'); return; }
-  const btn = document.getElementById('fetch-btn');
-  const icon = document.getElementById('fetch-icon');
-  const txt  = document.getElementById('fetch-txt');
-  btn.disabled = true;
-  icon.innerHTML = '<span class="spin"></span>';
-  txt.textContent = 'Récupération…';
-  showStatus('Récupération des infos produit…', 'loading');
+async function doLogin() {
+  const al = document.getElementById('l-alert');
   try {
-    const r = await fetch('/api/scrape', {
+    const r = await fetch('/api/auth/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ email: v('l-email'), password: v('l-pwd') })
     });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Erreur serveur');
-    items.unshift(data);
-    document.getElementById('url-inp').value = '';
-    showStatus('Article ajouté !', 'success');
-    render();
-    setTimeout(hideStatus, 3000);
-  } catch(e) {
-    showStatus(e.message, 'error');
-  }
-  btn.disabled = false;
-  icon.textContent = '↓';
-  txt.textContent = 'Récupérer';
+    const d = await r.json();
+    if (!r.ok) { showAlert(al, d.error, 'error'); return; }
+    me = d; closeModal('login'); renderHeader(); render();
+    await loadItems(); render();
+  } catch { showAlert(al, 'Erreur réseau', 'error'); }
 }
 
-// ── Manual add ───────────────────────────────────────────────
+async function doRegister() {
+  const al = document.getElementById('r-alert');
+  const pseudo = v('r-pseudo'), email = v('r-email'), pwd = v('r-pwd');
+  if (!pseudo) { showAlert(al, 'Pseudo obligatoire', 'error'); return; }
+  try {
+    const r = await fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pwd, pseudo })
+    });
+    const d = await r.json();
+    if (!r.ok) { showAlert(al, d.error, 'error'); return; }
+    me = d; closeModal('register'); renderHeader(); render();
+    await loadItems(); render();
+  } catch { showAlert(al, 'Erreur réseau', 'error'); }
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  me = null; renderHeader(); render();
+}
+
+// ── Items ─────────────────────────────────────────────────────
+async function loadItems() {
+  try { const r = await fetch('/api/items'); items = await r.json(); } catch {}
+}
+
+async function fetchItem() {
+  const url = v('url-inp');
+  if (!url) { showAlert($('fetch-alert'), 'Colle une URL d\'abord', 'error'); return; }
+  setBusy(true);
+  showAlert($('fetch-alert'), 'Récupération des infos produit…', 'info');
+  try {
+    const r = await fetch('/api/scrape', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    items.unshift(d);
+    document.getElementById('url-inp').value = '';
+    showAlert($('fetch-alert'), 'Article ajouté !', 'success');
+    render();
+    setTimeout(() => hideAlert($('fetch-alert')), 3000);
+  } catch (e) { showAlert($('fetch-alert'), e.message, 'error'); }
+  setBusy(false);
+}
+
 async function addManual() {
-  const title = document.getElementById('m-title').value.trim();
-  if (!title) { showStatus('Le titre est obligatoire', 'error'); return; }
+  const title = v('m-title');
+  if (!title) { showAlert($('fetch-alert'), 'Titre obligatoire', 'error'); return; }
   try {
     const r = await fetch('/api/items', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        price: document.getElementById('m-price').value.trim() || null,
-        image: document.getElementById('m-img').value.trim() || null,
-        url:   document.getElementById('m-url').value.trim() || null,
-      })
+      body: JSON.stringify({ title, price: v('m-price') || null, image: v('m-img') || null, url: v('m-url') || null })
     });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error);
-    items.unshift(data);
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    items.unshift(d);
     ['m-title','m-price','m-img','m-url'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('manual-form').classList.remove('open');
-    showStatus('Article ajouté !', 'success');
+    showAlert($('fetch-alert'), 'Article ajouté !', 'success');
     render();
-    setTimeout(hideStatus, 2500);
-  } catch(e) { showStatus(e.message, 'error'); }
+    setTimeout(() => hideAlert($('fetch-alert')), 2500);
+  } catch (e) { showAlert($('fetch-alert'), e.message, 'error'); }
 }
 
-// ── Delete ────────────────────────────────────────────────────
 async function deleteItem(id) {
   if (!confirm('Supprimer cet article ?')) return;
   await fetch('/api/items/' + id, { method: 'DELETE' });
@@ -464,64 +361,144 @@ async function deleteItem(id) {
   render();
 }
 
-// ── Reserve ──────────────────────────────────────────────────
-async function claimItem(id) {
-  const inp  = document.getElementById('ci-' + id);
-  const name = inp ? inp.value.trim() : '';
-  if (!name) { if (inp) { inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 400); } return; }
-  const r    = await fetch('/api/items/' + id + '/reserve', {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+// ── Participants ──────────────────────────────────────────────
+async function joinItem(id) {
+  let name;
+  if (me) {
+    name = me.pseudo;
+  } else {
+    const inp = document.getElementById('ji-' + id);
+    if (!inp) return;
+    name = inp.value.trim();
+    if (!name) { inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 400); return; }
+    localStorage.setItem('guest_name', name);
+  }
+  const r = await fetch('/api/items/' + id + '/join', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name })
   });
-  const data = await r.json();
-  const idx  = items.findIndex(i => i.id === id);
-  if (idx !== -1) items[idx] = data;
-  render();
+  if (r.ok) { const d = await r.json(); updateItem(d); render(); }
 }
 
-// ── Render helpers ───────────────────────────────────────────
-function imgCell(item) {
-  if (item.image) {
-    return `<div class="item-img-wrap">
-      <img class="item-img" src="${esc(item.image)}" alt="" loading="lazy"
-        onerror="this.parentNode.innerHTML='<span class=\\'item-img-ph\\'>✦</span>'">
-    </div>`;
+async function leaveItem(id, name) {
+  const r = await fetch('/api/items/' + id + '/join', {
+    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  if (r.ok) { const d = await r.json(); updateItem(d); render(); }
+}
+
+function updateItem(d) {
+  const idx = items.findIndex(i => i.id === d.id);
+  if (idx !== -1) items[idx] = d;
+}
+
+// ── Render ────────────────────────────────────────────────────
+function renderHeader() {
+  const isAdmin = me?.isAdmin;
+  $('hdr-user').style.display  = me ? 'flex' : 'none';
+  $('btn-open-login').style.display = me ? 'none' : 'inline-flex';
+  $('hdr-tabs').style.display  = 'flex';
+  $('tab-admin-btn').style.display = isAdmin ? 'inline-block' : 'none';
+  if (me) { $('hdr-pseudo').textContent = me.pseudo; $('hdr-badge').style.display = isAdmin ? 'inline' : 'none'; }
+  $('guest-tip').style.display = me ? 'none' : 'flex';
+  if (!isAdmin && $('tab-admin').classList.contains('active')) {
+    $('tab-admin').classList.remove('active');
+    $('tab-list').classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    $('tab-list-btn').classList.add('active');
   }
+}
+
+function render() { renderList(); renderAdmin(); updateStats(); }
+
+function imgCell(item) {
+  if (item.image) return `<div class="item-img-wrap"><img class="item-img" src="${esc(item.image)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<span class=\\'item-img-ph\\'>✦</span>'"></div>`;
   return `<div class="item-img-wrap"><span class="item-img-ph">✦</span></div>`;
 }
 
+function fmtPrice(p) {
+  if (p === null || p === undefined) return null;
+  const n = parseFloat(p);
+  return isNaN(n) ? null : n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
 function priceEl(price) {
-  const p = fmtPrice(price);
-  if (!p) return `<span class="item-price no-price">prix non renseigné</span>`;
-  return `<span class="item-price">${esc(p)}</span>`;
+  const f = fmtPrice(price);
+  return f ? `<span class="item-price">${esc(f)}</span>` : `<span class="item-price none">prix non renseigné</span>`;
 }
 
 function linkEl(url) {
   if (!url) return '';
-  return `<a class="item-link" href="${esc(url)}" target="_blank" rel="noopener">
-    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Voir le produit
-  </a>`;
+  return `<a class="item-link" href="${esc(url)}" target="_blank" rel="noopener"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voir</a>`;
 }
 
-// ── Render admin ──────────────────────────────────────────────
+function chipsEl(item, canDelete) {
+  const parts = item.participants || [];
+  if (!parts.length) return `<span class="part-empty">Personne pour l'instant</span>`;
+  const guestName = localStorage.getItem('guest_name') || '';
+  return parts.map(p => {
+    const isMine = (me && me.id === p.user_id) || (!me && p.name === guestName);
+    const rm = (isMine || canDelete)
+      ? `<button class="chip-rm" onclick="leaveItem(${item.id},'${esc(p.name)}')" title="Retirer">×</button>`
+      : '';
+    return `<span class="chip">${esc(p.name)}${rm}</span>`;
+  }).join('');
+}
+
+function renderList() {
+  const list  = $('list-items');
+  const empty = $('list-empty');
+  if (!items.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const guestName = localStorage.getItem('guest_name') || '';
+
+  list.innerHTML = items.map(item => {
+    const parts   = item.participants || [];
+    const myName  = me ? me.pseudo : guestName;
+    const joined  = parts.some(p => me ? p.user_id === me.id : (myName && p.name === myName));
+
+    let actionHtml;
+    if (joined) {
+      actionHtml = `<button class="btn btn-green btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')">✓ Je participe</button>`;
+    } else if (me) {
+      actionHtml = `<button class="btn btn-dark btn-sm" onclick="joinItem(${item.id})">Participer</button>`;
+    } else {
+      actionHtml = `<div class="join-area">
+        <input class="join-inp" id="ji-${item.id}" placeholder="Ton prénom…" value="${esc(guestName)}" />
+        <button class="btn btn-dark btn-sm" onclick="joinItem(${item.id})">Participer</button>
+      </div>`;
+    }
+
+    return `<div class="item-row">
+      ${imgCell(item)}
+      <div class="item-body">
+        <div class="item-info">
+          <div class="item-title" title="${esc(item.title)}">${esc(item.title)}</div>
+          <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
+          <div class="participants">${chipsEl(item, false)}</div>
+        </div>
+        <div class="item-actions">${actionHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderAdmin() {
-  const list  = document.getElementById('admin-list');
-  const empty = document.getElementById('admin-empty');
+  const list  = $('admin-items');
+  const empty = $('admin-empty');
+  if (!me?.isAdmin) return;
   if (!items.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
 
   list.innerHTML = items.map(item => `
-    <div class="item-row${item.reserved ? ' reserved' : ''}">
+    <div class="item-row">
       ${imgCell(item)}
-      <div class="item-content">
+      <div class="item-body">
         <div class="item-info">
           <div class="item-title" title="${esc(item.title)}">${esc(item.title)}</div>
-          <div class="item-meta">
-            ${priceEl(item.price)}
-            ${linkEl(item.url)}
-            ${item.reserved ? `<span class="item-reserved-tag">Réservé par ${esc(item.reserved_by)}</span>` : ''}
-          </div>
+          <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
+          <div class="participants">${chipsEl(item, true)}</div>
         </div>
         <div class="item-actions">
           <button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">Supprimer</button>
@@ -531,51 +508,45 @@ function renderAdmin() {
   `).join('');
 }
 
-// ── Render friend ─────────────────────────────────────────────
-function renderFriend() {
-  const list  = document.getElementById('friend-list');
-  const empty = document.getElementById('friend-empty');
-  if (!items.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  list.innerHTML = items.map(item => `
-    <div class="item-row${item.reserved ? ' reserved' : ''}">
-      ${imgCell(item)}
-      <div class="item-content">
-        <div class="item-info">
-          <div class="item-title" title="${esc(item.title)}">${esc(item.title)}</div>
-          <div class="item-meta">
-            ${priceEl(item.price)}
-            ${linkEl(item.url)}
-            ${item.reserved ? `<span class="item-reserved-tag">Déjà réservé 🎁</span>` : ''}
-          </div>
-        </div>
-        <div class="item-actions">
-          ${item.reserved
-            ? ''
-            : `<div class="claim-inline">
-                <input class="claim-inp" id="ci-${item.id}" placeholder="Ton prénom…" />
-                <button class="btn btn-dark btn-sm" onclick="claimItem(${item.id})">Je l'offre</button>
-              </div>`
-          }
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── Stats ────────────────────────────────────────────────────
 function updateStats() {
-  const el  = document.getElementById('stats');
-  if (!items.length) { el.style.display = 'none'; return; }
+  const el = $('stats');
+  if (!items.length || !me?.isAdmin) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
-  const res = items.filter(i => i.reserved).length;
-  document.getElementById('s-total').textContent = items.length;
-  document.getElementById('s-res').textContent   = res;
-  document.getElementById('s-free').textContent  = items.length - res;
+  $('s-total').textContent = items.length;
+  $('s-parts').textContent = items.reduce((s, i) => s + (i.participants?.length || 0), 0);
 }
 
-function render() { renderAdmin(); renderFriend(); updateStats(); }
+// ── Helpers ───────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+function v(id) { return (document.getElementById(id)?.value || '').trim(); }
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function openModal(id)  { $('modal-'+id).classList.add('open'); }
+function closeModal(id) { $('modal-'+id).classList.remove('open'); }
+function toggleManual() { $('manual-form').classList.toggle('open'); }
+function showAlert(el, msg, type) { el.textContent = msg; el.className = 'alert show alert-'+type; }
+function hideAlert(el) { el.className = 'alert'; }
+function setBusy(b) {
+  $('fetch-btn').disabled = b;
+  $('fetch-icon').innerHTML = b ? '<span class="spin"></span>' : '↓';
+  $('fetch-txt').textContent = b ? 'Récupération…' : 'Récupérer';
+}
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  $('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  render();
+}
+
+// Fermer modal en cliquant le fond
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+$('l-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+$('r-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
 </script>
 </body>
 </html>
