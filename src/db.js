@@ -8,11 +8,11 @@ const pool = new Pool({
 async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id        SERIAL PRIMARY KEY,
-      email     TEXT UNIQUE NOT NULL,
-      password  TEXT NOT NULL,
-      pseudo    TEXT NOT NULL,
-      is_admin  BOOLEAN DEFAULT false,
+      id         SERIAL PRIMARY KEY,
+      email      TEXT UNIQUE NOT NULL,
+      password   TEXT NOT NULL,
+      pseudo     TEXT NOT NULL,
+      is_admin   BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
@@ -22,6 +22,8 @@ async function initDB() {
       price      NUMERIC(10,2),
       image      TEXT,
       url        TEXT,
+      details    TEXT,
+      options    TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
@@ -33,24 +35,39 @@ async function initDB() {
       created_at TIMESTAMPTZ DEFAULT NOW(),
       UNIQUE(item_id, name)
     );
+
+    CREATE TABLE IF NOT EXISTS messages (
+      id         SERIAL PRIMARY KEY,
+      item_id    INTEGER REFERENCES items(id) ON DELETE CASCADE,
+      author     TEXT NOT NULL,
+      user_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      content    TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS details TEXT;
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS options TEXT;
   `);
   console.log('✓ DB ready');
 }
 
-// Items avec leurs participants
+// ── Items ─────────────────────────────────────────────────────
+
 async function getItems() {
   const { rows } = await pool.query(`
     SELECT
       i.*,
       COALESCE(
-        json_agg(
-          json_build_object('id', p.id, 'name', p.name, 'user_id', p.user_id)
-          ORDER BY p.created_at
-        ) FILTER (WHERE p.id IS NOT NULL),
-        '[]'
-      ) AS participants
+        json_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name, 'user_id', p.user_id))
+        FILTER (WHERE p.id IS NOT NULL), '[]'
+      ) AS participants,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object('id', m.id, 'author', m.author, 'content', m.content, 'created_at', m.created_at, 'user_id', m.user_id))
+        FILTER (WHERE m.id IS NOT NULL), '[]'
+      ) AS messages
     FROM items i
     LEFT JOIN participants p ON p.item_id = i.id
+    LEFT JOIN messages m ON m.item_id = i.id
     GROUP BY i.id
     ORDER BY i.created_at DESC
   `);
@@ -58,61 +75,99 @@ async function getItems() {
 }
 
 async function getItem(id) {
-  const items = await getItems();
-  return items.find(i => i.id === parseInt(id)) || null;
+  const { rows } = await pool.query(`
+    SELECT
+      i.*,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name, 'user_id', p.user_id))
+        FILTER (WHERE p.id IS NOT NULL), '[]'
+      ) AS participants,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object('id', m.id, 'author', m.author, 'content', m.content, 'created_at', m.created_at, 'user_id', m.user_id))
+        FILTER (WHERE m.id IS NOT NULL), '[]'
+      ) AS messages
+    FROM items i
+    LEFT JOIN participants p ON p.item_id = i.id
+    LEFT JOIN messages m ON m.item_id = i.id
+    WHERE i.id = $1
+    GROUP BY i.id
+  `, [id]);
+  return rows[0] || null;
 }
 
-async function createItem({ title, price, image, url }) {
+async function createItem({ title, price, image, url, details, options }) {
   const { rows } = await pool.query(
-    `INSERT INTO items (title, price, image, url) VALUES ($1, $2, $3, $4) RETURNING *`,
-    [title, price || null, image || null, url || null]
+    `INSERT INTO items (title, price, image, url, details, options) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+    [title, price || null, image || null, url || null, details || null, options || null]
   );
-  return { ...rows[0], participants: [] };
+  return { ...rows[0], participants: [], messages: [] };
+}
+
+async function updateItem(id, { title, price, image, url, details, options }) {
+  const { rows } = await pool.query(
+    `UPDATE items SET title=$1, price=$2, image=$3, url=$4, details=$5, options=$6 WHERE id=$7 RETURNING *`,
+    [title, price || null, image || null, url || null, details || null, options || null, id]
+  );
+  return rows[0] || null;
 }
 
 async function deleteItem(id) {
   await pool.query('DELETE FROM items WHERE id = $1', [id]);
 }
 
+// ── Participants ──────────────────────────────────────────────
+
 async function addParticipant(itemId, name, userId = null) {
   try {
     const { rows } = await pool.query(
-      `INSERT INTO participants (item_id, user_id, name) VALUES ($1, $2, $3)
+      `INSERT INTO participants (item_id, user_id, name) VALUES ($1,$2,$3)
        ON CONFLICT (item_id, name) DO NOTHING RETURNING *`,
       [itemId, userId || null, name]
     );
     return rows[0] || null;
-  } catch (e) {
-    return null;
-  }
+  } catch { return null; }
 }
 
 async function removeParticipant(itemId, name, userId = null) {
   if (userId) {
-    await pool.query(
-      `DELETE FROM participants WHERE item_id = $1 AND user_id = $2`,
-      [itemId, userId]
-    );
+    await pool.query(`DELETE FROM participants WHERE item_id=$1 AND user_id=$2`, [itemId, userId]);
   } else {
-    await pool.query(
-      `DELETE FROM participants WHERE item_id = $1 AND name = $2 AND user_id IS NULL`,
-      [itemId, name]
-    );
+    await pool.query(`DELETE FROM participants WHERE item_id=$1 AND name=$2 AND user_id IS NULL`, [itemId, name]);
   }
 }
 
-// Users
+// ── Messages ──────────────────────────────────────────────────
+
+async function addMessage(itemId, author, content, userId = null) {
+  const { rows } = await pool.query(
+    `INSERT INTO messages (item_id, author, content, user_id) VALUES ($1,$2,$3,$4) RETURNING *`,
+    [itemId, author, content, userId || null]
+  );
+  return rows[0];
+}
+
+async function deleteMessage(messageId) {
+  await pool.query('DELETE FROM messages WHERE id=$1', [messageId]);
+}
+
+// ── Users ─────────────────────────────────────────────────────
+
 async function getUserByEmail(email) {
-  const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  const { rows } = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
   return rows[0] || null;
 }
 
 async function createUser({ email, password, pseudo, isAdmin = false }) {
   const { rows } = await pool.query(
-    `INSERT INTO users (email, password, pseudo, is_admin) VALUES ($1, $2, $3, $4) RETURNING *`,
+    `INSERT INTO users (email, password, pseudo, is_admin) VALUES ($1,$2,$3,$4) RETURNING *`,
     [email, password, pseudo, isAdmin]
   );
   return rows[0];
 }
 
-module.exports = { initDB, getItems, getItem, createItem, deleteItem, addParticipant, removeParticipant, getUserByEmail, createUser, pool };
+module.exports = {
+  initDB, getItems, getItem, createItem, updateItem, deleteItem,
+  addParticipant, removeParticipant,
+  addMessage, deleteMessage,
+  getUserByEmail, createUser, pool
+};
