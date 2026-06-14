@@ -10,6 +10,7 @@ const db                = require('./db');
 const { scrapeProduct } = require('./scraper');
 
 const app         = express();
+app.set('trust proxy', 1);
 const PORT        = process.env.PORT || 3000;
 const JWT_SECRET  = process.env.JWT_SECRET || 'changeme';
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
@@ -54,22 +55,32 @@ async function requireInvite(req, res, next) {
 }
 
 // ── Email ─────────────────────────────────────────────────────
+// FROM_EMAIL : par défaut "onboarding@resend.dev" qui fonctionne sans
+// vérification de domaine, mais Resend n'autorise alors l'envoi QUE vers
+// l'adresse email du compte Resend lui-même. Pour envoyer vers n'importe
+// quelle adresse (ex: ADMIN_EMAIL différent), il faut vérifier un domaine
+// sur https://resend.com/domains et définir FROM_EMAIL=notif@tondomaine.fr
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Wishlist <onboarding@resend.dev>';
+
 async function sendEmail(subject, html) {
   if (!RESEND_KEY || !ADMIN_EMAIL) return;
   try {
-    await fetch('https://api.resend.com/emails', {
+    const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Wishlist <notifications@wishlist-app.fr>',
+        from: FROM_EMAIL,
         to: ADMIN_EMAIL,
         subject,
         html,
       })
     });
+    if (!r.ok) {
+      const body = await r.text();
+      console.error('Resend error:', r.status, body);
+    }
   } catch(e) { console.error('Email error:', e.message); }
 }
-
 // ── Auth routes ───────────────────────────────────────────────
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, pseudo } = req.body;
