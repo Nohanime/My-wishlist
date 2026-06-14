@@ -7,1490 +7,885 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f5f2;--surface:#fff;--surface2:#f0ede9;--surface3:#e8e4de;
+  --ink:#1a1a1a;--ink2:#555;--ink3:#888;
+  --border:#e4e0db;--border2:#ccc9c3;
+  --focus:2px solid #1a1a1a;
+  --green:#2d6a4f;--green-bg:#edf5f0;--green-bd:#a8d5bc;
+  --red:#b83232;--red-bg:#fdf0ee;--red-bd:#e8b4ae;
+  --blue:#1d4ed8;--blue-bg:#eff4ff;--blue-bd:#93c5fd;
+  --gold:#92680a;--gold-bg:#fdf6e3;--gold-bd:#d4ad5a;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.14);
+  --overlay:rgba(0,0,0,.5);
+  --r:12px;--r-sm:8px;--r-lg:18px;
+  --t:.18s ease;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0f0f11;--surface:#18181b;--surface2:#232328;--surface3:#2e2e35;
+  --ink:#f2f2f2;--ink2:#a0a0aa;--ink3:#606068;
+  --border:#2a2a32;--border2:#38383f;
+  --focus:2px solid #a0a0ff;
+  --green:#4ade80;--green-bg:#0a2018;--green-bd:#1a4530;
+  --red:#f87171;--red-bg:#200a0a;--red-bd:#4d1818;
+  --blue:#93c5fd;--blue-bg:#0a1525;--blue-bd:#1e3a5f;
+  --gold:#fbbf24;--gold-bg:#201500;--gold-bd:#4d3800;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.5);
+  --overlay:rgba(0,0,0,.7);
+}}
 
-/* ── THEMES via prefers-color-scheme ─── */
-:root {
-  --bg: #f7f5f2;
-  --surface: #ffffff;
-  --surface2: #f0ede9;
-  --surface3: #e8e4de;
-  --ink: #1a1a1a;
-  --ink2: #555;
-  --ink3: #888;
-  --border: #e4e0db;
-  --border2: #ccc9c3;
-  --focus-ring: #1a1a1a;
-  --green: #2d6a4f; --green-bg: #edf5f0; --green-bd: #a8d5bc;
-  --red: #b83232;   --red-bg: #fdf0ee;   --red-bd: #e8b4ae;
-  --blue: #1d4ed8;  --blue-bg: #eff4ff;  --blue-bd: #93c5fd;
-  --gold: #92680a;  --gold-bg: #fdf6e3;  --gold-bd: #d4ad5a;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-  --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,.14);
-  --overlay: rgba(0,0,0,.5);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 18px;
-  --transition: .18s ease;
-}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:var(--focus);outline-offset:3px;border-radius:4px}
+:focus:not(:focus-visible){outline:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--ink);color:var(--surface);padding:8px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:600;z-index:9999;text-decoration:none;transition:top .2s}
+.skip-link:focus{top:8px}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f0f11;
-    --surface: #18181b;
-    --surface2: #232328;
-    --surface3: #2e2e35;
-    --ink: #f2f2f2;
-    --ink2: #a0a0aa;
-    --ink3: #606068;
-    --border: #2a2a32;
-    --border2: #38383f;
-    --focus-ring: #a0a0ff;
-    --green: #4ade80; --green-bg: #0a2018; --green-bd: #1a4530;
-    --red: #f87171;   --red-bg: #200a0a;   --red-bd: #4d1818;
-    --blue: #93c5fd;  --blue-bg: #0a1525;  --blue-bd: #1e3a5f;
-    --gold: #fbbf24;  --gold-bg: #201500;  --gold-bd: #4d3800;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
-    --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
-    --shadow-lg: 0 8px 40px rgba(0,0,0,.5);
-    --overlay: rgba(0,0,0,.7);
-  }
-}
+/* ── HEADER ─── */
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px}
+.logo{font-family:'Instrument Serif',serif;font-size:20px;flex-shrink:0;color:var(--ink);text-decoration:none}
+.logo em{font-style:italic;color:var(--ink3)}
+.hdr-nav{display:flex;gap:2px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-user{display:none;align-items:center;gap:8px;font-size:13px;color:var(--ink2)}
+.hdr-user.visible{display:flex}
+.hdr-pseudo{font-weight:600;color:var(--ink)}
+.badge-admin{font-size:10px;font-weight:700;background:var(--ink);color:var(--surface);padding:2px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
 
-/* ── BASE ────────────────────────────── */
-html { scroll-behavior: smooth; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
+/* notif bell */
+.notif-btn{position:relative;width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface2);color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background var(--t),color var(--t)}
+.notif-btn:hover{background:var(--surface3);color:var(--ink)}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:20px;display:flex;align-items:center;justify-content:center;padding:0 4px;display:none}
+.notif-badge.show{display:flex}
 
-/* Focus visible global — clavier uniquement */
-:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-:focus:not(:focus-visible) { outline: none; }
+/* ── TABS ─── */
+.tab-btn{padding:7px 15px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink2);background:transparent;transition:background var(--t),color var(--t);white-space:nowrap}
+.tab-btn:hover{background:var(--surface2);color:var(--ink)}
+.tab-btn[aria-selected="true"]{background:var(--ink);color:var(--surface);font-weight:600}
 
-/* Skip link pour accessibilité clavier */
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: 16px;
-  background: var(--ink);
-  color: var(--surface);
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 9999;
-  text-decoration: none;
-  transition: top .2s;
-}
-.skip-link:focus { top: 8px; }
+/* ── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;white-space:nowrap;transition:opacity var(--t),transform var(--t),background var(--t);text-decoration:none;user-select:none}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-full{width:100%}
+.btn-primary{background:var(--ink);color:var(--surface)}
+.btn-primary:hover:not(:disabled){opacity:.85}
+.btn-secondary{background:var(--surface2);color:var(--ink2);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--surface3);color:var(--ink)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.btn-danger:hover:not(:disabled){opacity:.85}
+.btn-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.btn-success:hover:not(:disabled){opacity:.85}
+.btn-sm{height:32px;padding:0 12px;font-size:13px;border-radius:7px}
+.btn-xs{height:26px;padding:0 9px;font-size:11px;border-radius:6px}
 
-/* ── HEADER ─────────────────────────── */
-.hdr {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  gap: 12px;
-}
-.logo {
-  font-family: 'Instrument Serif', serif;
-  font-size: 20px;
-  flex-shrink: 0;
-  color: var(--ink);
-  text-decoration: none;
-}
-.logo em { font-style: italic; color: var(--ink3); }
+/* ── FORM ─── */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label,.field-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.inp{width:100%;height:42px;padding:0 14px;border:1.5px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--surface2);outline:none;transition:border-color var(--t),background var(--t),box-shadow var(--t);appearance:none}
+.inp:focus{border-color:var(--ink);background:var(--surface);box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 10%,transparent)}
+.inp:hover:not(:focus){background:var(--surface)}
+.inp::placeholder{color:var(--ink3)}
+.inp[aria-invalid="true"]{border-color:var(--red)}
+textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-height:1.55}
 
-.hdr-nav { display: flex; gap: 2px; }
-.hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+/* ── ALERTS ─── */
+.alert{display:none;padding:10px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;margin-top:10px}
+.alert[role="alert"]{display:block}
+.alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.alert-info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
 
-.hdr-user {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--ink2);
-}
-.hdr-user.visible { display: flex; }
+/* ── MODALS ─── */
+.overlay{position:fixed;inset:0;background:var(--overlay);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay[aria-hidden="false"]{display:flex}
+.modal{background:var(--surface);border-radius:var(--r-lg);padding:28px 28px 24px;width:100%;max-width:480px;box-shadow:var(--shadow-lg);position:relative;max-height:90dvh;overflow-y:auto;border:1px solid var(--border);overscroll-behavior:contain}
+.modal-header{margin-bottom:18px;padding-right:32px}
+.modal-title{font-family:'Instrument Serif',serif;font-size:22px;line-height:1.2}
+.modal-sub{font-size:13px;color:var(--ink3);margin-top:3px}
+.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--surface2);border:none;cursor:pointer;font-size:16px;color:var(--ink2);display:flex;align-items:center;justify-content:center;transition:background var(--t)}
+.modal-close:hover{background:var(--surface3);color:var(--ink)}
+.modal form{display:flex;flex-direction:column;gap:12px}
+.modal-footer{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.modal-switch{font-size:13px;color:var(--ink3);text-align:center}
+.modal-switch a{color:var(--ink);text-decoration:underline;cursor:pointer;font-weight:500}
 
-.hdr-pseudo { font-weight: 600; color: var(--ink); }
-.badge-admin {
-  font-size: 10px;
-  font-weight: 700;
-  background: var(--ink);
-  color: var(--surface);
-  padding: 2px 8px;
-  border-radius: 20px;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-}
+/* ── LAYOUT ─── */
+.section{display:none}
+.section.active{display:block}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 100px}
 
-/* ── TABS ────────────────────────────── */
-.tab-btn {
-  padding: 7px 15px;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink2);
-  background: transparent;
-  transition: background var(--transition), color var(--transition);
-  white-space: nowrap;
-  position: relative;
-}
-.tab-btn:hover { background: var(--surface2); color: var(--ink); }
-.tab-btn[aria-selected="true"] {
-  background: var(--ink);
-  color: var(--surface);
-  font-weight: 600;
-}
+/* ── INVITE GATE ─── */
+#invite-gate{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px}
+.invite-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:40px 32px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow-lg)}
+.invite-box h1{font-family:'Instrument Serif',serif;font-size:28px;margin-bottom:8px}
+.invite-box p{font-size:14px;color:var(--ink2);margin-bottom:24px;line-height:1.6}
 
-/* ── BUTTONS ────────────────────────── */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: opacity var(--transition), transform var(--transition), background var(--transition);
-  text-decoration: none;
-  user-select: none;
-}
-.btn:active:not(:disabled) { transform: scale(.97); }
-.btn:disabled { opacity: .38; cursor: not-allowed; }
-.btn-full { width: 100%; }
+/* ── TOOLBAR ─── */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.toolbar-left{display:flex;align-items:center;gap:8px}
+.sort-select{height:34px;padding:0 10px;border:1.5px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface2);outline:none;cursor:pointer;transition:border-color var(--t)}
+.sort-select:focus{border-color:var(--ink)}
 
-.btn-primary { background: var(--ink); color: var(--surface); }
-.btn-primary:hover:not(:disabled) { opacity: .85; }
+/* ── ADD BOX ─── */
+.add-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:24px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.box-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:10px;display:block}
+.url-row{display:flex;gap:8px;align-items:flex-start}
+.url-row .inp{flex:1}
+.manual-form{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);grid-template-columns:1fr 1fr;gap:12px}
+.manual-form.open{display:grid}
+.manual-form .full{grid-column:1/-1}
 
-.btn-secondary {
-  background: var(--surface2);
-  color: var(--ink2);
-  border: 1px solid var(--border);
-}
-.btn-secondary:hover:not(:disabled) { background: var(--surface3); color: var(--ink); }
+/* ── STATS ─── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:center}
+.stat-n{font-family:'Instrument Serif',serif;font-size:28px;line-height:1;color:var(--ink);display:block}
+.stat-l{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
 
-.btn-danger {
-  background: var(--red-bg);
-  color: var(--red);
-  border: 1px solid var(--red-bd);
-}
-.btn-danger:hover:not(:disabled) { opacity: .85; }
+/* ── ADMIN INVITE BOX ─── */
+.invite-admin-box{background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.invite-url{font-size:12px;color:var(--blue);word-break:break-all;flex:1;font-family:monospace}
 
-.btn-success {
-  background: var(--green-bg);
-  color: var(--green);
-  border: 1px solid var(--green-bd);
-}
-.btn-success:hover:not(:disabled) { opacity: .85; }
+/* ── ITEM CARD ─── */
+.list{display:flex;flex-direction:column;gap:8px}
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow var(--t),border-color var(--t)}
+.item-card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
+.item-card.dragging{opacity:.5;border:2px dashed var(--border2)}
+.item-card.drag-over{border-color:var(--blue);background:var(--blue-bg)}
 
-.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 7px; }
-.btn-xs { height: 26px; padding: 0 9px; font-size: 11px; border-radius: 6px; }
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: var(--radius-sm);
-  font-size: 16px;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--ink2);
-}
-.btn-icon:hover { background: var(--surface2); color: var(--ink); }
+.item-main{display:flex;align-items:stretch;min-height:88px}
+.drag-handle{display:none;width:28px;align-items:center;justify-content:center;color:var(--ink3);cursor:grab;font-size:14px;flex-shrink:0;border-right:1px solid var(--border)}
+.drag-handle:active{cursor:grabbing}
+.admin-mode .drag-handle{display:flex}
 
-/* ── FORM ELEMENTS ──────────────────── */
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field-lbl, .field label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--ink3);
-}
+.item-img-wrap{width:88px;min-width:88px;background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:10px;border-right:1px solid var(--border);flex-shrink:0}
+.item-img{max-width:100%;max-height:68px;object-fit:contain;display:block;border-radius:4px}
+.item-img-ph{font-size:24px;opacity:.18}
 
-.inp {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px;
-  border: 1.5px solid var(--border2);
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  color: var(--ink);
-  background: var(--surface2);
-  outline: none;
-  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
-  appearance: none;
-  -webkit-appearance: none;
-}
-.inp:focus {
-  border-color: var(--focus-ring);
-  background: var(--surface);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 15%, transparent);
-}
-.inp:hover:not(:focus) { border-color: var(--border2); background: var(--surface); }
-.inp::placeholder { color: var(--ink3); }
-.inp[aria-invalid="true"] { border-color: var(--red); }
+.item-body{flex:1;padding:13px 14px;display:flex;align-items:flex-start;gap:10px;min-width:0}
+.item-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.item-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-price{font-family:'Instrument Serif',serif;font-size:17px;color:var(--ink)}
+.item-price.none{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink3);font-weight:400}
+.item-link{font-size:12px;color:var(--ink3);text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:color var(--t)}
+.item-link:hover{color:var(--ink)}
+.item-details{font-size:13px;color:var(--ink2);line-height:1.5;white-space:pre-wrap}
+.item-options{display:flex;flex-wrap:wrap;gap:5px}
+.opt-tag{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
 
-textarea.inp {
-  height: auto;
-  padding: 10px 14px;
-  resize: vertical;
-  min-height: 76px;
-  line-height: 1.55;
-}
+/* contribution progress */
+.contrib-bar-wrap{margin-top:2px}
+.contrib-info{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--ink3);margin-bottom:4px}
+.contrib-total{font-weight:700;color:var(--green);font-size:13px}
+.contrib-bar{height:5px;border-radius:3px;background:var(--surface3);overflow:hidden}
+.contrib-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s ease}
 
-/* ── ALERTS ─────────────────────────── */
-.alert {
-  display: none;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.4;
-  margin-top: 10px;
-}
-.alert[role="alert"] { display: block; }
-.alert-error   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
-.alert-success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
-.alert-info    { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-bd); }
+/* participants */
+.participants{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.part-empty{font-size:12px;color:var(--ink3);font-style:italic}
+.chip{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd);display:inline-flex;align-items:center;gap:4px}
+.chip-rm{cursor:pointer;opacity:.5;font-size:14px;line-height:1;background:none;border:none;color:inherit;padding:0;display:flex;align-items:center;border-radius:50%;transition:opacity var(--t)}
+.chip-rm:hover{opacity:1}
 
-/* ── MODALS ─────────────────────────── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay);
-  z-index: 300;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.overlay[aria-hidden="false"] { display: flex; }
+.item-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;flex-shrink:0;padding:13px 12px 13px 0}
+.item-side-top{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.item-side-bottom{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
 
-.modal {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 28px 28px 24px;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  max-height: 90dvh;
-  overflow-y: auto;
-  border: 1px solid var(--border);
-  overscroll-behavior: contain;
-}
-.modal-header { margin-bottom: 20px; padding-right: 32px; }
-.modal-title { font-family: 'Instrument Serif', serif; font-size: 22px; line-height: 1.2; }
-.modal-sub { font-size: 13px; color: var(--ink3); margin-top: 3px; }
+.join-row{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
+.join-inp{height:32px;padding:0 10px;border:1.5px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface2);outline:none;transition:border-color var(--t),background var(--t);width:108px}
+.join-inp:focus{border-color:var(--ink);background:var(--surface)}
+.join-inp::placeholder{color:var(--ink3)}
+.join-inp.shake{animation:shake .35s ease;border-color:var(--red)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.contrib-inp{width:80px !important}
 
-.modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--surface2);
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: var(--ink2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition), color var(--transition);
-}
-.modal-close:hover { background: var(--surface3); color: var(--ink); }
+.expand-btn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:6px;transition:color var(--t),background var(--t);white-space:nowrap}
+.expand-btn:hover{color:var(--ink);background:var(--surface2)}
+.expand-icon{transition:transform .2s;display:inline-block}
+.expand-btn[aria-expanded="true"] .expand-icon{transform:rotate(180deg)}
 
-.modal form { display: flex; flex-direction: column; gap: 12px; }
-.modal-footer {
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.modal-switch { font-size: 13px; color: var(--ink3); text-align: center; }
-.modal-switch a { color: var(--ink); text-decoration: underline; cursor: pointer; font-weight: 500; }
-.modal-switch a:hover { text-decoration: none; }
+/* ── EXTRA PANEL ─── */
+.item-extra{border-top:1px solid var(--border);background:var(--surface2)}
+.item-extra[hidden]{display:none}
+.msg-panel{padding:14px 16px}
+.msg-panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:12px}
+.msg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto}
+.msg-empty{font-size:13px;color:var(--ink3);text-align:center;padding:8px 0;font-style:italic}
+.msg-bubble{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;position:relative}
+.msg-author{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:2px}
+.msg-text{font-size:13px;color:var(--ink);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.msg-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.msg-time{font-size:10px;color:var(--ink3)}
+.msg-del{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:12px;padding:2px 6px;border-radius:5px;opacity:0;transition:opacity var(--t),color var(--t),background var(--t)}
+.msg-bubble:hover .msg-del,.msg-bubble:focus-within .msg-del{opacity:1}
+.msg-del:hover{color:var(--red);background:var(--red-bg)}
+.msg-compose{display:flex;gap:8px;flex-wrap:wrap}
+.msg-compose .inp{flex:1;min-width:140px;height:36px;font-size:13px}
+.msg-name-inp{width:100px !important;flex:none !important}
 
-/* ── LAYOUT ─────────────────────────── */
-.section { display: none; }
-.section.active { display: block; }
+/* ── TIP ─── */
+.tip{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.5}
+.tip-icon{flex-shrink:0;font-size:16px;margin-top:1px}
+.tip a{color:var(--ink);font-weight:600;text-decoration:underline;cursor:pointer}
+.tip a:hover{text-decoration:none}
 
-.wrap {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 24px 16px 100px;
-}
+/* ── NOTIF PANEL ─── */
+.notif-panel{position:absolute;top:52px;right:16px;width:340px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:400;display:none;overflow:hidden}
+.notif-panel.open{display:block}
+.notif-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.notif-header-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3)}
+.notif-list{max-height:320px;overflow-y:auto}
+.notif-item{padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink2);line-height:1.4;display:flex;gap:10px;align-items:flex-start}
+.notif-item.unread{background:var(--blue-bg);color:var(--ink)}
+.notif-item:last-child{border-bottom:none}
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px}
+.notif-time{font-size:11px;color:var(--ink3);margin-top:2px}
+.notif-empty{padding:24px;text-align:center;color:var(--ink3);font-size:13px}
 
-/* ── ADD BOX ────────────────────────── */
-.add-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow-sm);
-}
-.box-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--ink3);
-  margin-bottom: 10px;
-  display: block;
-}
-.url-row { display: flex; gap: 8px; align-items: flex-start; }
-.url-row .inp { flex: 1; }
+/* ── EMPTY ─── */
+.empty{text-align:center;padding:64px 24px;color:var(--ink3)}
+.empty-icon{font-size:40px;display:block;margin-bottom:14px;opacity:.3}
 
-.manual-form {
-  display: none;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--border);
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.manual-form.open { display: grid; }
-.manual-form .full { grid-column: 1/-1; }
+/* ── MOBILE NAV ─── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;padding-bottom:max(8px,env(safe-area-inset-bottom));z-index:150;gap:8px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:currentColor;border-radius:50%;animation:rot .6s linear infinite;flex-shrink:0}
+@keyframes rot{to{transform:rotate(360deg)}}
 
-/* ── STATS ──────────────────────────── */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+@media(max-width:640px){
+  .hdr{padding:0 14px;height:52px}
+  .hdr-nav{display:none}
+  .hdr-pseudo{display:none}
+  .mobile-nav{display:flex;align-items:center;justify-content:space-around}
+  .mobile-nav .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:auto;padding:6px 4px;font-size:11px;border-radius:var(--r-sm)}
+  .mobile-nav .tab-btn .nav-icon{font-size:18px;line-height:1}
+  .mobile-nav .tab-btn[aria-selected="true"]{background:var(--surface2);color:var(--ink)}
+  .wrap{padding:16px 12px 90px}
+  .item-img-wrap{width:68px;min-width:68px;padding:8px}
+  .item-img{max-height:52px}
+  .item-body{padding:10px}
+  .item-side{padding:10px 10px 10px 0}
+  .join-inp{width:88px}
+  .manual-form{grid-template-columns:1fr}
+  .manual-form .full{grid-column:1}
+  .stats{grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{padding:10px}
+  .stat-n{font-size:22px}
+  .msg-compose{flex-direction:column;gap:6px}
+  .msg-name-inp,.msg-compose .inp{width:100% !important;min-width:0 !important}
+  .url-row{flex-wrap:wrap}
+  .modal{padding:22px 18px 20px;border-radius:var(--r) var(--r) 0 0;max-height:92dvh;margin-top:auto}
+  .overlay[aria-hidden="false"]{align-items:flex-end;padding:0}
+  .notif-panel{right:8px;top:48px}
+  .contrib-inp{width:70px !important}
+  .join-row{gap:4px}
+  .invite-admin-box{flex-direction:column;align-items:flex-start}
 }
-.stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  text-align: center;
-}
-.stat-n {
-  font-family: 'Instrument Serif', serif;
-  font-size: 28px;
-  line-height: 1;
-  color: var(--ink);
-  display: block;
-}
-.stat-l {
-  font-size: 11px;
-  color: var(--ink3);
-  margin-top: 3px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: .4px;
-}
-
-/* ── ITEM CARD ──────────────────────── */
-.list { display: flex; flex-direction: column; gap: 8px; }
-
-.item-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: box-shadow var(--transition), border-color var(--transition);
-}
-.item-card:hover { box-shadow: var(--shadow); border-color: var(--border2); }
-.item-card:focus-within { box-shadow: var(--shadow); }
-
-.item-main { display: flex; align-items: stretch; min-height: 88px; }
-
-.item-img-wrap {
-  width: 88px;
-  min-width: 88px;
-  background: var(--surface2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  border-right: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.item-img {
-  max-width: 100%;
-  max-height: 68px;
-  object-fit: contain;
-  display: block;
-  border-radius: 4px;
-}
-.item-img-ph { font-size: 24px; opacity: .18; }
-
-.item-body {
-  flex: 1;
-  padding: 13px 14px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  min-width: 0;
-}
-.item-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-
-.item-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.35;
-  /* 2 lines max */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.item-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.item-price {
-  font-family: 'Instrument Serif', serif;
-  font-size: 17px;
-  color: var(--ink);
-}
-.item-price.none {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  color: var(--ink3);
-  font-weight: 400;
-}
-.item-link {
-  font-size: 12px;
-  color: var(--ink3);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  transition: color var(--transition);
-}
-.item-link:hover { color: var(--ink); }
-
-.item-details {
-  font-size: 13px;
-  color: var(--ink2);
-  line-height: 1.5;
-  white-space: pre-wrap;
-}
-
-.item-options { display: flex; flex-wrap: wrap; gap: 5px; }
-.opt-tag {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 9px;
-  border-radius: 20px;
-  background: var(--blue-bg);
-  color: var(--blue);
-  border: 1px solid var(--blue-bd);
-}
-
-/* participants chips */
-.participants { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
-.part-empty { font-size: 12px; color: var(--ink3); font-style: italic; }
-.chip {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 20px;
-  background: var(--gold-bg);
-  color: var(--gold);
-  border: 1px solid var(--gold-bd);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.chip-rm {
-  cursor: pointer;
-  opacity: .5;
-  font-size: 14px;
-  line-height: 1;
-  background: none;
-  border: none;
-  color: inherit;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  border-radius: 50%;
-  transition: opacity var(--transition);
-}
-.chip-rm:hover { opacity: 1; }
-
-/* item side actions */
-.item-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
-  flex-shrink: 0;
-  padding: 13px 12px 13px 0;
-}
-.item-side-top { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
-.item-side-bottom { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
-
-/* join area */
-.join-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-.join-inp {
-  height: 32px;
-  padding: 0 10px;
-  border: 1.5px solid var(--border2);
-  border-radius: 7px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  color: var(--ink);
-  background: var(--surface2);
-  outline: none;
-  transition: border-color var(--transition), background var(--transition);
-  width: 108px;
-}
-.join-inp:focus {
-  border-color: var(--focus-ring);
-  background: var(--surface);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 15%, transparent);
-}
-.join-inp::placeholder { color: var(--ink3); }
-.join-inp.shake { animation: shake .35s ease; border-color: var(--red); }
-@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-
-/* expand toggle */
-.expand-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--ink3);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: color var(--transition), background var(--transition);
-  white-space: nowrap;
-}
-.expand-btn:hover { color: var(--ink); background: var(--surface2); }
-.expand-icon { font-style: normal; transition: transform .2s; display: inline-block; }
-.expand-btn[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
-
-/* ── EXPANDABLE PANEL ───────────────── */
-.item-extra {
-  border-top: 1px solid var(--border);
-  background: var(--surface2);
-}
-.item-extra[hidden] { display: none; }
-
-.msg-panel { padding: 14px 16px; }
-.msg-panel-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--ink3);
-  margin-bottom: 12px;
-}
-.msg-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.msg-empty { font-size: 13px; color: var(--ink3); text-align: center; padding: 8px 0; font-style: italic; }
-
-.msg-bubble {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 12px;
-  position: relative;
-}
-.msg-bubble:focus-within { border-color: var(--border2); }
-.msg-author { font-size: 11px; font-weight: 700; color: var(--gold); margin-bottom: 2px; }
-.msg-text { font-size: 13px; color: var(--ink); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
-.msg-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-.msg-time { font-size: 10px; color: var(--ink3); }
-.msg-del {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--ink3);
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 5px;
-  opacity: 0;
-  transition: opacity var(--transition), color var(--transition), background var(--transition);
-}
-.msg-bubble:hover .msg-del,
-.msg-bubble:focus-within .msg-del { opacity: 1; }
-.msg-del:hover { color: var(--red); background: var(--red-bg); }
-
-.msg-compose {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.msg-compose .inp { flex: 1; min-width: 140px; height: 36px; font-size: 13px; }
-.msg-name-inp { width: 100px !important; flex: none !important; }
-
-/* ── TIP BAR ────────────────────────── */
-.tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-  font-size: 13px;
-  color: var(--ink2);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-.tip-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
-.tip a { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
-.tip a:hover { text-decoration: none; }
-
-/* ── EMPTY STATE ────────────────────── */
-.empty {
-  text-align: center;
-  padding: 64px 24px;
-  color: var(--ink3);
-}
-.empty-icon { font-size: 40px; display: block; margin-bottom: 14px; opacity: .3; }
-.empty p { font-size: 15px; }
-
-/* ── MOBILE NAV BAR ─────────────────── */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 8px 16px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  z-index: 150;
-  gap: 8px;
-}
-
-/* ── SPINNER ────────────────────────── */
-.spin {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255,255,255,.3);
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: rot .6s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes rot { to { transform: rotate(360deg); } }
-
-/* ── RESPONSIVE ─────────────────────── */
-@media (max-width: 640px) {
-  .hdr { padding: 0 14px; height: 52px; }
-  .hdr-nav { display: none; }
-  .hdr-pseudo { display: none; }
-
-  .mobile-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-  }
-  .mobile-nav .tab-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    height: auto;
-    padding: 6px 4px;
-    font-size: 11px;
-    border-radius: var(--radius-sm);
-  }
-  .mobile-nav .tab-btn .nav-icon { font-size: 18px; line-height: 1; }
-  .mobile-nav .tab-btn[aria-selected="true"] {
-    background: var(--surface2);
-    color: var(--ink);
-  }
-
-  .wrap { padding: 16px 12px 90px; }
-
-  .item-img-wrap { width: 68px; min-width: 68px; padding: 8px; }
-  .item-img { max-height: 52px; }
-  .item-body { padding: 10px 10px 10px 12px; gap: 8px; }
-  .item-side { padding: 10px 10px 10px 0; }
-
-  .join-inp { width: 88px; }
-
-  .manual-form { grid-template-columns: 1fr; }
-  .manual-form .full { grid-column: 1; }
-
-  .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stat { padding: 10px; }
-  .stat-n { font-size: 22px; }
-
-  .msg-compose { flex-direction: column; gap: 6px; }
-  .msg-name-inp,
-  .msg-compose .inp { width: 100% !important; min-width: 0 !important; }
-
-  .url-row { flex-wrap: wrap; }
-  .url-row .inp { min-width: 0; }
-
-  .modal { padding: 22px 18px 20px; border-radius: var(--radius) var(--radius) 0 0; max-height: 92dvh; margin-top: auto; }
-  .overlay[aria-hidden="false"] { align-items: flex-end; padding: 0; }
-}
-
-@media (min-width: 641px) {
-  .mobile-nav { display: none !important; }
-}
-
-/* ── PRINT ───────────────────────────── */
-@media print {
-  .hdr, .add-box, .item-side, .tip, .item-extra { display: none !important; }
-  .item-card { break-inside: avoid; border: 1px solid #ccc; margin-bottom: 8px; }
-}
+@media(min-width:641px){.mobile-nav{display:none !important}}
 </style>
 </head>
 <body>
-
 <a href="#main-content" class="skip-link">Aller au contenu</a>
 
-<!-- ═══ HEADER ════════════════════════ -->
+<!-- INVITE GATE -->
+<div id="invite-gate" role="dialog" aria-labelledby="gate-title" aria-modal="true">
+  <div class="invite-box">
+    <div style="font-size:40px;margin-bottom:12px">🎁</div>
+    <h1 id="gate-title">Liste privée</h1>
+    <p>Tu as besoin d'un lien d'invitation pour accéder à cette liste.</p>
+    <div class="alert" id="gate-alert" role="alert"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
 <header class="hdr" role="banner">
-  <a href="/" class="logo" aria-label="Wishlist — retour à l'accueil">wishlist<em>.</em></a>
-
-  <nav class="hdr-nav" aria-label="Navigation principale" role="tablist">
-    <button class="tab-btn" id="tab-list-btn" role="tab" aria-selected="true"
-            aria-controls="tab-list" onclick="switchTab('list',this)">
-      Liste
-    </button>
-    <button class="tab-btn" id="tab-admin-btn" role="tab" aria-selected="false"
-            aria-controls="tab-admin" onclick="switchTab('admin',this)"
-            style="display:none" hidden>
-      Gérer
-    </button>
+  <a href="/" class="logo" aria-label="Wishlist">wishlist<em>.</em></a>
+  <nav class="hdr-nav" aria-label="Navigation" role="tablist">
+    <button class="tab-btn" id="tab-list-btn" role="tab" aria-selected="true" aria-controls="tab-list" onclick="switchTab('list',this)">Liste</button>
+    <button class="tab-btn" id="tab-admin-btn" role="tab" aria-selected="false" aria-controls="tab-admin" onclick="switchTab('admin',this)" hidden>Gérer</button>
   </nav>
-
   <div class="hdr-right">
     <div id="hdr-user" class="hdr-user" aria-live="polite">
-      <span class="hdr-pseudo" id="hdr-pseudo" aria-label="Connecté en tant que"></span>
-      <span id="hdr-badge" class="badge-admin" aria-label="Administrateur" style="display:none" hidden>admin</span>
+      <span class="hdr-pseudo" id="hdr-pseudo"></span>
+      <span id="hdr-badge" class="badge-admin" hidden>admin</span>
       <button class="btn btn-secondary btn-sm" onclick="logout()">Déconnexion</button>
     </div>
-    <button id="btn-open-login" class="btn btn-secondary btn-sm"
-            onclick="openModal('login')" aria-haspopup="dialog">
-      Connexion
-    </button>
+    <button id="btn-open-login" class="btn btn-secondary btn-sm" onclick="openModal('login')" aria-haspopup="dialog">Connexion</button>
+    <div style="position:relative" id="notif-wrap" hidden>
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel()" aria-label="Notifications" aria-expanded="false" aria-haspopup="true">
+        🔔<span class="notif-badge" id="notif-badge" aria-live="polite"></span>
+      </button>
+      <div class="notif-panel" id="notif-panel" role="region" aria-label="Notifications">
+        <div class="notif-header">
+          <span class="notif-header-title">Notifications</span>
+          <button class="btn btn-secondary btn-xs" onclick="markAllRead()">Tout marquer lu</button>
+        </div>
+        <div class="notif-list" id="notif-list"></div>
+      </div>
+    </div>
   </div>
 </header>
 
-<!-- ═══ MAIN ══════════════════════════ -->
 <main id="main-content">
 
-  <!-- ── Vue liste ──────────────────── -->
-  <section class="section active" id="tab-list"
-           role="tabpanel" aria-labelledby="tab-list-btn" tabindex="-1">
-    <div class="wrap">
-      <div class="tip" id="guest-tip" role="note">
-        <span class="tip-icon" aria-hidden="true">👋</span>
-        <span>Entre ton prénom pour participer à un cadeau — ou
-          <a onclick="openModal('login')" role="button" tabindex="0"
-             onkeydown="if(event.key==='Enter')openModal('login')">connecte-toi</a>
-          pour mémoriser ton pseudo.</span>
-      </div>
-      <div class="list" id="list-items" aria-live="polite" aria-label="Liste de souhaits"></div>
-      <div class="empty" id="list-empty" style="display:none">
-        <span class="empty-icon" aria-hidden="true">✦</span>
-        <p>La liste est vide pour l'instant.</p>
+<!-- LIST TAB -->
+<section class="section active" id="tab-list" role="tabpanel" aria-labelledby="tab-list-btn" tabindex="-1">
+  <div class="wrap">
+    <div class="tip" id="guest-tip" role="note">
+      <span class="tip-icon" aria-hidden="true">👋</span>
+      <span>Entre ton prénom pour participer — ou <a onclick="openModal('login')" tabindex="0" role="button">connecte-toi</a> pour mémoriser ton pseudo.</span>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label for="sort-select" class="sr-only">Trier par</label>
+        <select class="sort-select" id="sort-select" onchange="changeSort(this.value)" aria-label="Trier les articles">
+          <option value="position">Tri personnalisé</option>
+          <option value="price_asc">Prix croissant</option>
+          <option value="price_desc">Prix décroissant</option>
+        </select>
       </div>
     </div>
-  </section>
+    <div class="list" id="list-items" aria-live="polite" aria-label="Liste de souhaits"></div>
+    <div class="empty" id="list-empty" style="display:none"><span class="empty-icon" aria-hidden="true">✦</span><p>La liste est vide pour l'instant.</p></div>
+  </div>
+</section>
 
-  <!-- ── Vue admin ──────────────────── -->
-  <section class="section" id="tab-admin"
-           role="tabpanel" aria-labelledby="tab-admin-btn" tabindex="-1">
-    <div class="wrap">
+<!-- ADMIN TAB -->
+<section class="section" id="tab-admin" role="tabpanel" aria-labelledby="tab-admin-btn" tabindex="-1">
+  <div class="wrap">
 
-      <div class="add-box" role="region" aria-label="Ajouter un article">
-        <span class="box-label" id="add-label">Ajouter un article</span>
-        <div class="url-row" role="group" aria-labelledby="add-label">
-          <label for="url-inp" class="sr-only">URL du produit</label>
-          <input class="inp" id="url-inp" type="url"
-                 placeholder="Colle un lien (Amazon, Fnac, Cdiscount…)"
-                 aria-describedby="fetch-alert"
-                 onkeydown="if(event.key==='Enter')fetchItem()" />
-          <button class="btn btn-primary" id="fetch-btn" onclick="fetchItem()"
-                  aria-describedby="fetch-alert">
-            <span id="fetch-icon" aria-hidden="true">↓</span>
-            <span id="fetch-txt">Récupérer</span>
-          </button>
-          <button class="btn btn-secondary btn-icon" onclick="toggleManual()"
-                  aria-expanded="false" aria-controls="manual-form"
-                  id="manual-toggle-btn" title="Ajouter manuellement"
-                  aria-label="Ajouter manuellement">✏️</button>
-        </div>
-        <div id="fetch-alert" class="alert" role="alert" aria-live="assertive"></div>
-
-        <div class="manual-form" id="manual-form" aria-hidden="true">
-          <div class="field full">
-            <label for="m-title">Titre *</label>
-            <input class="inp" id="m-title" type="text" required
-                   placeholder="Nom du produit" aria-required="true" />
-          </div>
-          <div class="field">
-            <label for="m-price">Prix (€)</label>
-            <input class="inp" id="m-price" type="text"
-                   placeholder="49.99" inputmode="decimal" />
-          </div>
-          <div class="field">
-            <label for="m-img">URL image</label>
-            <input class="inp" id="m-img" type="url" placeholder="https://…" />
-          </div>
-          <div class="field full">
-            <label for="m-url">Lien produit</label>
-            <input class="inp" id="m-url" type="url" placeholder="https://…" />
-          </div>
-          <div class="field full">
-            <label for="m-details">Détails</label>
-            <textarea class="inp" id="m-details"
-                      placeholder="Couleur souhaitée, modèle précis…"></textarea>
-          </div>
-          <div class="field full">
-            <label for="m-options">Options <small style="font-weight:400;text-transform:none">(séparées par virgules)</small></label>
-            <input class="inp" id="m-options" type="text"
-                   placeholder="Taille L, Couleur noire, 256 GB…" />
-          </div>
-          <div class="full">
-            <button class="btn btn-primary" onclick="addManual()">Ajouter manuellement</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="stats" id="stats" style="display:none" role="region" aria-label="Statistiques">
-        <div class="stat">
-          <span class="stat-n" id="s-total" aria-label="Nombre d'articles">0</span>
-          <span class="stat-l">articles</span>
-        </div>
-        <div class="stat">
-          <span class="stat-n" id="s-parts" aria-label="Nombre de participations">0</span>
-          <span class="stat-l">participations</span>
-        </div>
-        <div class="stat">
-          <span class="stat-n" id="s-msgs" aria-label="Nombre de messages">0</span>
-          <span class="stat-l">messages</span>
-        </div>
-      </div>
-
-      <div class="list" id="admin-items" aria-live="polite" aria-label="Articles à gérer"></div>
-      <div class="empty" id="admin-empty" style="display:none">
-        <span class="empty-icon" aria-hidden="true">✦</span>
-        <p>Ajoute ton premier article ci-dessus.</p>
+    <!-- Invite link -->
+    <div class="invite-admin-box" id="invite-admin-box" role="region" aria-label="Lien d'invitation">
+      <span style="font-size:13px;font-weight:600;color:var(--blue);flex-shrink:0">🔗 Lien d'invitation</span>
+      <span class="invite-url" id="invite-url">Chargement…</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-secondary btn-xs" onclick="copyInviteLink()" aria-label="Copier le lien">Copier</button>
+        <button class="btn btn-danger btn-xs" onclick="regenerateInvite()" aria-label="Générer un nouveau lien">Nouveau lien</button>
       </div>
     </div>
-  </section>
+
+    <!-- Add form -->
+    <div class="add-box" role="region" aria-label="Ajouter un article">
+      <span class="box-label">Ajouter un article</span>
+      <div class="url-row">
+        <input class="inp" id="url-inp" type="url" placeholder="Colle un lien (Amazon, Fnac, Cdiscount…)" onkeydown="if(event.key==='Enter')fetchItem()" aria-describedby="fetch-alert" />
+        <button class="btn btn-primary" id="fetch-btn" onclick="fetchItem()">
+          <span id="fetch-icon" aria-hidden="true">↓</span><span id="fetch-txt">Récupérer</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" style="height:40px;padding:0 10px" onclick="toggleManual()" aria-expanded="false" aria-controls="manual-form" id="manual-toggle-btn" aria-label="Ajouter manuellement">✏️</button>
+      </div>
+      <div id="fetch-alert" class="alert" role="alert"></div>
+      <div class="manual-form" id="manual-form" aria-hidden="true">
+        <div class="field full"><label for="m-title">Titre *</label><input class="inp" id="m-title" type="text" required /></div>
+        <div class="field"><label for="m-price">Prix (€)</label><input class="inp" id="m-price" type="text" placeholder="49.99" inputmode="decimal" /></div>
+        <div class="field"><label for="m-img">URL image</label><input class="inp" id="m-img" type="url" placeholder="https://…" /></div>
+        <div class="field full"><label for="m-url">Lien produit</label><input class="inp" id="m-url" type="url" placeholder="https://…" /></div>
+        <div class="field full"><label for="m-details">Détails</label><textarea class="inp" id="m-details" placeholder="Couleur souhaitée, modèle précis…"></textarea></div>
+        <div class="field full"><label for="m-options">Options <small style="font-weight:400;text-transform:none">(séparées par virgules)</small></label><input class="inp" id="m-options" type="text" placeholder="Taille L, Couleur noire…" /></div>
+        <div class="full"><button class="btn btn-primary" onclick="addManual()">Ajouter manuellement</button></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats" id="stats" style="display:none">
+      <div class="stat"><span class="stat-n" id="s-total">0</span><span class="stat-l">articles</span></div>
+      <div class="stat"><span class="stat-n" id="s-parts">0</span><span class="stat-l">participations</span></div>
+      <div class="stat"><span class="stat-n" id="s-msgs">0</span><span class="stat-l">messages</span></div>
+    </div>
+
+    <!-- Sort toolbar in admin -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select class="sort-select" id="admin-sort-select" onchange="changeSort(this.value)" aria-label="Trier les articles">
+          <option value="position">Tri personnalisé (drag)</option>
+          <option value="price_asc">Prix croissant</option>
+          <option value="price_desc">Prix décroissant</option>
+        </select>
+        <span style="font-size:12px;color:var(--ink3)">← glisse pour réordonner</span>
+      </div>
+    </div>
+
+    <div class="list admin-mode" id="admin-items" aria-live="polite" aria-label="Articles à gérer"></div>
+    <div class="empty" id="admin-empty" style="display:none"><span class="empty-icon" aria-hidden="true">✦</span><p>Ajoute ton premier article.</p></div>
+  </div>
+</section>
 
 </main>
 
-<!-- ═══ MOBILE NAV ════════════════════ -->
+<!-- MOBILE NAV -->
 <nav class="mobile-nav" aria-label="Navigation mobile" role="tablist">
-  <button class="tab-btn" id="mob-list-btn" role="tab" aria-selected="true"
-          aria-controls="tab-list" onclick="switchTab('list',this,true)">
-    <span class="nav-icon" aria-hidden="true">🎁</span>
-    Liste
+  <button class="tab-btn" id="mob-list-btn" role="tab" aria-selected="true" aria-controls="tab-list" onclick="switchTab('list',this,true)">
+    <span class="nav-icon" aria-hidden="true">🎁</span>Liste
   </button>
-  <button class="tab-btn" id="mob-admin-btn" role="tab" aria-selected="false"
-          aria-controls="tab-admin" onclick="switchTab('admin',this,true)"
-          style="display:none" hidden>
-    <span class="nav-icon" aria-hidden="true">⚙️</span>
-    Gérer
+  <button class="tab-btn" id="mob-admin-btn" role="tab" aria-selected="false" aria-controls="tab-admin" onclick="switchTab('admin',this,true)" hidden>
+    <span class="nav-icon" aria-hidden="true">⚙️</span>Gérer
   </button>
 </nav>
 
-<!-- ═══ MODAL LOGIN ═══════════════════ -->
-<div class="overlay" id="modal-login" role="dialog"
-     aria-modal="true" aria-labelledby="login-title" aria-hidden="true">
+<!-- MODAL LOGIN -->
+<div class="overlay" id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-title" aria-hidden="true">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('login')"
-            aria-label="Fermer la fenêtre de connexion">✕</button>
-    <div class="modal-header">
-      <h2 class="modal-title" id="login-title">Connexion</h2>
-      <p class="modal-sub">Connecte-toi pour mémoriser ton pseudo.</p>
-    </div>
-    <form onsubmit="doLogin();return false;" novalidate>
-      <div class="field">
-        <label for="l-email">Adresse email</label>
-        <input class="inp" id="l-email" type="email"
-               autocomplete="email" placeholder="ton@email.com"
-               required aria-required="true" />
-      </div>
-      <div class="field">
-        <label for="l-pwd">Mot de passe</label>
-        <input class="inp" id="l-pwd" type="password"
-               autocomplete="current-password" placeholder="••••••••"
-               required aria-required="true" />
-      </div>
+    <button class="modal-close" onclick="closeModal('login')" aria-label="Fermer">✕</button>
+    <div class="modal-header"><h2 class="modal-title" id="login-title">Connexion</h2><p class="modal-sub">Connecte-toi pour mémoriser ton pseudo.</p></div>
+    <form onsubmit="doLogin();return false" novalidate>
+      <div class="field"><label for="l-email">Email</label><input class="inp" id="l-email" type="email" autocomplete="email" placeholder="ton@email.com" required /></div>
+      <div class="field"><label for="l-pwd">Mot de passe</label><input class="inp" id="l-pwd" type="password" autocomplete="current-password" placeholder="••••••••" required /></div>
       <div id="l-alert" class="alert" role="alert"></div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
-        <p class="modal-switch">
-          Pas de compte ?
-          <a onclick="openModal('register');closeModal('login')"
-             role="button" tabindex="0"
-             onkeydown="if(event.key==='Enter'){openModal('register');closeModal('login')}">
-            Créer un compte
-          </a>
-        </p>
+        <p class="modal-switch">Pas de compte ? <a onclick="openModal('register');closeModal('login')">Créer un compte</a></p>
       </div>
     </form>
   </div>
 </div>
 
-<!-- ═══ MODAL REGISTER ════════════════ -->
-<div class="overlay" id="modal-register" role="dialog"
-     aria-modal="true" aria-labelledby="reg-title" aria-hidden="true">
+<!-- MODAL REGISTER -->
+<div class="overlay" id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-title" aria-hidden="true">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('register')"
-            aria-label="Fermer la fenêtre d'inscription">✕</button>
-    <div class="modal-header">
-      <h2 class="modal-title" id="reg-title">Créer un compte</h2>
-      <p class="modal-sub">Pour ne plus retaper ton prénom à chaque fois.</p>
-    </div>
-    <form onsubmit="doRegister();return false;" novalidate>
-      <div class="field">
-        <label for="r-pseudo">Pseudo <small style="font-weight:400">(affiché sur les cadeaux)</small></label>
-        <input class="inp" id="r-pseudo" type="text"
-               autocomplete="nickname" placeholder="Mathieu"
-               required aria-required="true" />
-      </div>
-      <div class="field">
-        <label for="r-email">Adresse email</label>
-        <input class="inp" id="r-email" type="email"
-               autocomplete="email" placeholder="ton@email.com"
-               required aria-required="true" />
-      </div>
-      <div class="field">
-        <label for="r-pwd">Mot de passe <small style="font-weight:400">(6 caractères min.)</small></label>
-        <input class="inp" id="r-pwd" type="password"
-               autocomplete="new-password" placeholder="••••••••"
-               required aria-required="true" minlength="6" />
-      </div>
+    <button class="modal-close" onclick="closeModal('register')" aria-label="Fermer">✕</button>
+    <div class="modal-header"><h2 class="modal-title" id="reg-title">Créer un compte</h2><p class="modal-sub">Pour ne plus retaper ton prénom à chaque fois.</p></div>
+    <form onsubmit="doRegister();return false" novalidate>
+      <div class="field"><label for="r-pseudo">Pseudo</label><input class="inp" id="r-pseudo" type="text" autocomplete="nickname" placeholder="Mathieu" required /></div>
+      <div class="field"><label for="r-email">Email</label><input class="inp" id="r-email" type="email" autocomplete="email" placeholder="ton@email.com" required /></div>
+      <div class="field"><label for="r-pwd">Mot de passe <small style="font-weight:400">(6 min.)</small></label><input class="inp" id="r-pwd" type="password" autocomplete="new-password" placeholder="••••••••" required minlength="6" /></div>
       <div id="r-alert" class="alert" role="alert"></div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
-        <p class="modal-switch">
-          Déjà un compte ?
-          <a onclick="openModal('login');closeModal('register')"
-             role="button" tabindex="0"
-             onkeydown="if(event.key==='Enter'){openModal('login');closeModal('register')}">
-            Se connecter
-          </a>
-        </p>
+        <p class="modal-switch">Déjà un compte ? <a onclick="openModal('login');closeModal('register')">Se connecter</a></p>
       </div>
     </form>
   </div>
 </div>
 
-<!-- ═══ MODAL EDIT ════════════════════ -->
-<div class="overlay" id="modal-edit" role="dialog"
-     aria-modal="true" aria-labelledby="edit-title" aria-hidden="true">
+<!-- MODAL EDIT -->
+<div class="overlay" id="modal-edit" role="dialog" aria-modal="true" aria-labelledby="edit-title" aria-hidden="true">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('edit')"
-            aria-label="Fermer la fenêtre de modification">✕</button>
-    <div class="modal-header">
-      <h2 class="modal-title" id="edit-title">Modifier l'article</h2>
-    </div>
+    <button class="modal-close" onclick="closeModal('edit')" aria-label="Fermer">✕</button>
+    <div class="modal-header"><h2 class="modal-title" id="edit-title">Modifier l'article</h2></div>
     <input type="hidden" id="edit-id" />
-    <form onsubmit="saveEdit();return false;" novalidate>
-      <div class="field">
-        <label for="edit-title-inp">Titre *</label>
-        <input class="inp" id="edit-title-inp" type="text" required aria-required="true" />
-      </div>
-      <div class="field">
-        <label for="edit-price">Prix (€)</label>
-        <input class="inp" id="edit-price" type="text" placeholder="49.99" inputmode="decimal" />
-      </div>
-      <div class="field">
-        <label for="edit-image">URL image</label>
-        <input class="inp" id="edit-image" type="url" placeholder="https://…" />
-      </div>
-      <div class="field">
-        <label for="edit-url">Lien produit</label>
-        <input class="inp" id="edit-url" type="url" placeholder="https://…" />
-      </div>
-      <div class="field">
-        <label for="edit-details">Détails / description</label>
-        <textarea class="inp" id="edit-details"
-                  placeholder="Couleur souhaitée, taille, modèle précis…"></textarea>
-      </div>
-      <div class="field">
-        <label for="edit-options">Options <small style="font-weight:400;text-transform:none">(séparées par virgules)</small></label>
-        <input class="inp" id="edit-options" type="text"
-               placeholder="Taille L, Couleur noire, 256 GB…" />
-      </div>
+    <form onsubmit="saveEdit();return false" novalidate>
+      <div class="field"><label for="edit-title-inp">Titre *</label><input class="inp" id="edit-title-inp" type="text" required /></div>
+      <div class="field"><label for="edit-price">Prix (€)</label><input class="inp" id="edit-price" type="text" placeholder="49.99" inputmode="decimal" /></div>
+      <div class="field"><label for="edit-image">URL image</label><input class="inp" id="edit-image" type="url" placeholder="https://…" /></div>
+      <div class="field"><label for="edit-url">Lien produit</label><input class="inp" id="edit-url" type="url" placeholder="https://…" /></div>
+      <div class="field"><label for="edit-details">Détails</label><textarea class="inp" id="edit-details" placeholder="Couleur souhaitée…"></textarea></div>
+      <div class="field"><label for="edit-options">Options <small style="font-weight:400;text-transform:none">(virgules)</small></label><input class="inp" id="edit-options" type="text" placeholder="Taille L, Noir…" /></div>
       <div id="edit-alert" class="alert" role="alert"></div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary btn-full">Enregistrer les modifications</button>
-      </div>
+      <div class="modal-footer"><button type="submit" class="btn btn-primary btn-full">Enregistrer</button></div>
     </form>
   </div>
 </div>
-
-<!-- Screen-reader only utility -->
-<style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>
 
 <script>
 'use strict';
-let me    = null;
-let items = [];
-let expanded = new Set();
+let me = null, items = [], currentSort = 'position', inviteToken = null;
+let dragSrcId = null;
 
-// ── Init ──────────────────────────────
+// ── Init ──────────────────────────────────────────────────────
 (async () => {
+  await checkInvite();
+})();
+
+async function checkInvite() {
+  const gate = $('invite-gate');
+  // Check URL param
+  const urlParam = new URLSearchParams(location.search).get('invite');
+  if (urlParam) {
+    localStorage.setItem('invite_token', urlParam);
+    // Clean URL
+    history.replaceState({}, '', location.pathname);
+  }
+  const stored = localStorage.getItem('invite_token');
+
+  // Try to load me first — admin bypasses gate
   await loadMe();
+  if (me?.isAdmin) { gate.style.display = 'none'; await boot(); return; }
+
+  if (!stored) { showGateError('Tu as besoin d\'un lien d\'invitation pour accéder à cette liste.'); return; }
+
+  // Verify token
+  try {
+    const r = await fetch(`/api/invite/verify?token=${encodeURIComponent(stored)}`);
+    const d = await r.json();
+    if (!d.valid) { localStorage.removeItem('invite_token'); showGateError('Lien d\'invitation invalide ou expiré.'); return; }
+    gate.style.display = 'none';
+    await boot();
+  } catch { showGateError('Erreur réseau, réessaie.'); }
+}
+
+function showGateError(msg) {
+  const al = $('gate-alert');
+  al.textContent = msg; al.setAttribute('role','alert'); al.className = 'alert alert-error';
+  al.style.display = 'block'; al.style.marginTop = '12px';
+}
+
+async function boot() {
   await loadItems();
   renderHeader();
   render();
-})();
+  if (me?.isAdmin) { loadInviteLink(); pollNotifs(); }
+}
 
-// ── Auth ──────────────────────────────
+// ── Invite token helper ───────────────────────────────────────
+function getInviteToken() { return localStorage.getItem('invite_token') || ''; }
+function authHeaders() {
+  const t = getInviteToken();
+  return { 'Content-Type': 'application/json', ...(t ? { 'x-invite-token': t } : {}) };
+}
+
+// ── Auth ──────────────────────────────────────────────────────
 async function loadMe() {
   try { const r = await fetch('/api/auth/me'); me = await r.json(); } catch { me = null; }
 }
-
 async function doLogin() {
   const al = $('l-alert');
   try {
-    const r = await fetch('/api/auth/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: v('l-email'), password: v('l-pwd') })
-    });
+    const r = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:v('l-email'), password:v('l-pwd') }) });
     const d = await r.json();
     if (!r.ok) { showAlert(al, d.error, 'error'); return; }
-    me = d;
-    closeModal('login');
-    renderHeader(); render();
+    me = d; closeModal('login'); renderHeader(); render();
+    if (me?.isAdmin) { loadInviteLink(); pollNotifs(); }
     await loadItems(); render();
   } catch { showAlert(al, 'Erreur réseau', 'error'); }
 }
-
 async function doRegister() {
   const al = $('r-alert');
-  const pseudo = v('r-pseudo');
-  if (!pseudo) { showAlert(al, 'Pseudo obligatoire', 'error'); return; }
+  if (!v('r-pseudo')) { showAlert(al, 'Pseudo obligatoire', 'error'); return; }
   try {
-    const r = await fetch('/api/auth/register', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: v('r-email'), password: v('r-pwd'), pseudo })
-    });
+    const r = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:v('r-email'), password:v('r-pwd'), pseudo:v('r-pseudo') }) });
     const d = await r.json();
     if (!r.ok) { showAlert(al, d.error, 'error'); return; }
-    me = d;
-    closeModal('register');
-    renderHeader(); render();
+    me = d; closeModal('register'); renderHeader(); render();
     await loadItems(); render();
   } catch { showAlert(al, 'Erreur réseau', 'error'); }
 }
-
 async function logout() {
-  await fetch('/api/auth/logout', { method: 'POST' });
+  await fetch('/api/auth/logout', { method:'POST' });
   me = null; renderHeader(); render();
 }
 
-// ── Items ─────────────────────────────
-async function loadItems() {
-  try { const r = await fetch('/api/items'); items = await r.json(); } catch {}
+// ── Invite admin ──────────────────────────────────────────────
+async function loadInviteLink() {
+  try {
+    const r = await fetch('/api/invite/token');
+    const d = await r.json();
+    inviteToken = d.token;
+    $('invite-url').textContent = d.url;
+  } catch {}
+}
+async function copyInviteLink() {
+  const url = $('invite-url').textContent;
+  await navigator.clipboard.writeText(url).catch(() => {});
+  const btn = event.target;
+  btn.textContent = 'Copié !'; setTimeout(() => btn.textContent = 'Copier', 2000);
+}
+async function regenerateInvite() {
+  if (!confirm('Générer un nouveau lien ? L\'ancien ne fonctionnera plus.')) return;
+  const r = await fetch('/api/invite/regenerate', { method:'POST' });
+  const d = await r.json();
+  inviteToken = d.token;
+  $('invite-url').textContent = d.url;
 }
 
+// ── Notifications ─────────────────────────────────────────────
+let notifOpen = false;
+async function pollNotifs() {
+  if (!me?.isAdmin) return;
+  try {
+    const r = await fetch('/api/notifications/unread');
+    const d = await r.json();
+    const badge = $('notif-badge');
+    if (d.count > 0) { badge.textContent = d.count > 99 ? '99+' : d.count; badge.classList.add('show'); }
+    else { badge.classList.remove('show'); }
+  } catch {}
+  setTimeout(pollNotifs, 30000);
+}
+async function toggleNotifPanel() {
+  notifOpen = !notifOpen;
+  const panel = $('notif-panel');
+  const btn   = $('notif-btn');
+  panel.classList.toggle('open', notifOpen);
+  btn.setAttribute('aria-expanded', notifOpen);
+  if (notifOpen) await loadNotifs();
+}
+async function loadNotifs() {
+  try {
+    const r = await fetch('/api/notifications');
+    const notifs = await r.json();
+    const list = $('notif-list');
+    if (!notifs.length) { list.innerHTML = '<div class="notif-empty">Aucune notification</div>'; return; }
+    list.innerHTML = notifs.map(n => {
+      const d = new Date(n.created_at);
+      const time = d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      return `<div class="notif-item${n.read ? '' : ' unread'}">
+        ${!n.read ? '<span class="notif-dot" aria-hidden="true"></span>' : '<span style="width:7px;flex-shrink:0"></span>'}
+        <div><div>${esc(n.message)}</div><div class="notif-time">${time}</div></div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+async function markAllRead() {
+  await fetch('/api/notifications/read', { method:'POST' });
+  $('notif-badge').classList.remove('show');
+  await loadNotifs();
+}
+
+// ── Items ─────────────────────────────────────────────────────
+async function loadItems() {
+  try {
+    const r = await fetch(`/api/items?sort=${currentSort}`, { headers: authHeaders() });
+    if (r.ok) items = await r.json();
+  } catch {}
+}
+async function changeSort(val) {
+  currentSort = val;
+  // sync both selects
+  ['sort-select','admin-sort-select'].forEach(id => { const el=$(id); if(el) el.value=val; });
+  await loadItems(); render();
+}
 async function fetchItem() {
   const url = v('url-inp');
   if (!url) { showAlert($('fetch-alert'), "Colle une URL d'abord", 'error'); return; }
-  setBusy(true);
-  showAlert($('fetch-alert'), 'Récupération en cours…', 'info');
+  setBusy(true); showAlert($('fetch-alert'), 'Récupération…', 'info');
   try {
-    const r = await fetch('/api/scrape', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
+    const r = await fetch('/api/scrape', { method:'POST', headers:authHeaders(), body: JSON.stringify({ url }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
     items.unshift(d);
-    document.getElementById('url-inp').value = '';
+    $('url-inp').value = '';
     showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
-    render();
-    setTimeout(() => hideAlert($('fetch-alert')), 3500);
+    render(); setTimeout(() => hideAlert($('fetch-alert')), 3000);
   } catch(e) { showAlert($('fetch-alert'), e.message, 'error'); }
   setBusy(false);
 }
-
 async function addManual() {
-  const title = v('m-title');
-  if (!title) { showAlert($('fetch-alert'), 'Le titre est obligatoire', 'error'); return; }
+  if (!v('m-title')) { showAlert($('fetch-alert'), 'Titre obligatoire', 'error'); return; }
   try {
-    const r = await fetch('/api/items', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        price:   v('m-price')   || null,
-        image:   v('m-img')     || null,
-        url:     v('m-url')     || null,
-        details: v('m-details') || null,
-        options: v('m-options') || null,
-      })
-    });
+    const r = await fetch('/api/items', { method:'POST', headers:authHeaders(), body: JSON.stringify({ title:v('m-title'), price:v('m-price')||null, image:v('m-img')||null, url:v('m-url')||null, details:v('m-details')||null, options:v('m-options')||null }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
     items.unshift(d);
-    ['m-title','m-price','m-img','m-url','m-details','m-options']
-      .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-    document.getElementById('manual-form').classList.remove('open');
-    document.getElementById('manual-form').setAttribute('aria-hidden','true');
-    document.getElementById('manual-toggle-btn').setAttribute('aria-expanded','false');
+    ['m-title','m-price','m-img','m-url','m-details','m-options'].forEach(id => { const el=$(id); if(el) el.value=''; });
+    $('manual-form').classList.remove('open'); $('manual-form').setAttribute('aria-hidden','true');
+    $('manual-toggle-btn').setAttribute('aria-expanded','false');
     showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
-    render();
-    setTimeout(() => hideAlert($('fetch-alert')), 2500);
+    render(); setTimeout(() => hideAlert($('fetch-alert')), 2500);
   } catch(e) { showAlert($('fetch-alert'), e.message, 'error'); }
 }
-
 async function deleteItem(id) {
-  if (!confirm('Supprimer cet article définitivement ?')) return;
-  await fetch('/api/items/'+id, { method: 'DELETE' });
+  if (!confirm('Supprimer cet article ?')) return;
+  await fetch('/api/items/'+id, { method:'DELETE', headers:authHeaders() });
   items = items.filter(i => i.id !== id);
-  expanded.delete(id);
-  render();
+  expanded.delete(id); render();
 }
 
-// ── Edit ──────────────────────────────
+// ── Edit ──────────────────────────────────────────────────────
 function openEdit(id) {
-  const item = items.find(i => i.id === id);
-  if (!item) return;
-  $('edit-id').value         = id;
-  $('edit-title-inp').value  = item.title || '';
-  $('edit-price').value      = item.price != null ? item.price : '';
-  $('edit-image').value      = item.image || '';
-  $('edit-url').value        = item.url || '';
-  $('edit-details').value    = item.details || '';
-  $('edit-options').value    = item.options || '';
-  hideAlert($('edit-alert'));
-  openModal('edit');
-  // Focus first field
+  const item = items.find(i => i.id === id); if (!item) return;
+  $('edit-id').value = id; $('edit-title-inp').value = item.title||'';
+  $('edit-price').value = item.price!=null ? item.price : ''; $('edit-image').value = item.image||'';
+  $('edit-url').value = item.url||''; $('edit-details').value = item.details||''; $('edit-options').value = item.options||'';
+  hideAlert($('edit-alert')); openModal('edit');
   setTimeout(() => $('edit-title-inp').focus(), 50);
 }
-
 async function saveEdit() {
-  const id = parseInt($('edit-id').value);
-  const title = v('edit-title-inp');
-  if (!title) { showAlert($('edit-alert'), 'Le titre est obligatoire', 'error'); return; }
+  const id = parseInt($('edit-id').value), title = v('edit-title-inp');
+  if (!title) { showAlert($('edit-alert'), 'Titre obligatoire', 'error'); return; }
   try {
-    const r = await fetch('/api/items/'+id, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        price:   v('edit-price')   || null,
-        image:   v('edit-image')   || null,
-        url:     v('edit-url')     || null,
-        details: v('edit-details') || null,
-        options: v('edit-options') || null,
-      })
-    });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
-    const idx = items.findIndex(i => i.id === id);
-    if (idx !== -1) items[idx] = d;
-    closeModal('edit');
-    render();
+    const r = await fetch('/api/items/'+id, { method:'PUT', headers:authHeaders(), body: JSON.stringify({ title, price:v('edit-price')||null, image:v('edit-image')||null, url:v('edit-url')||null, details:v('edit-details')||null, options:v('edit-options')||null }) });
+    const d = await r.json(); if (!r.ok) throw new Error(d.error);
+    const idx = items.findIndex(i => i.id === id); if (idx !== -1) items[idx] = d;
+    closeModal('edit'); render();
   } catch(e) { showAlert($('edit-alert'), e.message, 'error'); }
 }
 
-// ── Participants ──────────────────────
+// ── Participants + contributions ──────────────────────────────
+let expanded = new Set();
+
 async function joinItem(id) {
-  let name;
-  if (me) {
-    name = me.pseudo;
-  } else {
-    const inp = document.getElementById('ji-'+id);
-    if (!inp) return;
+  let name, contrib = null;
+  if (me) { name = me.pseudo; }
+  else {
+    const inp = $('ji-'+id); if (!inp) return;
     name = inp.value.trim();
-    if (!name) {
-      inp.classList.add('shake');
-      inp.setAttribute('aria-invalid','true');
-      setTimeout(() => { inp.classList.remove('shake'); inp.removeAttribute('aria-invalid'); }, 600);
-      return;
-    }
+    if (!name) { inp.classList.add('shake'); inp.setAttribute('aria-invalid','true'); setTimeout(()=>{inp.classList.remove('shake');inp.removeAttribute('aria-invalid')},600); return; }
     localStorage.setItem('guest_name', name);
   }
-  const r = await fetch('/api/items/'+id+'/join', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name })
-  });
+  const contribEl = $('ji-contrib-'+id);
+  if (contribEl && contribEl.value.trim()) contrib = parseFloat(contribEl.value.replace(',','.')) || null;
+
+  const r = await fetch('/api/items/'+id+'/join', { method:'POST', headers:authHeaders(), body: JSON.stringify({ name, contribution: contrib }) });
   if (r.ok) { updateItem(await r.json()); render(); }
 }
-
 async function leaveItem(id, name) {
-  const r = await fetch('/api/items/'+id+'/join', {
-    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name })
-  });
+  const r = await fetch('/api/items/'+id+'/join', { method:'DELETE', headers:authHeaders(), body: JSON.stringify({ name }) });
   if (r.ok) { updateItem(await r.json()); render(); }
 }
 
-// ── Messages ──────────────────────────
+// ── Messages ──────────────────────────────────────────────────
 function toggleExtra(id) {
   if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
   render();
 }
-
 async function sendMessage(id) {
-  const contentEl = document.getElementById('msg-inp-'+id);
-  const nameEl    = document.getElementById('msg-name-'+id);
-  const content   = contentEl?.value.trim();
-  if (!content) return;
+  const contentEl = $('msg-inp-'+id), nameEl = $('msg-name-'+id);
+  const content = contentEl?.value.trim(); if (!content) return;
   const name = me?.pseudo || nameEl?.value.trim();
-  if (!name) {
-    if (nameEl) {
-      nameEl.classList.add('shake');
-      nameEl.setAttribute('aria-invalid','true');
-      setTimeout(() => { nameEl.classList.remove('shake'); nameEl.removeAttribute('aria-invalid'); }, 600);
-    }
-    return;
-  }
+  if (!name) { if(nameEl){nameEl.classList.add('shake');setTimeout(()=>nameEl.classList.remove('shake'),400);} return; }
   if (!me && nameEl) localStorage.setItem('guest_name', nameEl.value.trim());
-  const r = await fetch('/api/items/'+id+'/messages', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, name })
-  });
-  if (r.ok) {
-    updateItem(await r.json());
-    if (contentEl) contentEl.value = '';
-    render();
-    // Scroll to bottom of message list
-    setTimeout(() => {
-      const list = document.getElementById('msg-list-'+id);
-      if (list) list.scrollTop = list.scrollHeight;
-    }, 50);
-  }
+  const r = await fetch('/api/items/'+id+'/messages', { method:'POST', headers:authHeaders(), body: JSON.stringify({ content, name }) });
+  if (r.ok) { updateItem(await r.json()); if(contentEl) contentEl.value=''; render(); if(me?.isAdmin) pollNotifs(); }
 }
-
 async function deleteMessage(itemId, msgId) {
-  const r = await fetch('/api/items/'+itemId+'/messages/'+msgId, { method: 'DELETE' });
+  const r = await fetch('/api/items/'+itemId+'/messages/'+msgId, { method:'DELETE', headers:authHeaders() });
   if (r.ok) { updateItem(await r.json()); render(); }
 }
+function updateItem(d) { const idx = items.findIndex(i => i.id === d.id); if (idx !== -1) items[idx] = d; }
 
-function updateItem(d) {
-  const idx = items.findIndex(i => i.id === d.id);
-  if (idx !== -1) items[idx] = d;
+// ── Drag & Drop ───────────────────────────────────────────────
+function onDragStart(e, id) { dragSrcId = id; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
+function onDragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over')); }
+function onDragOver(e, id) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (id !== dragSrcId) e.currentTarget.classList.add('drag-over'); }
+function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+async function onDrop(e, id) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (!dragSrcId || dragSrcId === id) return;
+  const srcIdx = items.findIndex(i => i.id === dragSrcId);
+  const dstIdx = items.findIndex(i => i.id === id);
+  if (srcIdx === -1 || dstIdx === -1) return;
+  const reordered = [...items];
+  const [moved] = reordered.splice(srcIdx, 1);
+  reordered.splice(dstIdx, 0, moved);
+  items = reordered;
+  render();
+  const ids = items.map(i => i.id);
+  await fetch('/api/items/reorder', { method:'POST', headers:authHeaders(), body: JSON.stringify({ ids }) });
 }
 
-// ── Render ────────────────────────────
+// ── Render ────────────────────────────────────────────────────
 function renderHeader() {
   const isAdmin = !!me?.isAdmin;
-
-  // User area
   const userEl = $('hdr-user');
   if (me) {
     userEl.classList.add('visible');
     $('hdr-pseudo').textContent = me.pseudo;
-    const badge = $('hdr-badge');
-    badge.hidden = !isAdmin;
-    badge.style.display = isAdmin ? 'inline' : 'none';
-    $('btn-open-login').style.display = 'none';
-  } else {
-    userEl.classList.remove('visible');
-    $('btn-open-login').style.display = 'inline-flex';
-  }
-
-  // Admin tab visibility
-  const adminBtns = ['tab-admin-btn', 'mob-admin-btn'];
-  adminBtns.forEach(id => {
-    const el = $(id);
-    if (!el) return;
-    el.hidden = !isAdmin;
-    el.style.display = isAdmin ? '' : 'none';
-  });
-
-  // Guest tip
+    const badge = $('hdr-badge'); badge.hidden = !isAdmin; if(isAdmin) badge.removeAttribute('hidden');
+  } else { userEl.classList.remove('visible'); }
+  $('btn-open-login').style.display = me ? 'none' : '';
+  ['tab-admin-btn','mob-admin-btn'].forEach(id => { const el=$(id); if(!el) return; if(isAdmin){ el.hidden=false; el.removeAttribute('hidden'); } else { el.hidden=true; } });
+  const notifWrap = $('notif-wrap');
+  if (isAdmin) notifWrap.removeAttribute('hidden'); else notifWrap.hidden = true;
   $('guest-tip').style.display = me ? 'none' : '';
-
-  // Redirect away from admin if not admin
-  if (!isAdmin && $('tab-admin').classList.contains('active')) {
-    switchTabById('list');
-  }
+  if (!isAdmin && $('tab-admin').classList.contains('active')) switchTabById('list');
 }
 
 function render() { renderList(); renderAdmin(); updateStats(); }
 
-// ── Card builders ─────────────────────
+// helpers
 function imgCell(item) {
   return item.image
-    ? `<div class="item-img-wrap">
-        <img class="item-img" src="${esc(item.image)}" alt="${esc(item.title)}" loading="lazy"
-          onerror="this.parentNode.innerHTML='<span class=\\'item-img-ph\\'aria-hidden=\\'true\\'>✦</span>'">
-       </div>`
+    ? `<div class="item-img-wrap"><img class="item-img" src="${esc(item.image)}" alt="${esc(item.title)}" loading="lazy" onerror="this.parentNode.innerHTML='<span class=\\'item-img-ph\\'aria-hidden=\\'true\\'>✦</span>'"></div>`
     : `<div class="item-img-wrap"><span class="item-img-ph" aria-hidden="true">✦</span></div>`;
 }
-
 function fmtPrice(p) {
-  if (p == null) return null;
-  const n = parseFloat(p);
-  return isNaN(n) ? null : n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  if (p==null) return null;
+  const n = parseFloat(p); return isNaN(n) ? null : n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
 }
-
 function priceEl(price) {
   const f = fmtPrice(price);
-  return f
-    ? `<span class="item-price">${esc(f)}</span>`
-    : `<span class="item-price none">prix non renseigné</span>`;
+  return f ? `<span class="item-price">${esc(f)}</span>` : `<span class="item-price none">prix non renseigné</span>`;
 }
-
 function linkEl(url) {
   if (!url) return '';
-  return `<a class="item-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer"
-    aria-label="Voir le produit (ouvre un nouvel onglet)">
-    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-      <path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>Voir
-  </a>`;
+  return `<a class="item-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Voir le produit"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Voir</a>`;
 }
-
 function optionsEl(options) {
   if (!options?.trim()) return '';
-  const tags = options.split(',').map(s => s.trim()).filter(Boolean);
-  if (!tags.length) return '';
-  return `<div class="item-options" role="list" aria-label="Options">${
-    tags.map(t => `<span class="opt-tag" role="listitem">${esc(t)}</span>`).join('')
-  }</div>`;
+  const tags = options.split(',').map(s=>s.trim()).filter(Boolean);
+  return tags.length ? `<div class="item-options">${tags.map(t=>`<span class="opt-tag">${esc(t)}</span>`).join('')}</div>` : '';
 }
-
+function contribBar(item) {
+  const price = parseFloat(item.price);
+  if (!price || isNaN(price)) return '';
+  const parts = item.participants || [];
+  const total = parts.reduce((s,p) => s + (parseFloat(p.contribution)||0), 0);
+  if (total === 0) return '';
+  const pct = Math.min(100, (total/price)*100).toFixed(0);
+  const totalFmt = total.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const priceFmt = price.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return `<div class="contrib-bar-wrap">
+    <div class="contrib-info"><span>Collecté</span><span class="contrib-total">${totalFmt} € / ${priceFmt} €</span></div>
+    <div class="contrib-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Collecté ${pct}%">
+      <div class="contrib-fill" style="width:${pct}%"></div>
+    </div>
+  </div>`;
+}
 function chipsEl(item, isAdmin) {
   const parts = item.participants || [];
   if (!parts.length) return `<span class="part-empty">Personne pour l'instant</span>`;
   const guestName = localStorage.getItem('guest_name') || '';
   return parts.map(p => {
     const isMine = (me && me.id === p.user_id) || (!me && p.name === guestName);
-    const rm = (isMine || isAdmin)
-      ? `<button class="chip-rm" onclick="leaveItem(${item.id},'${esc(p.name)}')"
-           aria-label="Retirer ${esc(p.name)}">×</button>`
-      : '';
-    return `<span class="chip">${esc(p.name)}${rm}</span>`;
+    const contrib = p.contribution ? ` · ${parseFloat(p.contribution).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})}€` : '';
+    const rm = (isMine || isAdmin) ? `<button class="chip-rm" onclick="leaveItem(${item.id},'${esc(p.name)}')" aria-label="Retirer ${esc(p.name)}">×</button>` : '';
+    return `<span class="chip">${esc(p.name)}${contrib}${rm}</span>`;
   }).join('');
 }
-
 function msgsEl(item) {
-  const msgs = (item.messages || []).slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const msgs = (item.messages||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const guestName = localStorage.getItem('guest_name') || '';
-
   const listHtml = msgs.length
     ? msgs.map(m => {
-        const del = me?.isAdmin
-          ? `<button class="msg-del" onclick="deleteMessage(${item.id},${m.id})"
-               aria-label="Supprimer le message de ${esc(m.author)}">Supprimer</button>`
-          : '';
+        const del = me?.isAdmin ? `<button class="msg-del" onclick="deleteMessage(${item.id},${m.id})" aria-label="Supprimer">Suppr.</button>` : '';
         const d = new Date(m.created_at);
-        const time = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-                   + ' · ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        return `<article class="msg-bubble">
-          <div class="msg-author">${esc(m.author)}</div>
-          <div class="msg-text">${esc(m.content)}</div>
-          <div class="msg-footer">
-            <time class="msg-time" datetime="${esc(m.created_at)}">${time}</time>
-            ${del}
-          </div>
-        </article>`;
+        const time = d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+        return `<article class="msg-bubble"><div class="msg-author">${esc(m.author)}</div><div class="msg-text">${esc(m.content)}</div><div class="msg-footer"><time class="msg-time" datetime="${esc(m.created_at)}">${time}</time>${del}</div></article>`;
       }).join('')
     : `<p class="msg-empty">Aucun message — soyez le premier !</p>`;
-
-  const nameInput = me
-    ? ''
-    : `<input class="inp msg-name-inp" id="msg-name-${item.id}"
-         placeholder="Ton prénom…" value="${esc(guestName)}"
-         aria-label="Ton prénom pour le message" />`;
-
+  const nameInput = me ? '' : `<input class="inp msg-name-inp" id="msg-name-${item.id}" placeholder="Ton prénom…" value="${esc(guestName)}" aria-label="Ton prénom" />`;
   return `<div class="msg-panel">
-    <p class="msg-panel-title" id="msg-title-${item.id}">💬 Messages entre participants</p>
-    <div class="msg-list" id="msg-list-${item.id}" role="log"
-         aria-labelledby="msg-title-${item.id}" aria-live="polite">${listHtml}</div>
-    <div class="msg-compose" role="group" aria-label="Envoyer un message">
+    <p class="msg-panel-title">💬 Messages entre participants</p>
+    <div class="msg-list" id="msg-list-${item.id}" role="log" aria-live="polite">${listHtml}</div>
+    <div class="msg-compose">
       ${nameInput}
-      <input class="inp" id="msg-inp-${item.id}"
-             placeholder="Écrire un message…"
-             aria-label="Message"
-             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage(${item.id})}" />
-      <button class="btn btn-primary btn-sm" onclick="sendMessage(${item.id})"
-              aria-label="Envoyer le message">Envoyer</button>
+      <input class="inp" id="msg-inp-${item.id}" placeholder="Écrire un message…" aria-label="Message" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage(${item.id})}" />
+      <button class="btn btn-primary btn-sm" onclick="sendMessage(${item.id})">Envoyer</button>
     </div>
   </div>`;
 }
 
 function buildCard(item, isAdmin) {
-  const parts     = item.participants || [];
-  const msgs      = item.messages || [];
-  const guestName = localStorage.getItem('guest_name') || '';
-  const myName    = me ? me.pseudo : guestName;
-  const joined    = parts.some(p => me ? p.user_id === me.id : (myName && p.name === myName));
-  const isOpen    = expanded.has(item.id);
-  const msgCount  = msgs.length;
+  const parts = item.participants||[], guestName = localStorage.getItem('guest_name')||'', myName = me ? me.pseudo : guestName;
+  const joined = parts.some(p => me ? p.user_id===me.id : (myName && p.name===myName));
+  const isOpen = expanded.has(item.id), msgCount = (item.messages||[]).length;
 
   let joinBlock;
   if (joined) {
-    joinBlock = `<button class="btn btn-success btn-sm"
-        onclick="leaveItem(${item.id},'${esc(myName)}')"
-        aria-pressed="true"
-        aria-label="Tu participes — cliquer pour se retirer">✓ Je participe</button>`;
+    joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je participe</button>`;
   } else if (me) {
-    joinBlock = `<button class="btn btn-primary btn-sm"
-        onclick="joinItem(${item.id})"
-        aria-label="Participer à l'achat de ${esc(item.title)}">Participer</button>`;
+    joinBlock = `<div class="join-row">
+      <input class="join-inp contrib-inp" id="ji-contrib-${item.id}" type="text" inputmode="decimal" placeholder="Montant €" aria-label="Montant de ma contribution" />
+      <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})" aria-label="Participer">Participer</button>
+    </div>`;
   } else {
     joinBlock = `<div class="join-row">
-      <input class="join-inp" id="ji-${item.id}"
-             placeholder="Ton prénom…"
-             value="${esc(guestName)}"
-             aria-label="Ton prénom pour participer"
-             onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
-      <button class="btn btn-primary btn-sm"
-              onclick="joinItem(${item.id})"
-              aria-label="Participer à ${esc(item.title)}">Participer</button>
+      <input class="join-inp" id="ji-${item.id}" placeholder="Prénom…" value="${esc(guestName)}" aria-label="Ton prénom" onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
+      <input class="join-inp contrib-inp" id="ji-contrib-${item.id}" type="text" inputmode="decimal" placeholder="Montant €" aria-label="Montant de ma contribution" />
+      <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">Participer</button>
     </div>`;
   }
 
-  const expandLabel = isOpen
-    ? `<span class="expand-icon" aria-hidden="true">▼</span> Réduire`
-    : `<span class="expand-icon" aria-hidden="true">▼</span> Détails${msgCount ? ` · <strong>${msgCount}</strong> msg` : ''}`;
+  const expandLabel = `<span class="expand-icon" aria-hidden="true">▼</span>${isOpen ? 'Réduire' : `Détails${msgCount ? ` · ${msgCount} msg` : ''}`}`;
+  const adminActions = isAdmin ? `<button class="btn btn-secondary btn-xs" onclick="openEdit(${item.id})">✏️ Modifier</button><button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})">Supprimer</button>` : '';
+  const dragAttrs = isAdmin ? `draggable="true" ondragstart="onDragStart(event,${item.id})" ondragend="onDragEnd(event)" ondragover="onDragOver(event,${item.id})" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${item.id})"` : '';
 
-  const adminActions = isAdmin ? `
-    <button class="btn btn-secondary btn-xs" onclick="openEdit(${item.id})"
-            aria-label="Modifier ${esc(item.title)}">✏️ Modifier</button>
-    <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})"
-            aria-label="Supprimer ${esc(item.title)}">Supprimer</button>` : '';
-
-  return `<article class="item-card" id="card-${item.id}" aria-label="${esc(item.title)}">
+  return `<article class="item-card" id="card-${item.id}" aria-label="${esc(item.title)}" ${dragAttrs}>
     <div class="item-main">
+      ${isAdmin ? `<div class="drag-handle" aria-hidden="true" title="Glisser pour réordonner">⠿</div>` : ''}
       ${imgCell(item)}
       <div class="item-body">
         <div class="item-info">
@@ -1498,148 +893,66 @@ function buildCard(item, isAdmin) {
           <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
           ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
           ${optionsEl(item.options)}
+          ${contribBar(item)}
           <div class="participants" aria-label="Participants">${chipsEl(item, isAdmin)}</div>
           ${joinBlock}
         </div>
         <div class="item-side">
           <div class="item-side-top">
-            <button class="expand-btn"
-                    onclick="toggleExtra(${item.id})"
-                    aria-expanded="${isOpen}"
-                    aria-controls="extra-${item.id}">${expandLabel}</button>
+            <button class="expand-btn" onclick="toggleExtra(${item.id})" aria-expanded="${isOpen}" aria-controls="extra-${item.id}">${expandLabel}</button>
           </div>
           <div class="item-side-bottom">${adminActions}</div>
         </div>
       </div>
     </div>
-    <div class="item-extra" id="extra-${item.id}" ${isOpen ? '' : 'hidden'}>
-      ${msgsEl(item)}
-    </div>
+    <div class="item-extra" id="extra-${item.id}" ${isOpen ? '' : 'hidden'}>${msgsEl(item)}</div>
   </article>`;
 }
 
 function renderList() {
-  const list  = $('list-items');
-  const empty = $('list-empty');
-  if (!items.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  list.innerHTML = items.map(i => buildCard(i, false)).join('');
+  const list=$('list-items'), empty=$('list-empty');
+  if (!items.length) { list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none'; list.innerHTML = items.map(i=>buildCard(i,false)).join('');
 }
-
 function renderAdmin() {
-  const list  = $('admin-items');
-  const empty = $('admin-empty');
+  const list=$('admin-items'), empty=$('admin-empty');
   if (!me?.isAdmin) return;
-  if (!items.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  list.innerHTML = items.map(i => buildCard(i, true)).join('');
+  if (!items.length) { list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none'; list.innerHTML = items.map(i=>buildCard(i,true)).join('');
 }
-
 function updateStats() {
-  const el = $('stats');
-  if (!items.length || !me?.isAdmin) { el.style.display = 'none'; return; }
-  el.style.display = 'grid';
+  const el=$('stats');
+  if (!items.length||!me?.isAdmin) { el.style.display='none'; return; }
+  el.style.display='grid';
   $('s-total').textContent = items.length;
-  $('s-parts').textContent = items.reduce((s, i) => s + (i.participants?.length || 0), 0);
-  $('s-msgs').textContent  = items.reduce((s, i) => s + (i.messages?.length || 0), 0);
+  $('s-parts').textContent = items.reduce((s,i)=>s+(i.participants?.length||0),0);
+  $('s-msgs').textContent  = items.reduce((s,i)=>s+(i.messages?.length||0),0);
 }
 
-// ── UI helpers ────────────────────────
-function $(id) { return document.getElementById(id); }
-function v(id) { return (document.getElementById(id)?.value || '').trim(); }
-function esc(s) {
-  if (!s && s !== 0) return '';
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#x27;');
-}
-
-function openModal(id) {
-  const overlay = $('modal-'+id);
-  overlay.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  // Focus first focusable element
-  setTimeout(() => {
-    const first = overlay.querySelector('input, button:not(.modal-close)');
-    if (first) first.focus();
-  }, 50);
-}
-
-function closeModal(id) {
-  const overlay = $('modal-'+id);
-  overlay.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-function toggleManual() {
-  const form = $('manual-form');
-  const btn  = $('manual-toggle-btn');
-  const open = form.classList.toggle('open');
-  form.setAttribute('aria-hidden', String(!open));
-  btn.setAttribute('aria-expanded', String(open));
-}
-
-function showAlert(el, msg, type) {
-  el.textContent = msg;
-  el.className = 'alert alert-' + type;
-  el.setAttribute('role', 'alert');
-}
-function hideAlert(el) {
-  el.className = 'alert';
-  el.removeAttribute('role');
-  el.textContent = '';
-}
-function setBusy(b) {
-  const btn = $('fetch-btn');
-  btn.disabled = b;
-  btn.setAttribute('aria-busy', String(b));
-  $('fetch-icon').innerHTML = b ? '<span class="spin" aria-hidden="true"></span>' : '↓';
-  $('fetch-txt').textContent = b ? 'Récupération…' : 'Récupérer';
-}
-
-function switchTab(tab, btn, isMobile = false) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.setAttribute('aria-selected', 'false');
-    b.classList.remove('active');
-  });
+// ── UI helpers ────────────────────────────────────────────────
+function $(id){return document.getElementById(id)}
+function v(id){return(document.getElementById(id)?.value||'').trim()}
+function esc(s){if(!s&&s!==0)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+function openModal(id){const o=$('modal-'+id);o.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>{const f=o.querySelector('input,button:not(.modal-close)');if(f)f.focus()},50)}
+function closeModal(id){$('modal-'+id).setAttribute('aria-hidden','true');document.body.style.overflow=''}
+function toggleManual(){const f=$('manual-form'),b=$('manual-toggle-btn'),open=f.classList.toggle('open');f.setAttribute('aria-hidden',String(!open));b.setAttribute('aria-expanded',String(open))}
+function showAlert(el,msg,type){el.textContent=msg;el.className='alert alert-'+type;el.setAttribute('role','alert')}
+function hideAlert(el){el.className='alert';el.removeAttribute('role');el.textContent=''}
+function setBusy(b){const btn=$('fetch-btn');btn.disabled=b;btn.setAttribute('aria-busy',String(b));$('fetch-icon').innerHTML=b?'<span class="spin" aria-hidden="true"></span>':'↓';$('fetch-txt').textContent=b?'Récupération…':'Récupérer'}
+function switchTab(tab,btn,isMobile=false){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.setAttribute('aria-selected','false');b.classList.remove('active')});
   $('tab-'+tab).classList.add('active');
-  // sync both nav bars
-  ['tab-'+tab+'-btn', 'mob-'+tab+'-btn'].forEach(id => {
-    const el = $(id);
-    if (el) { el.setAttribute('aria-selected', 'true'); el.classList.add('active'); }
-  });
-  // Focus section for screen readers
-  $('tab-'+tab)?.focus();
-  render();
+  ['tab-'+tab+'-btn','mob-'+tab+'-btn'].forEach(id=>{const el=$(id);if(el){el.setAttribute('aria-selected','true');el.classList.add('active')}});
+  $('tab-'+tab)?.focus(); render();
 }
-
-function switchTabById(tab) {
-  switchTab(tab, null);
-}
-
-// ── Keyboard trap in modals ───────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    ['login','register','edit'].forEach(id => {
-      const el = $('modal-'+id);
-      if (el?.getAttribute('aria-hidden') === 'false') closeModal(id);
-    });
-  }
+function switchTabById(tab){switchTab(tab,null)}
+document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id.replace('modal-',''))}));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){['login','register','edit'].forEach(id=>{const el=$('modal-'+id);if(el?.getAttribute('aria-hidden')==='false')closeModal(id)})}
+  if(e.key==='Escape'&&notifOpen){notifOpen=false;$('notif-panel').classList.remove('open');$('notif-btn').setAttribute('aria-expanded','false')}
 });
-
-// Click outside modal to close
-document.querySelectorAll('.overlay').forEach(el => {
-  el.addEventListener('click', e => {
-    if (e.target === el) {
-      const id = el.id.replace('modal-', '');
-      closeModal(id);
-    }
-  });
-});
+document.addEventListener('click',e=>{if(notifOpen&&!e.target.closest('#notif-wrap')){notifOpen=false;$('notif-panel').classList.remove('open');$('notif-btn').setAttribute('aria-expanded','false')}});
 </script>
 </body>
 </html>
