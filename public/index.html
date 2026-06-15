@@ -178,12 +178,10 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .item-options{display:flex;flex-wrap:wrap;gap:5px}
 .opt-tag{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
 
-/* contribution progress */
-.contrib-bar-wrap{margin-top:2px}
-.contrib-info{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--ink3);margin-bottom:4px}
-.contrib-total{font-weight:700;color:var(--green);font-size:13px}
-.contrib-bar{height:5px;border-radius:3px;background:var(--surface3);overflow:hidden}
-.contrib-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s ease}
+/* purchased status */
+.purchased-banner{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-bd);border-radius:20px;padding:3px 10px;width:fit-content}
+.item-card.is-purchased{opacity:.6}
+.item-card.is-purchased .item-title{text-decoration:line-through}
 
 /* participants */
 .participants{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
@@ -202,7 +200,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .join-inp::placeholder{color:var(--ink3)}
 .join-inp.shake{animation:shake .35s ease;border-color:var(--red)}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.contrib-inp{width:80px !important}
 
 .expand-btn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:6px;transition:color var(--t),background var(--t);white-space:nowrap}
 .expand-btn:hover{color:var(--ink);background:var(--surface2)}
@@ -281,7 +278,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   .modal{padding:22px 18px 20px;border-radius:var(--r) var(--r) 0 0;max-height:92dvh;margin-top:auto}
   .overlay[aria-hidden="false"]{align-items:flex-end;padding:0}
   .notif-panel{right:8px;top:48px}
-  .contrib-inp{width:70px !important}
   .join-row{gap:4px}
   .invite-admin-box{flex-direction:column;align-items:flex-start}
 }
@@ -703,11 +699,11 @@ async function saveEdit() {
   } catch(e) { showAlert($('edit-alert'), e.message, 'error'); }
 }
 
-// ── Participants + contributions ──────────────────────────────
+// ── Participants ──────────────────────────────────────────────
 let expanded = new Set();
 
 async function joinItem(id) {
-  let name, contrib = null;
+  let name;
   if (me) { name = me.pseudo; }
   else {
     const inp = $('ji-'+id); if (!inp) return;
@@ -715,14 +711,28 @@ async function joinItem(id) {
     if (!name) { inp.classList.add('shake'); inp.setAttribute('aria-invalid','true'); setTimeout(()=>{inp.classList.remove('shake');inp.removeAttribute('aria-invalid')},600); return; }
     localStorage.setItem('guest_name', name);
   }
-  const contribEl = $('ji-contrib-'+id);
-  if (contribEl && contribEl.value.trim()) contrib = parseFloat(contribEl.value.replace(',','.')) || null;
-
-  const r = await fetch('/api/items/'+id+'/join', { method:'POST', headers:authHeaders(), body: JSON.stringify({ name, contribution: contrib }) });
+  const r = await fetch('/api/items/'+id+'/join', { method:'POST', headers:authHeaders(), body: JSON.stringify({ name }) });
   if (r.ok) { updateItem(await r.json()); render(); }
 }
 async function leaveItem(id, name) {
   const r = await fetch('/api/items/'+id+'/join', { method:'DELETE', headers:authHeaders(), body: JSON.stringify({ name }) });
+  if (r.ok) { updateItem(await r.json()); render(); }
+}
+
+// ── Purchased status ──────────────────────────────────────────
+async function markPurchased(id) {
+  let name = me?.pseudo;
+  if (!name) {
+    const guestName = localStorage.getItem('guest_name') || '';
+    name = (prompt('Ton prénom (pour indiquer qui a acheté) :', guestName) || '').trim();
+    if (!name) return;
+    localStorage.setItem('guest_name', name);
+  }
+  const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: true, name }) });
+  if (r.ok) { updateItem(await r.json()); render(); }
+}
+async function unmarkPurchased(id) {
+  const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: false }) });
   if (r.ok) { updateItem(await r.json()); render(); }
 }
 
@@ -808,21 +818,10 @@ function optionsEl(options) {
   const tags = options.split(',').map(s=>s.trim()).filter(Boolean);
   return tags.length ? `<div class="item-options">${tags.map(t=>`<span class="opt-tag">${esc(t)}</span>`).join('')}</div>` : '';
 }
-function contribBar(item) {
-  const price = parseFloat(item.price);
-  if (!price || isNaN(price)) return '';
-  const parts = item.participants || [];
-  const total = parts.reduce((s,p) => s + (parseFloat(p.contribution)||0), 0);
-  if (total === 0) return '';
-  const pct = Math.min(100, (total/price)*100).toFixed(0);
-  const totalFmt = total.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const priceFmt = price.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  return `<div class="contrib-bar-wrap">
-    <div class="contrib-info"><span>Collecté</span><span class="contrib-total">${totalFmt} € / ${priceFmt} €</span></div>
-    <div class="contrib-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Collecté ${pct}%">
-      <div class="contrib-fill" style="width:${pct}%"></div>
-    </div>
-  </div>`;
+function purchasedBanner(item) {
+  if (!item.purchased) return '';
+  const by = item.purchased_by ? esc(item.purchased_by) : '';
+  return `<div class="purchased-banner">✅ ${by ? `Acheté par ${by}` : 'Déjà acheté'}</div>`;
 }
 function chipsEl(item, isAdmin) {
   const parts = item.participants || [];
@@ -830,9 +829,8 @@ function chipsEl(item, isAdmin) {
   const guestName = localStorage.getItem('guest_name') || '';
   return parts.map(p => {
     const isMine = (me && me.id === p.user_id) || (!me && p.name === guestName);
-    const contrib = p.contribution ? ` · ${parseFloat(p.contribution).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})}€` : '';
     const rm = (isMine || isAdmin) ? `<button class="chip-rm" onclick="leaveItem(${item.id},'${esc(p.name)}')" aria-label="Retirer ${esc(p.name)}">×</button>` : '';
-    return `<span class="chip">${esc(p.name)}${contrib}${rm}</span>`;
+    return `<span class="chip">${esc(p.name)}${rm}</span>`;
   }).join('');
 }
 function msgsEl(item) {
@@ -862,28 +860,32 @@ function buildCard(item, isAdmin) {
   const parts = item.participants||[], guestName = localStorage.getItem('guest_name')||'', myName = me ? me.pseudo : guestName;
   const joined = parts.some(p => me ? p.user_id===me.id : (myName && p.name===myName));
   const isOpen = expanded.has(item.id), msgCount = (item.messages||[]).length;
+  const purchased = !!item.purchased;
 
-  let joinBlock;
-  if (joined) {
-    joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je participe</button>`;
-  } else if (me) {
-    joinBlock = `<div class="join-row">
-      <input class="join-inp contrib-inp" id="ji-contrib-${item.id}" type="text" inputmode="decimal" placeholder="Montant €" aria-label="Montant de ma contribution" />
-      <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})" aria-label="Participer">Participer</button>
-    </div>`;
-  } else {
-    joinBlock = `<div class="join-row">
-      <input class="join-inp" id="ji-${item.id}" placeholder="Prénom…" value="${esc(guestName)}" aria-label="Ton prénom" onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
-      <input class="join-inp contrib-inp" id="ji-contrib-${item.id}" type="text" inputmode="decimal" placeholder="Montant €" aria-label="Montant de ma contribution" />
-      <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">Participer</button>
-    </div>`;
+  let joinBlock = '';
+  if (!purchased) {
+    if (joined) {
+      joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je participe</button>`;
+    } else if (me) {
+      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})" aria-label="Participer">Participer</button>`;
+    } else {
+      joinBlock = `<div class="join-row">
+        <input class="join-inp" id="ji-${item.id}" placeholder="Prénom…" value="${esc(guestName)}" aria-label="Ton prénom" onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
+        <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">Participer</button>
+      </div>`;
+    }
   }
+
+  // Bouton acheté / pas acheté — visible pour tous, admin compris
+  const purchaseBtn = purchased
+    ? `<button class="btn btn-secondary btn-xs" onclick="unmarkPurchased(${item.id})">↩ Pas encore acheté</button>`
+    : `<button class="btn btn-success btn-xs" onclick="markPurchased(${item.id})">✅ Marquer comme acheté</button>`;
 
   const expandLabel = `<span class="expand-icon" aria-hidden="true">▼</span>${isOpen ? 'Réduire' : `Détails${msgCount ? ` · ${msgCount} msg` : ''}`}`;
   const adminActions = isAdmin ? `<button class="btn btn-secondary btn-xs" onclick="openEdit(${item.id})">✏️ Modifier</button><button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})">Supprimer</button>` : '';
   const dragAttrs = isAdmin ? `draggable="true" ondragstart="onDragStart(event,${item.id})" ondragend="onDragEnd(event)" ondragover="onDragOver(event,${item.id})" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${item.id})"` : '';
 
-  return `<article class="item-card" id="card-${item.id}" aria-label="${esc(item.title)}" ${dragAttrs}>
+  return `<article class="item-card${purchased ? ' is-purchased' : ''}" id="card-${item.id}" aria-label="${esc(item.title)}" ${dragAttrs}>
     <div class="item-main">
       ${isAdmin ? `<div class="drag-handle" aria-hidden="true" title="Glisser pour réordonner">⠿</div>` : ''}
       ${imgCell(item)}
@@ -891,9 +893,9 @@ function buildCard(item, isAdmin) {
         <div class="item-info">
           <h3 class="item-title">${esc(item.title)}</h3>
           <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
+          ${purchasedBanner(item)}
           ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
           ${optionsEl(item.options)}
-          ${contribBar(item)}
           <div class="participants" aria-label="Participants">${chipsEl(item, isAdmin)}</div>
           ${joinBlock}
         </div>
@@ -901,7 +903,7 @@ function buildCard(item, isAdmin) {
           <div class="item-side-top">
             <button class="expand-btn" onclick="toggleExtra(${item.id})" aria-expanded="${isOpen}" aria-controls="extra-${item.id}">${expandLabel}</button>
           </div>
-          <div class="item-side-bottom">${adminActions}</div>
+          <div class="item-side-bottom">${purchaseBtn}${adminActions}</div>
         </div>
       </div>
     </div>

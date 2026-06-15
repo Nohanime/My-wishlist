@@ -112,18 +112,21 @@ app.post('/api/auth/logout', (req, res) => { res.clearCookie('token'); res.json(
 app.get('/api/auth/me', optionalAuth, (req, res) => res.json(req.user || null));
 
 // ── Invite ────────────────────────────────────────────────────
+function buildInviteUrl(req, token) {
+  const base = (BASE_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
+  return `${base}/?invite=${token}`;
+}
+
 app.get('/api/invite/token', requireAdmin, async (req, res) => {
-  const token   = await db.getSetting('invite_token');
-  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
-  res.json({ token, url: `${baseUrl}/?invite=${token}` });
+  const token = await db.getSetting('invite_token');
+  res.json({ token, url: buildInviteUrl(req, token) });
 });
 
 app.post('/api/invite/regenerate', requireAdmin, async (req, res) => {
-  const crypto  = require('crypto');
-  const token   = crypto.randomBytes(24).toString('hex');
+  const crypto = require('crypto');
+  const token  = crypto.randomBytes(24).toString('hex');
   await db.setSetting('invite_token', token);
-  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
-  res.json({ token, url: `${baseUrl}/?invite=${token}` });
+  res.json({ token, url: buildInviteUrl(req, token) });
 });
 
 app.get('/api/invite/verify', async (req, res) => {
@@ -203,22 +206,18 @@ app.post('/api/items/reorder', requireAdmin, async (req, res) => {
 
 // ── Participants ──────────────────────────────────────────────
 app.post('/api/items/:id/join', requireInvite, async (req, res) => {
-  const { name, contribution } = req.body;
+  const { name } = req.body;
   const finalName = req.user?.pseudo || name;
   if (!finalName) return res.status(400).json({ error: 'Prénom requis' });
-  const contrib = contribution ? parseFloat(String(contribution).replace(',','.')) : null;
 
-  await db.addParticipant(req.params.id, finalName, req.user?.id || null, contrib);
+  await db.addParticipant(req.params.id, finalName, req.user?.id || null);
   const item = await db.getItem(req.params.id);
 
-  // Notification
-  const msg = contrib
-    ? `${finalName} participe à "${item.title}" (contribue ${contrib}€)`
-    : `${finalName} participe à "${item.title}"`;
+  const msg = `${finalName} participe à "${item.title}"`;
   await db.addNotification('join', msg, item.id);
   await sendEmail(
     `🎁 ${finalName} participe à un cadeau`,
-    `<p><b>${finalName}</b> vient de rejoindre l'achat de <b>${item.title}</b>${contrib ? ` avec une contribution de <b>${contrib}€</b>` : ''}.</p>`
+    `<p><b>${finalName}</b> vient de rejoindre l'achat de <b>${item.title}</b>.</p>`
   );
 
   res.json(item);
@@ -229,6 +228,28 @@ app.delete('/api/items/:id/join', requireInvite, async (req, res) => {
   const finalName = req.user?.pseudo || name;
   await db.removeParticipant(req.params.id, finalName, req.user?.id || null);
   res.json(await db.getItem(req.params.id));
+});
+
+// ── Purchased status ──────────────────────────────────────────
+// N'importe quel invité peut marquer/démarquer un article comme acheté —
+// c'est typiquement la personne qui vient d'acheter le cadeau qui le signale.
+app.post('/api/items/:id/purchased', requireInvite, async (req, res) => {
+  const { purchased, name } = req.body;
+  const finalName = req.user?.pseudo || name;
+  if (purchased && !finalName) return res.status(400).json({ error: 'Prénom requis' });
+
+  const item = await db.setPurchased(req.params.id, !!purchased, finalName);
+
+  if (purchased) {
+    const msg = `${finalName} a signalé "${item.title}" comme acheté`;
+    await db.addNotification('purchased', msg, item.id);
+    await sendEmail(
+      `✅ ${finalName} a acheté un cadeau`,
+      `<p><b>${finalName}</b> a marqué <b>${item.title}</b> comme acheté.</p>`
+    );
+  }
+
+  res.json(item);
 });
 
 // ── Messages ──────────────────────────────────────────────────

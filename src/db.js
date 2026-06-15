@@ -31,24 +31,25 @@ async function initDB() {
     );
 
     CREATE TABLE IF NOT EXISTS items (
-      id         SERIAL PRIMARY KEY,
-      title      TEXT NOT NULL,
-      price      NUMERIC(10,2),
-      image      TEXT,
-      url        TEXT,
-      details    TEXT,
-      options    TEXT,
-      position   INTEGER DEFAULT 0,
-      created_at TIMESTAMPTZ DEFAULT NOW()
+      id           SERIAL PRIMARY KEY,
+      title        TEXT NOT NULL,
+      price        NUMERIC(10,2),
+      image        TEXT,
+      url          TEXT,
+      details      TEXT,
+      options      TEXT,
+      position     INTEGER DEFAULT 0,
+      purchased    BOOLEAN DEFAULT false,
+      purchased_by TEXT,
+      created_at   TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS participants (
-      id           SERIAL PRIMARY KEY,
-      item_id      INTEGER REFERENCES items(id) ON DELETE CASCADE,
-      user_id      INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      name         TEXT NOT NULL,
-      contribution NUMERIC(10,2),
-      created_at   TIMESTAMPTZ DEFAULT NOW(),
+      id         SERIAL PRIMARY KEY,
+      item_id    INTEGER REFERENCES items(id) ON DELETE CASCADE,
+      user_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      name       TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       UNIQUE(item_id, name)
     );
 
@@ -64,7 +65,8 @@ async function initDB() {
     ALTER TABLE items ADD COLUMN IF NOT EXISTS details TEXT;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS options TEXT;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;
-    ALTER TABLE participants ADD COLUMN IF NOT EXISTS contribution NUMERIC(10,2);
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased BOOLEAN DEFAULT false;
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased_by TEXT;
   `);
 
   // Generate invite token if not exists
@@ -107,55 +109,36 @@ async function getUnreadCount() {
 }
 
 // ── Items ─────────────────────────────────────────────────────
+const ITEM_SELECT = `
+  SELECT
+    i.*,
+    COALESCE(
+      json_agg(DISTINCT jsonb_build_object(
+        'id', p.id, 'name', p.name, 'user_id', p.user_id
+      )) FILTER (WHERE p.id IS NOT NULL), '[]'
+    ) AS participants,
+    COALESCE(
+      json_agg(DISTINCT jsonb_build_object(
+        'id', m.id, 'author', m.author, 'content', m.content,
+        'created_at', m.created_at, 'user_id', m.user_id
+      )) FILTER (WHERE m.id IS NOT NULL), '[]'
+    ) AS messages
+  FROM items i
+  LEFT JOIN participants p ON p.item_id = i.id
+  LEFT JOIN messages m ON m.item_id = i.id
+`;
+
 async function getItems(sort = 'position') {
   let orderBy = 'i.position ASC, i.created_at DESC';
   if (sort === 'price_asc')  orderBy = 'i.price ASC NULLS LAST, i.position ASC';
   if (sort === 'price_desc') orderBy = 'i.price DESC NULLS LAST, i.position ASC';
 
-  const { rows } = await pool.query(`
-    SELECT
-      i.*,
-      COALESCE(
-        json_agg(DISTINCT jsonb_build_object(
-          'id', p.id, 'name', p.name, 'user_id', p.user_id, 'contribution', p.contribution
-        )) FILTER (WHERE p.id IS NOT NULL), '[]'
-      ) AS participants,
-      COALESCE(
-        json_agg(DISTINCT jsonb_build_object(
-          'id', m.id, 'author', m.author, 'content', m.content,
-          'created_at', m.created_at, 'user_id', m.user_id
-        )) FILTER (WHERE m.id IS NOT NULL), '[]'
-      ) AS messages
-    FROM items i
-    LEFT JOIN participants p ON p.item_id = i.id
-    LEFT JOIN messages m ON m.item_id = i.id
-    GROUP BY i.id
-    ORDER BY ${orderBy}
-  `);
+  const { rows } = await pool.query(`${ITEM_SELECT} GROUP BY i.id ORDER BY ${orderBy}`);
   return rows;
 }
 
 async function getItem(id) {
-  const { rows } = await pool.query(`
-    SELECT
-      i.*,
-      COALESCE(
-        json_agg(DISTINCT jsonb_build_object(
-          'id', p.id, 'name', p.name, 'user_id', p.user_id, 'contribution', p.contribution
-        )) FILTER (WHERE p.id IS NOT NULL), '[]'
-      ) AS participants,
-      COALESCE(
-        json_agg(DISTINCT jsonb_build_object(
-          'id', m.id, 'author', m.author, 'content', m.content,
-          'created_at', m.created_at, 'user_id', m.user_id
-        )) FILTER (WHERE m.id IS NOT NULL), '[]'
-      ) AS messages
-    FROM items i
-    LEFT JOIN participants p ON p.item_id = i.id
-    LEFT JOIN messages m ON m.item_id = i.id
-    WHERE i.id = $1
-    GROUP BY i.id
-  `, [id]);
+  const { rows } = await pool.query(`${ITEM_SELECT} WHERE i.id = $1 GROUP BY i.id`, [id]);
   return rows[0] || null;
 }
 
@@ -170,11 +153,19 @@ async function createItem({ title, price, image, url, details, options }) {
 }
 
 async function updateItem(id, { title, price, image, url, details, options }) {
-  const { rows } = await pool.query(
-    `UPDATE items SET title=$1,price=$2,image=$3,url=$4,details=$5,options=$6 WHERE id=$7 RETURNING *`,
+  await pool.query(
+    `UPDATE items SET title=$1,price=$2,image=$3,url=$4,details=$5,options=$6 WHERE id=$7`,
     [title, price||null, image||null, url||null, details||null, options||null, id]
   );
-  return rows[0] || null;
+  return getItem(id);
+}
+
+async function setPurchased(id, purchased, purchasedBy) {
+  await pool.query(
+    `UPDATE items SET purchased=$1, purchased_by=$2 WHERE id=$3`,
+    [purchased, purchased ? (purchasedBy || null) : null, id]
+  );
+  return getItem(id);
 }
 
 async function updatePositions(orderedIds) {
@@ -194,12 +185,12 @@ async function deleteItem(id) {
 }
 
 // ── Participants ──────────────────────────────────────────────
-async function addParticipant(itemId, name, userId = null, contribution = null) {
+async function addParticipant(itemId, name, userId = null) {
   try {
     const { rows } = await pool.query(
-      `INSERT INTO participants (item_id, user_id, name, contribution) VALUES ($1,$2,$3,$4)
-       ON CONFLICT (item_id, name) DO UPDATE SET contribution=$4 RETURNING *`,
-      [itemId, userId||null, name, contribution||null]
+      `INSERT INTO participants (item_id, user_id, name) VALUES ($1,$2,$3)
+       ON CONFLICT (item_id, name) DO NOTHING RETURNING *`,
+      [itemId, userId||null, name]
     );
     return rows[0] || null;
   } catch { return null; }
@@ -215,11 +206,10 @@ async function removeParticipant(itemId, name, userId = null) {
 
 // ── Messages ──────────────────────────────────────────────────
 async function addMessage(itemId, author, content, userId = null) {
-  const { rows } = await pool.query(
-    `INSERT INTO messages (item_id, author, content, user_id) VALUES ($1,$2,$3,$4) RETURNING *`,
+  await pool.query(
+    `INSERT INTO messages (item_id, author, content, user_id) VALUES ($1,$2,$3,$4)`,
     [itemId, author, content, userId||null]
   );
-  return rows[0];
 }
 
 async function deleteMessage(messageId) {
@@ -243,7 +233,7 @@ async function createUser({ email, password, pseudo, isAdmin = false }) {
 module.exports = {
   initDB, getSetting, setSetting,
   addNotification, getNotifications, markAllRead, getUnreadCount,
-  getItems, getItem, createItem, updateItem, updatePositions, deleteItem,
+  getItems, getItem, createItem, updateItem, setPurchased, updatePositions, deleteItem,
   addParticipant, removeParticipant,
   addMessage, deleteMessage,
   getUserByEmail, createUser, pool
