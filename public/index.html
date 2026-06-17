@@ -172,6 +172,7 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .item-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .item-price{font-family:'Instrument Serif',serif;font-size:17px;color:var(--ink)}
 .item-price.none{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink3);font-weight:400}
+.price-stale{font-size:10px;color:var(--gold);font-weight:600;margin-left:2px}
 .item-link{font-size:12px;color:var(--ink3);text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:color var(--t)}
 .item-link:hover{color:var(--ink)}
 .item-details{font-size:13px;color:var(--ink2);line-height:1.5;white-space:pre-wrap}
@@ -403,7 +404,11 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
         </select>
         <span style="font-size:12px;color:var(--ink3)">← glisse pour réordonner</span>
       </div>
+      <button class="btn btn-secondary btn-sm" id="refresh-prices-btn" onclick="refreshPrices()" title="Relancer la vérification des prix maintenant (sinon automatique 1x/jour)">
+        <span id="refresh-prices-icon" aria-hidden="true">🔄</span> Actualiser les prix
+      </button>
     </div>
+    <div id="refresh-prices-alert" class="alert" role="status"></div>
 
     <div class="list admin-mode" id="admin-items" aria-live="polite" aria-label="Articles à gérer"></div>
     <div class="empty" id="admin-empty" style="display:none"><span class="empty-icon" aria-hidden="true">✦</span><p>Ajoute ton premier article.</p></div>
@@ -643,6 +648,22 @@ async function changeSort(val) {
   ['sort-select','admin-sort-select'].forEach(id => { const el=$(id); if(el) el.value=val; });
   await loadItems(); render();
 }
+
+async function refreshPrices() {
+  const btn = $('refresh-prices-btn'), icon = $('refresh-prices-icon'), al = $('refresh-prices-alert');
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spin" aria-hidden="true"></span>';
+  showAlert(al, "Vérification des prix en cours, ça peut prendre quelques minutes pour beaucoup d'articles.", 'info');
+  try {
+    const r = await fetch('/api/items/refresh-prices', { method:'POST', headers:authHeaders() });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error||'Erreur');
+    showAlert(al, 'Mise à jour lancée en arrière-plan — recharge la page dans une minute pour voir les nouveaux prix.', 'success');
+    setTimeout(() => hideAlert(al), 6000);
+  } catch(e) { showAlert(al, e.message, 'error'); }
+  btn.disabled = false;
+  icon.textContent = '🔄';
+}
 async function fetchItem() {
   const url = v('url-inp');
   if (!url) { showAlert($('fetch-alert'), "Colle une URL d'abord", 'error'); return; }
@@ -650,7 +671,17 @@ async function fetchItem() {
   try {
     const r = await fetch('/api/scrape', { method:'POST', headers:authHeaders(), body: JSON.stringify({ url }) });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
+    if (!r.ok) {
+      if (d.botBlocked) {
+        // Ouvre directement le formulaire manuel et pré-remplit le lien produit
+        // pour que l'utilisateur n'ait qu'à copier titre + prix depuis la page.
+        $('manual-form').classList.add('open');
+        $('manual-form').setAttribute('aria-hidden','false');
+        $('manual-toggle-btn').setAttribute('aria-expanded','true');
+        $('m-url').value = url;
+      }
+      throw new Error(d.error);
+    }
     items.unshift(d);
     $('url-inp').value = '';
     showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
@@ -805,9 +836,11 @@ function fmtPrice(p) {
   if (p==null) return null;
   const n = parseFloat(p); return isNaN(n) ? null : n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
 }
-function priceEl(price) {
+function priceEl(price, stale) {
   const f = fmtPrice(price);
-  return f ? `<span class="item-price">${esc(f)}</span>` : `<span class="item-price none">prix non renseigné</span>`;
+  if (!f) return `<span class="item-price none">prix non renseigné</span>`;
+  const staleTag = stale ? `<span class="price-stale" title="La dernière mise à jour automatique du prix a échoué">⚠️ peut-être pas à jour</span>` : '';
+  return `<span class="item-price">${esc(f)}</span>${staleTag}`;
 }
 function linkEl(url) {
   if (!url) return '';
@@ -862,16 +895,22 @@ function buildCard(item, isAdmin) {
   const isOpen = expanded.has(item.id), msgCount = (item.messages||[]).length;
   const purchased = !!item.purchased;
 
+  // Libellé selon le contexte : "Je l'achète" si personne ne s'en occupe
+  // encore, "Rejoindre l'achat" si quelqu'un d'autre est déjà dessus —
+  // le bouton "Participer" générique ne disait pas ce qu'on participait à faire.
+  const othersCount = parts.filter(p => !(me ? p.user_id===me.id : p.name===myName)).length;
+  const joinLabel = othersCount > 0 ? "Rejoindre l'achat" : "Je l'achète";
+
   let joinBlock = '';
   if (!purchased) {
     if (joined) {
-      joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je participe</button>`;
+      joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je m'en occupe</button>`;
     } else if (me) {
-      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})" aria-label="Participer">Participer</button>`;
+      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})" aria-label="${joinLabel}">${joinLabel}</button>`;
     } else {
       joinBlock = `<div class="join-row">
         <input class="join-inp" id="ji-${item.id}" placeholder="Prénom…" value="${esc(guestName)}" aria-label="Ton prénom" onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
-        <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">Participer</button>
+        <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">${joinLabel}</button>
       </div>`;
     }
   }
@@ -892,7 +931,7 @@ function buildCard(item, isAdmin) {
       <div class="item-body">
         <div class="item-info">
           <h3 class="item-title">${esc(item.title)}</h3>
-          <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
+          <div class="item-meta">${priceEl(item.price, item.price_stale)}${linkEl(item.url)}</div>
           ${purchasedBanner(item)}
           ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
           ${optionsEl(item.options)}

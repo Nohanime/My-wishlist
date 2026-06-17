@@ -67,6 +67,8 @@ async function initDB() {
     ALTER TABLE items ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased BOOLEAN DEFAULT false;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased_by TEXT;
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS price_updated_at TIMESTAMPTZ;
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS price_stale BOOLEAN DEFAULT false;
   `);
 
   // Generate invite token if not exists
@@ -168,6 +170,27 @@ async function setPurchased(id, purchased, purchasedBy) {
   return getItem(id);
 }
 
+// ── Price refresh ────────────────────────────────────────────
+// Liste des articles ayant une URL et n'étant pas déjà marqués achetés
+// (pas la peine de continuer à vérifier le prix d'un cadeau déjà offert)
+async function getItemsWithUrl() {
+  const { rows } = await pool.query(
+    `SELECT id, url, price FROM items WHERE url IS NOT NULL AND url != '' AND purchased = false`
+  );
+  return rows;
+}
+
+async function updatePrice(id, newPrice, failed = false) {
+  if (failed) {
+    await pool.query(`UPDATE items SET price_stale=true WHERE id=$1`, [id]);
+    return;
+  }
+  await pool.query(
+    `UPDATE items SET price=$1, price_updated_at=NOW(), price_stale=false WHERE id=$2`,
+    [newPrice, id]
+  );
+}
+
 async function updatePositions(orderedIds) {
   const client = await pool.connect();
   try {
@@ -234,6 +257,7 @@ module.exports = {
   initDB, getSetting, setSetting,
   addNotification, getNotifications, markAllRead, getUnreadCount,
   getItems, getItem, createItem, updateItem, setPurchased, updatePositions, deleteItem,
+  getItemsWithUrl, updatePrice,
   addParticipant, removeParticipant,
   addMessage, deleteMessage,
   getUserByEmail, createUser, pool

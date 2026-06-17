@@ -30,28 +30,76 @@ function absoluteUrl(src, base) {
   try { return new URL(src, base).href; } catch { return null; }
 }
 
-async function scrapeProduct(rawUrl) {
-  const resp = await axios.get(rawUrl, {
-    headers: {
-      'User-Agent': UA,
-      'Accept-Language': 'fr-FR,fr;q=0.9',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'Accept-Encoding': 'gzip, deflate, br',
-      'Cache-Control': 'no-cache',
-    },
-    timeout: 15000,
-    maxRedirects: 5,
-    decompress: true,
-  });
+// Détecte si la page reçue est une page de challenge anti-bot
+// (Cloudflare, Akamai, DataDome, etc.) plutôt que la vraie page produit.
+// Ça permet de donner un message clair à l'utilisateur au lieu d'un
+// échec silencieux ou de données vides.
+function detectBotWall(html, $) {
+  const text = (html || '').slice(0, 5000).toLowerCase();
+  const title = ($('title').text() || '').toLowerCase();
 
-  const $    = cheerio.load(resp.data);
+  const signals = [
+    'checking your browser', 'just a moment', 'cf-browser-verification',
+    'cloudflare', 'attention required', 'ddos protection by',
+    'enable javascript and cookies', 'verify you are human',
+    'access denied', 'request blocked', 'datadome', 'perimeterx',
+    'are you a robot', 'captcha', 'bot detection',
+  ];
+  const titleSignals = ['just a moment', 'access denied', 'attention required', 'are you human'];
+
+  if (titleSignals.some(s => title.includes(s))) return true;
+  // Le body est suspicieusement court ET contient un mot-clé anti-bot
+  if (html.length < 3000 && signals.some(s => text.includes(s))) return true;
+  return false;
+}
+
+class BotBlockedError extends Error {
+  constructor(host) {
+    super(`Le site ${host} bloque les robots et empêche la récupération automatique.`);
+    this.name = 'BotBlockedError';
+    this.host = host;
+  }
+}
+
+async function scrapeProduct(rawUrl) {
+  let resp;
+  try {
+    resp = await axios.get(rawUrl, {
+      headers: {
+        'User-Agent': UA,
+        'Accept-Language': 'fr-FR,fr;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Sec-Fetch-Mode': 'navigate',
+        'Upgrade-Insecure-Requests': '1',
+      },
+      timeout: 15000,
+      maxRedirects: 5,
+      decompress: true,
+      validateStatus: s => s < 500, // on veut inspecter même les 403
+    });
+  } catch (e) {
+    if (e.code === 'ECONNABORTED') throw new Error('Le site a mis trop de temps à répondre.');
+    throw e;
+  }
+
   const host = new URL(rawUrl).hostname.replace(/^www\./, '');
+
+  if (resp.status === 403 || resp.status === 429) {
+    throw new BotBlockedError(host);
+  }
+
+  const $ = cheerio.load(resp.data);
+
+  if (detectBotWall(resp.data, $)) {
+    throw new BotBlockedError(host);
+  }
 
   const og     = (p) => $(`meta[property="og:${p}"]`).attr('content') || '';
   const meta   = (n) => $(`meta[name="${n}"]`).attr('content') || $(`meta[property="${n}"]`).attr('content') || '';
   const itprop = (p) => $(`[itemprop="${p}"]`).attr('content') || $(`[itemprop="${p}"]`).first().text() || '';
 
-  // Titre & image : og: tags toujours présents dans le HTML statique
   let title = (og('title') || meta('twitter:title') || $('h1').first().text() || $('title').text()).trim().replace(/\s+/g, ' ').slice(0, 140);
   let image = absoluteUrl(og('image') || og('image:url') || meta('twitter:image'), rawUrl);
   let price = null;
@@ -99,7 +147,21 @@ async function scrapeProduct(rawUrl) {
     });
   }
 
+  // Si on n'a réussi à extraire NI titre NI prix, c'est probablement
+  // aussi un blocage silencieux (page vide rendue en JS côté client)
+  if (!title && !price) {
+    throw new BotBlockedError(host);
+  }
+
   return { title: title || null, price: price ?? null, image: image || null, url: rawUrl };
 }
 
-module.exports = { scrapeProduct };
+// Re-scrape uniquement le prix d'un article existant (pour la mise à jour auto).
+// Ne touche jamais au titre/image déjà enregistrés — seulement le prix,
+// et seulement s'il a pu être extrait sans ambiguïté.
+async function scrapePriceOnly(rawUrl) {
+  const data = await scrapeProduct(rawUrl);
+  return data.price;
+}
+
+module.exports = { scrapeProduct, scrapePriceOnly, BotBlockedError };

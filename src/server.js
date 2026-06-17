@@ -6,8 +6,8 @@ const jwt          = require('jsonwebtoken');
 const path         = require('path');
 const cors         = require('cors');
 
-const db                = require('./db');
-const { scrapeProduct } = require('./scraper');
+const db = require('./db');
+const { scrapeProduct, scrapePriceOnly, BotBlockedError } = require('./scraper');
 
 const app         = express();
 app.set('trust proxy', 1);
@@ -163,11 +163,18 @@ app.post('/api/scrape', requireAdmin, async (req, res) => {
   if (!url) return res.status(400).json({ error: 'URL manquante' });
   try {
     const data = await scrapeProduct(url);
-    if (!data.title) return res.status(422).json({ error: "Impossible d'extraire les données. Essaie l'ajout manuel." });
+    if (!data.title) return res.status(422).json({ error: "Impossible d'extraire le titre. Essaie l'ajout manuel (✏️)." });
     res.json(await db.createItem(data));
   } catch(e) {
-    const msg = (e.response?.status === 403 || e.response?.status === 429)
-      ? "Ce site bloque les robots. Utilise l'ajout manuel."
+    if (e instanceof BotBlockedError) {
+      return res.status(422).json({
+        error: `${e.host} bloque la récupération automatique. Utilise l'ajout manuel (✏️) — copie le titre et le prix depuis la page produit.`,
+        botBlocked: true,
+      });
+    }
+    const status = e.response?.status;
+    const msg = (status === 403 || status === 429)
+      ? "Ce site bloque les robots. Utilise l'ajout manuel (✏️)."
       : "Erreur : " + e.message;
     res.status(500).json({ error: msg });
   }
@@ -203,6 +210,50 @@ app.post('/api/items/reorder', requireAdmin, async (req, res) => {
   await db.updatePositions(ids);
   res.json({ ok: true });
 });
+
+// ── Price refresh ────────────────────────────────────────────
+// Re-scrape le prix de tous les articles ayant une URL. Tourne automatiquement
+// 1x/jour, et peut aussi être déclenché manuellement par l'admin.
+async function refreshAllPrices() {
+  const items = await db.getItemsWithUrl();
+  let updated = 0, failed = 0;
+  for (const item of items) {
+    try {
+      const newPrice = await scrapePriceOnly(item.url);
+      if (newPrice !== null && newPrice !== undefined) {
+        const oldPrice = item.price !== null ? parseFloat(item.price) : null;
+        await db.updatePrice(item.id, newPrice, false);
+        if (oldPrice !== null && Math.abs(oldPrice - newPrice) > 0.01) {
+          await db.addNotification('price_change', `Prix mis à jour pour l'article #${item.id} : ${oldPrice}€ → ${newPrice}€`, item.id);
+        }
+        updated++;
+      } else {
+        await db.updatePrice(item.id, null, true);
+        failed++;
+      }
+    } catch (e) {
+      await db.updatePrice(item.id, null, true);
+      failed++;
+    }
+    // Pause entre chaque requête pour ne pas se faire bloquer par rate-limit
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  console.log(`✓ Refresh prix : ${updated} mis à jour, ${failed} échoués`);
+  return { updated, failed, total: items.length };
+}
+
+app.post('/api/items/refresh-prices', requireAdmin, async (req, res) => {
+  // Ne bloque pas la requête HTTP si la liste est grande — répond immédiatement
+  // et laisse tourner en fond, le résultat sera visible au prochain chargement.
+  res.json({ ok: true, message: 'Mise à jour des prix lancée en arrière-plan.' });
+  refreshAllPrices().catch(e => console.error('Refresh prices error:', e));
+});
+
+// Cron interne : 1x/24h
+const DAY_MS = 24 * 60 * 60 * 1000;
+setInterval(() => {
+  refreshAllPrices().catch(e => console.error('Auto refresh prices error:', e));
+}, DAY_MS);
 
 // ── Participants ──────────────────────────────────────────────
 app.post('/api/items/:id/join', requireInvite, async (req, res) => {
@@ -282,4 +333,9 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.ht
 
 db.initDB().then(() => {
   app.listen(PORT, () => console.log(`✓ Wishlist → http://localhost:${PORT}`));
+  // Premier refresh des prix 2 minutes après le démarrage (laisse le serveur
+  // se stabiliser), puis ensuite toutes les 24h via le setInterval ci-dessus.
+  setTimeout(() => {
+    refreshAllPrices().catch(e => console.error('Initial price refresh error:', e));
+  }, 2 * 60 * 1000);
 }).catch(e => { console.error('DB init failed:', e); process.exit(1); });
