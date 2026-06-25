@@ -141,7 +141,7 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .manual-form .full{grid-column:1/-1}
 
 /* ── STATS ─── */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:center}
 .stat-n{font-family:'Instrument Serif',serif;font-size:28px;line-height:1;color:var(--ink);display:block}
 .stat-l{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
@@ -180,9 +180,9 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .opt-tag{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
 
 /* purchased status */
-.purchased-banner{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-bd);border-radius:20px;padding:3px 10px;width:fit-content}
-.item-card.is-purchased{opacity:.6}
-.item-card.is-purchased .item-title{text-decoration:line-through}
+.item-card.is-purchased{opacity:.55}
+.item-card.is-purchased .item-title{text-decoration:line-through;color:var(--ink3)}
+.purchased-info{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
 
 /* participants */
 .participants{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
@@ -201,30 +201,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .join-inp::placeholder{color:var(--ink3)}
 .join-inp.shake{animation:shake .35s ease;border-color:var(--red)}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-
-.expand-btn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:6px;transition:color var(--t),background var(--t);white-space:nowrap}
-.expand-btn:hover{color:var(--ink);background:var(--surface2)}
-.expand-icon{transition:transform .2s;display:inline-block}
-.expand-btn[aria-expanded="true"] .expand-icon{transform:rotate(180deg)}
-
-/* ── EXTRA PANEL ─── */
-.item-extra{border-top:1px solid var(--border);background:var(--surface2)}
-.item-extra[hidden]{display:none}
-.msg-panel{padding:14px 16px}
-.msg-panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:12px}
-.msg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto}
-.msg-empty{font-size:13px;color:var(--ink3);text-align:center;padding:8px 0;font-style:italic}
-.msg-bubble{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;position:relative}
-.msg-author{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:2px}
-.msg-text{font-size:13px;color:var(--ink);line-height:1.5;white-space:pre-wrap;word-break:break-word}
-.msg-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
-.msg-time{font-size:10px;color:var(--ink3)}
-.msg-del{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:12px;padding:2px 6px;border-radius:5px;opacity:0;transition:opacity var(--t),color var(--t),background var(--t)}
-.msg-bubble:hover .msg-del,.msg-bubble:focus-within .msg-del{opacity:1}
-.msg-del:hover{color:var(--red);background:var(--red-bg)}
-.msg-compose{display:flex;gap:8px;flex-wrap:wrap}
-.msg-compose .inp{flex:1;min-width:140px;height:36px;font-size:13px}
-.msg-name-inp{width:100px !important;flex:none !important}
 
 /* ── TIP ─── */
 .tip{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.5}
@@ -270,11 +246,9 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   .join-inp{width:88px}
   .manual-form{grid-template-columns:1fr}
   .manual-form .full{grid-column:1}
-  .stats{grid-template-columns:repeat(3,1fr);gap:8px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat{padding:10px}
   .stat-n{font-size:22px}
-  .msg-compose{flex-direction:column;gap:6px}
-  .msg-name-inp,.msg-compose .inp{width:100% !important;min-width:0 !important}
   .url-row{flex-wrap:wrap}
   .modal{padding:22px 18px 20px;border-radius:var(--r) var(--r) 0 0;max-height:92dvh;margin-top:auto}
   .overlay[aria-hidden="false"]{align-items:flex-end;padding:0}
@@ -304,6 +278,7 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   <nav class="hdr-nav" aria-label="Navigation" role="tablist">
     <button class="tab-btn" id="tab-list-btn" role="tab" aria-selected="true" aria-controls="tab-list" onclick="switchTab('list',this)">Liste</button>
     <button class="tab-btn" id="tab-admin-btn" role="tab" aria-selected="false" aria-controls="tab-admin" onclick="switchTab('admin',this)" hidden>Gérer</button>
+    <button class="tab-btn" id="tab-archive-btn" role="tab" aria-selected="false" aria-controls="tab-archive" onclick="switchTab('archive',this)" hidden>🗃 Archive</button>
   </nav>
   <div class="hdr-right">
     <div id="hdr-user" class="hdr-user" aria-live="polite">
@@ -391,7 +366,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
     <div class="stats" id="stats" style="display:none">
       <div class="stat"><span class="stat-n" id="s-total">0</span><span class="stat-l">articles</span></div>
       <div class="stat"><span class="stat-n" id="s-parts">0</span><span class="stat-l">participations</span></div>
-      <div class="stat"><span class="stat-n" id="s-msgs">0</span><span class="stat-l">messages</span></div>
     </div>
 
     <!-- Sort toolbar in admin -->
@@ -415,6 +389,21 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   </div>
 </section>
 
+<!-- ARCHIVE TAB -->
+<section class="section" id="tab-archive" role="tabpanel" aria-labelledby="tab-archive-btn" tabindex="-1">
+  <div class="wrap">
+    <div class="tip" role="note">
+      <span class="tip-icon" aria-hidden="true">🗃</span>
+      <span>Articles déjà offerts — visible uniquement par toi.</span>
+    </div>
+    <div class="list" id="archive-items" aria-live="polite" aria-label="Articles archivés"></div>
+    <div class="empty" id="archive-empty" style="display:none">
+      <span class="empty-icon" aria-hidden="true">✦</span>
+      <p>Aucun article archivé pour l'instant.</p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!-- MOBILE NAV -->
@@ -424,6 +413,9 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   </button>
   <button class="tab-btn" id="mob-admin-btn" role="tab" aria-selected="false" aria-controls="tab-admin" onclick="switchTab('admin',this,true)" hidden>
     <span class="nav-icon" aria-hidden="true">⚙️</span>Gérer
+  </button>
+  <button class="tab-btn" id="mob-archive-btn" role="tab" aria-selected="false" aria-controls="tab-archive" onclick="switchTab('archive',this,true)" hidden>
+    <span class="nav-icon" aria-hidden="true">🗃</span>Archive
   </button>
 </nav>
 
@@ -684,8 +676,15 @@ async function fetchItem() {
     }
     items.unshift(d);
     $('url-inp').value = '';
-    showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
-    render(); setTimeout(() => hideAlert($('fetch-alert')), 3000);
+    if (d.needsPrice) {
+      showAlert($('fetch-alert'), '✓ Article ajouté ! Saisis le prix manuellement.', 'success');
+      render(); openEdit(d.id);
+      setTimeout(() => { const el=$('edit-price'); if(el) el.focus(); }, 100);
+    } else {
+      showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
+      render();
+    }
+    setTimeout(() => hideAlert($('fetch-alert')), 3500);
   } catch(e) { showAlert($('fetch-alert'), e.message, 'error'); }
   setBusy(false);
 }
@@ -731,8 +730,6 @@ async function saveEdit() {
 }
 
 // ── Participants ──────────────────────────────────────────────
-let expanded = new Set();
-
 async function joinItem(id) {
   let name;
   if (me) { name = me.pseudo; }
@@ -760,31 +757,9 @@ async function markPurchased(id) {
     localStorage.setItem('guest_name', name);
   }
   const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: true, name }) });
-  if (r.ok) { updateItem(await r.json()); render(); }
-}
-async function unmarkPurchased(id) {
-  const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: false }) });
-  if (r.ok) { updateItem(await r.json()); render(); }
+  if (r.ok) { items = items.filter(i => i.id !== id); render(); }
 }
 
-// ── Messages ──────────────────────────────────────────────────
-function toggleExtra(id) {
-  if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
-  render();
-}
-async function sendMessage(id) {
-  const contentEl = $('msg-inp-'+id), nameEl = $('msg-name-'+id);
-  const content = contentEl?.value.trim(); if (!content) return;
-  const name = me?.pseudo || nameEl?.value.trim();
-  if (!name) { if(nameEl){nameEl.classList.add('shake');setTimeout(()=>nameEl.classList.remove('shake'),400);} return; }
-  if (!me && nameEl) localStorage.setItem('guest_name', nameEl.value.trim());
-  const r = await fetch('/api/items/'+id+'/messages', { method:'POST', headers:authHeaders(), body: JSON.stringify({ content, name }) });
-  if (r.ok) { updateItem(await r.json()); if(contentEl) contentEl.value=''; render(); if(me?.isAdmin) pollNotifs(); }
-}
-async function deleteMessage(itemId, msgId) {
-  const r = await fetch('/api/items/'+itemId+'/messages/'+msgId, { method:'DELETE', headers:authHeaders() });
-  if (r.ok) { updateItem(await r.json()); render(); }
-}
 function updateItem(d) { const idx = items.findIndex(i => i.id === d.id); if (idx !== -1) items[idx] = d; }
 
 // ── Drag & Drop ───────────────────────────────────────────────
@@ -817,14 +792,23 @@ function renderHeader() {
     const badge = $('hdr-badge'); badge.hidden = !isAdmin; if(isAdmin) badge.removeAttribute('hidden');
   } else { userEl.classList.remove('visible'); }
   $('btn-open-login').style.display = me ? 'none' : '';
-  ['tab-admin-btn','mob-admin-btn'].forEach(id => { const el=$(id); if(!el) return; if(isAdmin){ el.hidden=false; el.removeAttribute('hidden'); } else { el.hidden=true; } });
+  ['tab-admin-btn','mob-admin-btn','tab-archive-btn','mob-archive-btn'].forEach(id => { const el=$(id); if(!el) return; if(isAdmin){ el.hidden=false; el.removeAttribute('hidden'); } else { el.hidden=true; } });
   const notifWrap = $('notif-wrap');
   if (isAdmin) notifWrap.removeAttribute('hidden'); else notifWrap.hidden = true;
   $('guest-tip').style.display = me ? 'none' : '';
-  if (!isAdmin && $('tab-admin').classList.contains('active')) switchTabById('list');
+  if (!isAdmin && ($('tab-admin').classList.contains('active') || $('tab-archive').classList.contains('active'))) switchTabById('list');
 }
 
 function render() { renderList(); renderAdmin(); updateStats(); }
+
+let archiveItems = [];
+async function loadAndRenderArchive() {
+  try {
+    const r = await fetch('/api/items/archive', { headers: authHeaders() });
+    if (r.ok) archiveItems = await r.json();
+  } catch {}
+  renderArchive();
+}
 
 // helpers
 function imgCell(item) {
@@ -866,33 +850,9 @@ function chipsEl(item, isAdmin) {
     return `<span class="chip">${esc(p.name)}${rm}</span>`;
   }).join('');
 }
-function msgsEl(item) {
-  const msgs = (item.messages||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-  const guestName = localStorage.getItem('guest_name') || '';
-  const listHtml = msgs.length
-    ? msgs.map(m => {
-        const del = me?.isAdmin ? `<button class="msg-del" onclick="deleteMessage(${item.id},${m.id})" aria-label="Supprimer">Suppr.</button>` : '';
-        const d = new Date(m.created_at);
-        const time = d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-        return `<article class="msg-bubble"><div class="msg-author">${esc(m.author)}</div><div class="msg-text">${esc(m.content)}</div><div class="msg-footer"><time class="msg-time" datetime="${esc(m.created_at)}">${time}</time>${del}</div></article>`;
-      }).join('')
-    : `<p class="msg-empty">Aucun message — soyez le premier !</p>`;
-  const nameInput = me ? '' : `<input class="inp msg-name-inp" id="msg-name-${item.id}" placeholder="Ton prénom…" value="${esc(guestName)}" aria-label="Ton prénom" />`;
-  return `<div class="msg-panel">
-    <p class="msg-panel-title">💬 Messages entre participants</p>
-    <div class="msg-list" id="msg-list-${item.id}" role="log" aria-live="polite">${listHtml}</div>
-    <div class="msg-compose">
-      ${nameInput}
-      <input class="inp" id="msg-inp-${item.id}" placeholder="Écrire un message…" aria-label="Message" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage(${item.id})}" />
-      <button class="btn btn-primary btn-sm" onclick="sendMessage(${item.id})">Envoyer</button>
-    </div>
-  </div>`;
-}
-
 function buildCard(item, isAdmin) {
   const parts = item.participants||[], guestName = localStorage.getItem('guest_name')||'', myName = me ? me.pseudo : guestName;
   const joined = parts.some(p => me ? p.user_id===me.id : (myName && p.name===myName));
-  const isOpen = expanded.has(item.id), msgCount = (item.messages||[]).length;
   const purchased = !!item.purchased;
 
   // Libellé selon le contexte : "Je l'achète" si personne ne s'en occupe
@@ -920,7 +880,6 @@ function buildCard(item, isAdmin) {
     ? `<button class="btn btn-secondary btn-xs" onclick="unmarkPurchased(${item.id})">↩ Pas encore acheté</button>`
     : `<button class="btn btn-success btn-xs" onclick="markPurchased(${item.id})">✅ Marquer comme acheté</button>`;
 
-  const expandLabel = `<span class="expand-icon" aria-hidden="true">▼</span>${isOpen ? 'Réduire' : `Détails${msgCount ? ` · ${msgCount} msg` : ''}`}`;
   const adminActions = isAdmin ? `<button class="btn btn-secondary btn-xs" onclick="openEdit(${item.id})">✏️ Modifier</button><button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})">Supprimer</button>` : '';
   const dragAttrs = isAdmin ? `draggable="true" ondragstart="onDragStart(event,${item.id})" ondragend="onDragEnd(event)" ondragover="onDragOver(event,${item.id})" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${item.id})"` : '';
 
@@ -939,14 +898,10 @@ function buildCard(item, isAdmin) {
           ${joinBlock}
         </div>
         <div class="item-side">
-          <div class="item-side-top">
-            <button class="expand-btn" onclick="toggleExtra(${item.id})" aria-expanded="${isOpen}" aria-controls="extra-${item.id}">${expandLabel}</button>
-          </div>
           <div class="item-side-bottom">${purchaseBtn}${adminActions}</div>
         </div>
       </div>
     </div>
-    <div class="item-extra" id="extra-${item.id}" ${isOpen ? '' : 'hidden'}>${msgsEl(item)}</div>
   </article>`;
 }
 
@@ -961,13 +916,64 @@ function renderAdmin() {
   if (!items.length) { list.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none'; list.innerHTML = items.map(i=>buildCard(i,true)).join('');
 }
+function renderArchive() {
+  const list  = $('archive-items');
+  const empty = $('archive-empty');
+  if (!me?.isAdmin) return;
+  if (!archiveItems.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = archiveItems.map(item => {
+    const by = item.purchased_by ? esc(item.purchased_by) : null;
+    const d  = item.purchased_at ? new Date(item.purchased_at) : null;
+    const dateStr = d ? d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    return `<article class="item-card is-purchased" id="arc-${item.id}" aria-label="${esc(item.title)}">
+      <div class="item-main">
+        ${imgCell(item)}
+        <div class="item-body">
+          <div class="item-info">
+            <h3 class="item-title">${esc(item.title)}</h3>
+            <div class="item-meta">${priceEl(item.price, item.price_stale)}${linkEl(item.url)}</div>
+            ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
+            ${optionsEl(item.options)}
+            <div class="purchased-info">
+              ${by ? `<span class="chip">✅ Offert par ${by}</span>` : '<span class="chip">✅ Offert</span>'}
+              ${dateStr ? `<span style="font-size:12px;color:var(--ink3)">${dateStr}</span>` : ''}
+            </div>
+          </div>
+          <div class="item-side">
+            <div class="item-side-bottom">
+              <button class="btn btn-secondary btn-xs" onclick="restoreItem(${item.id})" aria-label="Remettre dans la liste">↩ Remettre</button>
+              <button class="btn btn-danger btn-xs" onclick="deleteArchivedItem(${item.id})" aria-label="Supprimer définitivement">Supprimer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function restoreItem(id) {
+  const r = await fetch('/api/items/'+id+'/restore', { method: 'POST', headers: authHeaders() });
+  if (r.ok) {
+    archiveItems = archiveItems.filter(i => i.id !== id);
+    // L'article restauré doit réapparaître dans la liste principale
+    await loadItems(); render(); renderArchive();
+  }
+}
+
+async function deleteArchivedItem(id) {
+  if (!confirm('Supprimer définitivement cet article ?')) return;
+  await fetch('/api/items/'+id, { method: 'DELETE', headers: authHeaders() });
+  archiveItems = archiveItems.filter(i => i.id !== id);
+  renderArchive();
+}
+
 function updateStats() {
   const el=$('stats');
   if (!items.length||!me?.isAdmin) { el.style.display='none'; return; }
   el.style.display='grid';
   $('s-total').textContent = items.length;
   $('s-parts').textContent = items.reduce((s,i)=>s+(i.participants?.length||0),0);
-  $('s-msgs').textContent  = items.reduce((s,i)=>s+(i.messages?.length||0),0);
 }
 
 // ── UI helpers ────────────────────────────────────────────────
@@ -985,7 +991,8 @@ function switchTab(tab,btn,isMobile=false){
   document.querySelectorAll('.tab-btn').forEach(b=>{b.setAttribute('aria-selected','false');b.classList.remove('active')});
   $('tab-'+tab).classList.add('active');
   ['tab-'+tab+'-btn','mob-'+tab+'-btn'].forEach(id=>{const el=$(id);if(el){el.setAttribute('aria-selected','true');el.classList.add('active')}});
-  $('tab-'+tab)?.focus(); render();
+  $('tab-'+tab)?.focus();
+  if(tab==='archive') loadAndRenderArchive(); else render();
 }
 function switchTabById(tab){switchTab(tab,null)}
 document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id.replace('modal-',''))}));

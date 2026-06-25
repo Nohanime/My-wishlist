@@ -41,6 +41,7 @@ async function initDB() {
       position     INTEGER DEFAULT 0,
       purchased    BOOLEAN DEFAULT false,
       purchased_by TEXT,
+      purchased_at TIMESTAMPTZ,
       created_at   TIMESTAMPTZ DEFAULT NOW()
     );
 
@@ -67,6 +68,7 @@ async function initDB() {
     ALTER TABLE items ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased BOOLEAN DEFAULT false;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased_by TEXT;
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMPTZ;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS price_updated_at TIMESTAMPTZ;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS price_stale BOOLEAN DEFAULT false;
   `);
@@ -118,16 +120,9 @@ const ITEM_SELECT = `
       json_agg(DISTINCT jsonb_build_object(
         'id', p.id, 'name', p.name, 'user_id', p.user_id
       )) FILTER (WHERE p.id IS NOT NULL), '[]'
-    ) AS participants,
-    COALESCE(
-      json_agg(DISTINCT jsonb_build_object(
-        'id', m.id, 'author', m.author, 'content', m.content,
-        'created_at', m.created_at, 'user_id', m.user_id
-      )) FILTER (WHERE m.id IS NOT NULL), '[]'
-    ) AS messages
+    ) AS participants
   FROM items i
   LEFT JOIN participants p ON p.item_id = i.id
-  LEFT JOIN messages m ON m.item_id = i.id
 `;
 
 async function getItems(sort = 'position') {
@@ -135,7 +130,7 @@ async function getItems(sort = 'position') {
   if (sort === 'price_asc')  orderBy = 'i.price ASC NULLS LAST, i.position ASC';
   if (sort === 'price_desc') orderBy = 'i.price DESC NULLS LAST, i.position ASC';
 
-  const { rows } = await pool.query(`${ITEM_SELECT} GROUP BY i.id ORDER BY ${orderBy}`);
+  const { rows } = await pool.query(`${ITEM_SELECT} WHERE i.purchased = false GROUP BY i.id ORDER BY ${orderBy}`);
   return rows;
 }
 
@@ -151,7 +146,7 @@ async function createItem({ title, price, image, url, details, options }) {
     `INSERT INTO items (title,price,image,url,details,options,position) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
     [title, price||null, image||null, url||null, details||null, options||null, pos]
   );
-  return { ...rows[0], participants: [], messages: [] };
+  return { ...rows[0], participants: [] };
 }
 
 async function updateItem(id, { title, price, image, url, details, options }) {
@@ -164,8 +159,8 @@ async function updateItem(id, { title, price, image, url, details, options }) {
 
 async function setPurchased(id, purchased, purchasedBy) {
   await pool.query(
-    `UPDATE items SET purchased=$1, purchased_by=$2 WHERE id=$3`,
-    [purchased, purchased ? (purchasedBy || null) : null, id]
+    `UPDATE items SET purchased=$1, purchased_by=$2, purchased_at=$3 WHERE id=$4`,
+    [purchased, purchased ? (purchasedBy || null) : null, purchased ? new Date() : null, id]
   );
   return getItem(id);
 }
@@ -227,18 +222,6 @@ async function removeParticipant(itemId, name, userId = null) {
   }
 }
 
-// ── Messages ──────────────────────────────────────────────────
-async function addMessage(itemId, author, content, userId = null) {
-  await pool.query(
-    `INSERT INTO messages (item_id, author, content, user_id) VALUES ($1,$2,$3,$4)`,
-    [itemId, author, content, userId||null]
-  );
-}
-
-async function deleteMessage(messageId) {
-  await pool.query('DELETE FROM messages WHERE id=$1', [messageId]);
-}
-
 // ── Users ─────────────────────────────────────────────────────
 async function getUserByEmail(email) {
   const { rows } = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
@@ -253,12 +236,42 @@ async function createUser({ email, password, pseudo, isAdmin = false }) {
   return rows[0];
 }
 
+// ── Archive ───────────────────────────────────────────────────
+// Les articles achetés sont retirés de la liste principale et placés
+// dans l'archive — visible uniquement par l'admin.
+
+async function getArchivedItems() {
+  const { rows } = await pool.query(`
+    SELECT
+      i.*,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object(
+          'id', p.id, 'name', p.name, 'user_id', p.user_id
+        )) FILTER (WHERE p.id IS NOT NULL), '[]'
+      ) AS participants
+    FROM items i
+    LEFT JOIN participants p ON p.item_id = i.id
+    WHERE i.purchased = true
+    GROUP BY i.id
+    ORDER BY i.purchased_at DESC NULLS LAST, i.created_at DESC
+  `);
+  return rows;
+}
+
+async function restoreFromArchive(id) {
+  await pool.query(
+    `UPDATE items SET purchased=false, purchased_by=NULL, purchased_at=NULL WHERE id=$1`,
+    [id]
+  );
+  return getItem(id);
+}
+
 module.exports = {
   initDB, getSetting, setSetting,
   addNotification, getNotifications, markAllRead, getUnreadCount,
   getItems, getItem, createItem, updateItem, setPurchased, updatePositions, deleteItem,
+  getArchivedItems, restoreFromArchive,
   getItemsWithUrl, updatePrice,
   addParticipant, removeParticipant,
-  addMessage, deleteMessage,
   getUserByEmail, createUser, pool
 };

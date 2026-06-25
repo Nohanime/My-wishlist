@@ -30,71 +30,53 @@ function absoluteUrl(src, base) {
   try { return new URL(src, base).href; } catch { return null; }
 }
 
-// Détecte si la page reçue est une page de challenge anti-bot
-// (Cloudflare, Akamai, DataDome, etc.) plutôt que la vraie page produit.
-// Ça permet de donner un message clair à l'utilisateur au lieu d'un
-// échec silencieux ou de données vides.
 function detectBotWall(html, $) {
   const text = (html || '').slice(0, 5000).toLowerCase();
   const title = ($('title').text() || '').toLowerCase();
-
   const signals = [
-    'checking your browser', 'just a moment', 'cf-browser-verification',
-    'cloudflare', 'attention required', 'ddos protection by',
-    'enable javascript and cookies', 'verify you are human',
-    'access denied', 'request blocked', 'datadome', 'perimeterx',
-    'are you a robot', 'captcha', 'bot detection',
+    'checking your browser','just a moment','cf-browser-verification',
+    'cloudflare','attention required','ddos protection by',
+    'enable javascript and cookies','verify you are human',
+    'access denied','request blocked','datadome','perimeterx',
+    'are you a robot','captcha','bot detection',
   ];
-  const titleSignals = ['just a moment', 'access denied', 'attention required', 'are you human'];
-
+  const titleSignals = ['just a moment','access denied','attention required','are you human'];
   if (titleSignals.some(s => title.includes(s))) return true;
-  // Le body est suspicieusement court ET contient un mot-clé anti-bot
   if (html.length < 3000 && signals.some(s => text.includes(s))) return true;
   return false;
 }
 
 class BotBlockedError extends Error {
   constructor(host) {
-    super(`Le site ${host} bloque les robots et empêche la récupération automatique.`);
+    super(`Le site ${host} bloque la récupération automatique.`);
     this.name = 'BotBlockedError';
     this.host = host;
   }
 }
 
-async function scrapeProduct(rawUrl) {
-  let resp;
-  try {
-    resp = await axios.get(rawUrl, {
-      headers: {
-        'User-Agent': UA,
-        'Accept-Language': 'fr-FR,fr;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Cache-Control': 'no-cache',
-        'Sec-Fetch-Mode': 'navigate',
-        'Upgrade-Insecure-Requests': '1',
-      },
-      timeout: 15000,
-      maxRedirects: 5,
-      decompress: true,
-      validateStatus: s => s < 500, // on veut inspecter même les 403
-    });
-  } catch (e) {
-    if (e.code === 'ECONNABORTED') throw new Error('Le site a mis trop de temps à répondre.');
-    throw e;
-  }
+// ── Scraping direct ───────────────────────────────────────────
+async function scrapeDirectly(rawUrl) {
+  const resp = await axios.get(rawUrl, {
+    headers: {
+      'User-Agent': UA,
+      'Accept-Language': 'fr-FR,fr;q=0.9',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Cache-Control': 'no-cache',
+      'Sec-Fetch-Mode': 'navigate',
+      'Upgrade-Insecure-Requests': '1',
+    },
+    timeout: 15000,
+    maxRedirects: 5,
+    decompress: true,
+    validateStatus: s => s < 500,
+  });
 
   const host = new URL(rawUrl).hostname.replace(/^www\./, '');
-
-  if (resp.status === 403 || resp.status === 429) {
-    throw new BotBlockedError(host);
-  }
+  if (resp.status === 403 || resp.status === 429) throw new BotBlockedError(host);
 
   const $ = cheerio.load(resp.data);
-
-  if (detectBotWall(resp.data, $)) {
-    throw new BotBlockedError(host);
-  }
+  if (detectBotWall(resp.data, $)) throw new BotBlockedError(host);
 
   const og     = (p) => $(`meta[property="og:${p}"]`).attr('content') || '';
   const meta   = (n) => $(`meta[name="${n}"]`).attr('content') || $(`meta[property="${n}"]`).attr('content') || '';
@@ -117,7 +99,6 @@ async function scrapeProduct(rawUrl) {
       $('.a-price-whole').first().text() + ',' + $('.a-price-fraction').first().text(),
     ]);
   } else {
-    // JSON-LD — fonctionne sur Fnac, Cdiscount, LDLC, Boulanger, Darty...
     const jsonlds = $('script[type="application/ld+json"]').map((_, el) => $(el).html()).get();
     for (const json of jsonlds) {
       try {
@@ -135,7 +116,6 @@ async function scrapeProduct(rawUrl) {
     }
   }
 
-  // Fallback image
   if (!image) {
     $('img').each((_, el) => {
       const src = $(el).attr('src') || $(el).attr('data-src') || '';
@@ -147,21 +127,68 @@ async function scrapeProduct(rawUrl) {
     });
   }
 
-  // Si on n'a réussi à extraire NI titre NI prix, c'est probablement
-  // aussi un blocage silencieux (page vide rendue en JS côté client)
-  if (!title && !price) {
-    throw new BotBlockedError(host);
-  }
+  if (!title && !price) throw new BotBlockedError(host);
 
   return { title: title || null, price: price ?? null, image: image || null, url: rawUrl };
 }
 
-// Re-scrape uniquement le prix d'un article existant (pour la mise à jour auto).
-// Ne touche jamais au titre/image déjà enregistrés — seulement le prix,
-// et seulement s'il a pu être extrait sans ambiguïté.
+// ── Fallback : opengraph.io (gratuit, pas de clé requise) ─────
+// Leur service fait tourner un vrai Chromium côté serveur — passe
+// les protections anti-bot basiques comme Cloudflare JS Challenge.
+// Limité à 500 req/mois sur le plan gratuit, ce qui est largement
+// suffisant pour un usage personnel.
+async function scrapeViaOpenGraph(rawUrl) {
+  const encoded = encodeURIComponent(rawUrl);
+  const apiUrl  = `https://opengraph.io/api/1.1/site/${encoded}?app_id=sample_app_id`;
+
+  const resp = await axios.get(apiUrl, { timeout: 20000 });
+  const data = resp.data;
+
+  const og = data?.openGraph || {};
+  const hy = data?.hybridGraph || {};
+
+  const title = (hy.title || og.title || '').trim().slice(0, 140) || null;
+  const image = hy.image || og.image?.url || og.image || null;
+  // opengraph.io ne récupère généralement pas le prix — on retourne null
+  // et l'utilisateur le saisit manuellement dans le champ pré-ouvert.
+  const price = null;
+
+  if (!title && !image) throw new Error('Aucune donnée récupérée via opengraph.io');
+
+  return { title, price, image: typeof image === 'string' ? image : null, url: rawUrl };
+}
+
+// ── Point d'entrée principal ──────────────────────────────────
+async function scrapeProduct(rawUrl) {
+  try {
+    return await scrapeDirectly(rawUrl);
+  } catch (e) {
+    if (e instanceof BotBlockedError || e.name === 'BotBlockedError') {
+      // Fallback vers opengraph.io
+      try {
+        const result = await scrapeViaOpenGraph(rawUrl);
+        // On marque le résultat comme "partiel" (pas de prix) pour que
+        // le frontend sache qu'il faut demander le prix à l'utilisateur.
+        return { ...result, partial: true };
+      } catch (e2) {
+        // Les deux méthodes ont échoué — on remonte l'erreur originale
+        // avec un message clair et le flag botBlocked pour le frontend.
+        const err = new Error(
+          `Impossible de récupérer les infos automatiquement (${e.host}). Titre et image pré-remplis si disponibles, vérifie et complète le prix manuellement.`
+        );
+        err.botBlocked = true;
+        throw err;
+      }
+    }
+    throw e;
+  }
+}
+
 async function scrapePriceOnly(rawUrl) {
-  const data = await scrapeProduct(rawUrl);
-  return data.price;
+  try {
+    const data = await scrapeDirectly(rawUrl);
+    return data.price;
+  } catch { return null; }
 }
 
 module.exports = { scrapeProduct, scrapePriceOnly, BotBlockedError };

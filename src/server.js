@@ -158,17 +158,36 @@ app.get('/api/items', requireInvite, async (req, res) => {
   res.json(await db.getItems(sort));
 });
 
+// Archive — admin only
+app.get('/api/items/archive', requireAdmin, async (req, res) => {
+  res.json(await db.getArchivedItems());
+});
+
+app.post('/api/items/:id/restore', requireAdmin, async (req, res) => {
+  res.json(await db.restoreFromArchive(req.params.id));
+});
+
 app.post('/api/scrape', requireAdmin, async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL manquante' });
   try {
     const data = await scrapeProduct(url);
     if (!data.title) return res.status(422).json({ error: "Impossible d'extraire le titre. Essaie l'ajout manuel (✏️)." });
-    res.json(await db.createItem(data));
+    const item = await db.createItem(data);
+    // partial=true : fallback opengraph.io a fonctionné mais sans prix —
+    // on retourne l'article créé + un flag pour que le frontend ouvre
+    // le formulaire d'édition pré-rempli avec le prix à saisir.
+    if (data.partial) {
+      return res.json({ ...item, needsPrice: true });
+    }
+    res.json(item);
   } catch(e) {
+    if (e.botBlocked) {
+      return res.status(422).json({ error: e.message, botBlocked: true });
+    }
     if (e instanceof BotBlockedError) {
       return res.status(422).json({
-        error: `${e.host} bloque la récupération automatique. Utilise l'ajout manuel (✏️) — copie le titre et le prix depuis la page produit.`,
+        error: `Impossible de récupérer les infos (${e.host}). Utilise l'ajout manuel (✏️).`,
         botBlocked: true,
       });
     }
@@ -301,32 +320,6 @@ app.post('/api/items/:id/purchased', requireInvite, async (req, res) => {
   }
 
   res.json(item);
-});
-
-// ── Messages ──────────────────────────────────────────────────
-app.post('/api/items/:id/messages', requireInvite, async (req, res) => {
-  const { content, name } = req.body;
-  if (!content?.trim()) return res.status(400).json({ error: 'Message vide' });
-  const author = req.user?.pseudo || name;
-  if (!author) return res.status(400).json({ error: 'Prénom requis' });
-
-  await db.addMessage(req.params.id, author, content.trim(), req.user?.id || null);
-  const item = await db.getItem(req.params.id);
-
-  // Notification
-  const msg = `${author} a envoyé un message sur "${item.title}" : "${content.trim().slice(0,80)}"`;
-  await db.addNotification('message', msg, item.id);
-  await sendEmail(
-    `💬 Nouveau message de ${author}`,
-    `<p><b>${author}</b> a envoyé un message sur <b>${item.title}</b> :</p><blockquote>${content.trim()}</blockquote>`
-  );
-
-  res.json(item);
-});
-
-app.delete('/api/items/:id/messages/:mid', requireAdmin, async (req, res) => {
-  await db.deleteMessage(req.params.mid);
-  res.json(await db.getItem(req.params.id));
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
