@@ -134,10 +134,7 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 /* ── ADD BOX ─── */
 .add-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:24px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .box-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:10px;display:block}
-.url-row{display:flex;gap:8px;align-items:flex-start}
-.url-row .inp{flex:1}
-.manual-form{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);grid-template-columns:1fr 1fr;gap:12px}
-.manual-form.open{display:grid}
+.manual-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .manual-form .full{grid-column:1/-1}
 
 /* ── STATS ─── */
@@ -172,7 +169,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 .item-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .item-price{font-family:'Instrument Serif',serif;font-size:17px;color:var(--ink)}
 .item-price.none{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink3);font-weight:400}
-.price-stale{font-size:10px;color:var(--gold);font-weight:600;margin-left:2px}
 .item-link{font-size:12px;color:var(--ink3);text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:color var(--t)}
 .item-link:hover{color:var(--ink)}
 .item-details{font-size:13px;color:var(--ink2);line-height:1.5;white-space:pre-wrap}
@@ -227,8 +223,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 
 /* ── MOBILE NAV ─── */
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;padding-bottom:max(8px,env(safe-area-inset-bottom));z-index:150;gap:8px}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:currentColor;border-radius:50%;animation:rot .6s linear infinite;flex-shrink:0}
-@keyframes rot{to{transform:rotate(360deg)}}
 
 @media(max-width:640px){
   .hdr{padding:0 14px;height:52px}
@@ -249,7 +243,6 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   .stats{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat{padding:10px}
   .stat-n{font-size:22px}
-  .url-row{flex-wrap:wrap}
   .modal{padding:22px 18px 20px;border-radius:var(--r) var(--r) 0 0;max-height:92dvh;margin-top:auto}
   .overlay[aria-hidden="false"]{align-items:flex-end;padding:0}
   .notif-panel{right:8px;top:48px}
@@ -340,26 +333,19 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
       </div>
     </div>
 
-    <!-- Add form -->
+    <!-- Add form (manuel uniquement) -->
     <div class="add-box" role="region" aria-label="Ajouter un article">
       <span class="box-label">Ajouter un article</span>
-      <div class="url-row">
-        <input class="inp" id="url-inp" type="url" placeholder="Colle un lien (Amazon, Fnac, Cdiscount…)" onkeydown="if(event.key==='Enter')fetchItem()" aria-describedby="fetch-alert" />
-        <button class="btn btn-primary" id="fetch-btn" onclick="fetchItem()">
-          <span id="fetch-icon" aria-hidden="true">↓</span><span id="fetch-txt">Récupérer</span>
-        </button>
-        <button class="btn btn-secondary btn-sm" style="height:40px;padding:0 10px" onclick="toggleManual()" aria-expanded="false" aria-controls="manual-form" id="manual-toggle-btn" aria-label="Ajouter manuellement">✏️</button>
-      </div>
-      <div id="fetch-alert" class="alert" role="alert"></div>
-      <div class="manual-form" id="manual-form" aria-hidden="true">
+      <div class="manual-form" id="manual-form">
         <div class="field full"><label for="m-title">Titre *</label><input class="inp" id="m-title" type="text" required /></div>
         <div class="field"><label for="m-price">Prix (€)</label><input class="inp" id="m-price" type="text" placeholder="49.99" inputmode="decimal" /></div>
         <div class="field"><label for="m-img">URL image</label><input class="inp" id="m-img" type="url" placeholder="https://…" /></div>
         <div class="field full"><label for="m-url">Lien produit</label><input class="inp" id="m-url" type="url" placeholder="https://…" /></div>
         <div class="field full"><label for="m-details">Détails</label><textarea class="inp" id="m-details" placeholder="Couleur souhaitée, modèle précis…"></textarea></div>
         <div class="field full"><label for="m-options">Options <small style="font-weight:400;text-transform:none">(séparées par virgules)</small></label><input class="inp" id="m-options" type="text" placeholder="Taille L, Couleur noire…" /></div>
-        <div class="full"><button class="btn btn-primary" onclick="addManual()">Ajouter manuellement</button></div>
+        <div class="full"><button class="btn btn-primary" onclick="addManual()">Ajouter</button></div>
       </div>
+      <div id="add-alert" class="alert" role="alert"></div>
     </div>
 
     <!-- Stats -->
@@ -378,11 +364,7 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
         </select>
         <span style="font-size:12px;color:var(--ink3)">← glisse pour réordonner</span>
       </div>
-      <button class="btn btn-secondary btn-sm" id="refresh-prices-btn" onclick="refreshPrices()" title="Relancer la vérification des prix maintenant (sinon automatique 1x/jour)">
-        <span id="refresh-prices-icon" aria-hidden="true">🔄</span> Actualiser les prix
-      </button>
     </div>
-    <div id="refresh-prices-alert" class="alert" role="status"></div>
 
     <div class="list admin-mode" id="admin-items" aria-live="polite" aria-label="Articles à gérer"></div>
     <div class="empty" id="admin-empty" style="display:none"><span class="empty-icon" aria-hidden="true">✦</span><p>Ajoute ton premier article.</p></div>
@@ -478,29 +460,16 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 let me = null, items = [], currentSort = 'position', inviteToken = null;
 let dragSrcId = null;
 
-// ── Init ──────────────────────────────────────────────────────
-(async () => {
-  await checkInvite();
-})();
+(async () => { await checkInvite(); })();
 
 async function checkInvite() {
   const gate = $('invite-gate');
-  // Check URL param
   const urlParam = new URLSearchParams(location.search).get('invite');
-  if (urlParam) {
-    localStorage.setItem('invite_token', urlParam);
-    // Clean URL
-    history.replaceState({}, '', location.pathname);
-  }
+  if (urlParam) { localStorage.setItem('invite_token', urlParam); history.replaceState({}, '', location.pathname); }
   const stored = localStorage.getItem('invite_token');
-
-  // Try to load me first — admin bypasses gate
   await loadMe();
   if (me?.isAdmin) { gate.style.display = 'none'; await boot(); return; }
-
   if (!stored) { showGateError('Tu as besoin d\'un lien d\'invitation pour accéder à cette liste.'); return; }
-
-  // Verify token
   try {
     const r = await fetch(`/api/invite/verify?token=${encodeURIComponent(stored)}`);
     const d = await r.json();
@@ -517,20 +486,16 @@ function showGateError(msg) {
 }
 
 async function boot() {
-  await loadItems();
-  renderHeader();
-  render();
+  await loadItems(); renderHeader(); render();
   if (me?.isAdmin) { loadInviteLink(); pollNotifs(); }
 }
 
-// ── Invite token helper ───────────────────────────────────────
 function getInviteToken() { return localStorage.getItem('invite_token') || ''; }
 function authHeaders() {
   const t = getInviteToken();
   return { 'Content-Type': 'application/json', ...(t ? { 'x-invite-token': t } : {}) };
 }
 
-// ── Auth ──────────────────────────────────────────────────────
 async function loadMe() {
   try { const r = await fetch('/api/auth/me'); me = await r.json(); } catch { me = null; }
 }
@@ -561,7 +526,6 @@ async function logout() {
   me = null; renderHeader(); render();
 }
 
-// ── Invite admin ──────────────────────────────────────────────
 async function loadInviteLink() {
   try {
     const r = await fetch('/api/invite/token');
@@ -584,7 +548,6 @@ async function regenerateInvite() {
   $('invite-url').textContent = d.url;
 }
 
-// ── Notifications ─────────────────────────────────────────────
 let notifOpen = false;
 async function pollNotifs() {
   if (!me?.isAdmin) return;
@@ -599,8 +562,7 @@ async function pollNotifs() {
 }
 async function toggleNotifPanel() {
   notifOpen = !notifOpen;
-  const panel = $('notif-panel');
-  const btn   = $('notif-btn');
+  const panel = $('notif-panel'), btn = $('notif-btn');
   panel.classList.toggle('open', notifOpen);
   btn.setAttribute('aria-expanded', notifOpen);
   if (notifOpen) await loadNotifs();
@@ -627,7 +589,6 @@ async function markAllRead() {
   await loadNotifs();
 }
 
-// ── Items ─────────────────────────────────────────────────────
 async function loadItems() {
   try {
     const r = await fetch(`/api/items?sort=${currentSort}`, { headers: authHeaders() });
@@ -636,80 +597,30 @@ async function loadItems() {
 }
 async function changeSort(val) {
   currentSort = val;
-  // sync both selects
   ['sort-select','admin-sort-select'].forEach(id => { const el=$(id); if(el) el.value=val; });
   await loadItems(); render();
 }
 
-async function refreshPrices() {
-  const btn = $('refresh-prices-btn'), icon = $('refresh-prices-icon'), al = $('refresh-prices-alert');
-  btn.disabled = true;
-  icon.innerHTML = '<span class="spin" aria-hidden="true"></span>';
-  showAlert(al, "Vérification des prix en cours, ça peut prendre quelques minutes pour beaucoup d'articles.", 'info');
-  try {
-    const r = await fetch('/api/items/refresh-prices', { method:'POST', headers:authHeaders() });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error||'Erreur');
-    showAlert(al, 'Mise à jour lancée en arrière-plan — recharge la page dans une minute pour voir les nouveaux prix.', 'success');
-    setTimeout(() => hideAlert(al), 6000);
-  } catch(e) { showAlert(al, e.message, 'error'); }
-  btn.disabled = false;
-  icon.textContent = '🔄';
-}
-async function fetchItem() {
-  const url = v('url-inp');
-  if (!url) { showAlert($('fetch-alert'), "Colle une URL d'abord", 'error'); return; }
-  setBusy(true); showAlert($('fetch-alert'), 'Récupération…', 'info');
-  try {
-    const r = await fetch('/api/scrape', { method:'POST', headers:authHeaders(), body: JSON.stringify({ url }) });
-    const d = await r.json();
-    if (!r.ok) {
-      if (d.botBlocked) {
-        // Ouvre directement le formulaire manuel et pré-remplit le lien produit
-        // pour que l'utilisateur n'ait qu'à copier titre + prix depuis la page.
-        $('manual-form').classList.add('open');
-        $('manual-form').setAttribute('aria-hidden','false');
-        $('manual-toggle-btn').setAttribute('aria-expanded','true');
-        $('m-url').value = url;
-      }
-      throw new Error(d.error);
-    }
-    items.unshift(d);
-    $('url-inp').value = '';
-    if (d.needsPrice) {
-      showAlert($('fetch-alert'), '✓ Article ajouté ! Saisis le prix manuellement.', 'success');
-      render(); openEdit(d.id);
-      setTimeout(() => { const el=$('edit-price'); if(el) el.focus(); }, 100);
-    } else {
-      showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
-      render();
-    }
-    setTimeout(() => hideAlert($('fetch-alert')), 3500);
-  } catch(e) { showAlert($('fetch-alert'), e.message, 'error'); }
-  setBusy(false);
-}
 async function addManual() {
-  if (!v('m-title')) { showAlert($('fetch-alert'), 'Titre obligatoire', 'error'); return; }
+  const al = $('add-alert');
+  if (!v('m-title')) { showAlert(al, 'Titre obligatoire', 'error'); return; }
   try {
     const r = await fetch('/api/items', { method:'POST', headers:authHeaders(), body: JSON.stringify({ title:v('m-title'), price:v('m-price')||null, image:v('m-img')||null, url:v('m-url')||null, details:v('m-details')||null, options:v('m-options')||null }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
     items.unshift(d);
     ['m-title','m-price','m-img','m-url','m-details','m-options'].forEach(id => { const el=$(id); if(el) el.value=''; });
-    $('manual-form').classList.remove('open'); $('manual-form').setAttribute('aria-hidden','true');
-    $('manual-toggle-btn').setAttribute('aria-expanded','false');
-    showAlert($('fetch-alert'), '✓ Article ajouté !', 'success');
-    render(); setTimeout(() => hideAlert($('fetch-alert')), 2500);
-  } catch(e) { showAlert($('fetch-alert'), e.message, 'error'); }
+    showAlert(al, '✓ Article ajouté !', 'success');
+    render(); setTimeout(() => hideAlert(al), 2500);
+  } catch(e) { showAlert(al, e.message, 'error'); }
 }
 async function deleteItem(id) {
   if (!confirm('Supprimer cet article ?')) return;
   await fetch('/api/items/'+id, { method:'DELETE', headers:authHeaders() });
   items = items.filter(i => i.id !== id);
-  expanded.delete(id); render();
+  render();
 }
 
-// ── Edit ──────────────────────────────────────────────────────
 function openEdit(id) {
   const item = items.find(i => i.id === id); if (!item) return;
   $('edit-id').value = id; $('edit-title-inp').value = item.title||'';
@@ -729,7 +640,6 @@ async function saveEdit() {
   } catch(e) { showAlert($('edit-alert'), e.message, 'error'); }
 }
 
-// ── Participants ──────────────────────────────────────────────
 async function joinItem(id) {
   let name;
   if (me) { name = me.pseudo; }
@@ -747,7 +657,6 @@ async function leaveItem(id, name) {
   if (r.ok) { updateItem(await r.json()); render(); }
 }
 
-// ── Purchased status ──────────────────────────────────────────
 async function markPurchased(id) {
   let name = me?.pseudo;
   if (!name) {
@@ -759,10 +668,13 @@ async function markPurchased(id) {
   const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: true, name }) });
   if (r.ok) { items = items.filter(i => i.id !== id); render(); }
 }
+async function unmarkPurchased(id) {
+  const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: false, name: me?.pseudo || '' }) });
+  if (r.ok) { updateItem(await r.json()); render(); }
+}
 
 function updateItem(d) { const idx = items.findIndex(i => i.id === d.id); if (idx !== -1) items[idx] = d; }
 
-// ── Drag & Drop ───────────────────────────────────────────────
 function onDragStart(e, id) { dragSrcId = id; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
 function onDragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over')); }
 function onDragOver(e, id) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (id !== dragSrcId) e.currentTarget.classList.add('drag-over'); }
@@ -776,13 +688,10 @@ async function onDrop(e, id) {
   const reordered = [...items];
   const [moved] = reordered.splice(srcIdx, 1);
   reordered.splice(dstIdx, 0, moved);
-  items = reordered;
-  render();
-  const ids = items.map(i => i.id);
-  await fetch('/api/items/reorder', { method:'POST', headers:authHeaders(), body: JSON.stringify({ ids }) });
+  items = reordered; render();
+  await fetch('/api/items/reorder', { method:'POST', headers:authHeaders(), body: JSON.stringify({ ids: items.map(i => i.id) }) });
 }
 
-// ── Render ────────────────────────────────────────────────────
 function renderHeader() {
   const isAdmin = !!me?.isAdmin;
   const userEl = $('hdr-user');
@@ -810,7 +719,6 @@ async function loadAndRenderArchive() {
   renderArchive();
 }
 
-// helpers
 function imgCell(item) {
   return item.image
     ? `<div class="item-img-wrap"><img class="item-img" src="${esc(item.image)}" alt="${esc(item.title)}" loading="lazy" onerror="this.parentNode.innerHTML='<span class=\\'item-img-ph\\'aria-hidden=\\'true\\'>✦</span>'"></div>`
@@ -820,11 +728,10 @@ function fmtPrice(p) {
   if (p==null) return null;
   const n = parseFloat(p); return isNaN(n) ? null : n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
 }
-function priceEl(price, stale) {
+function priceEl(price) {
   const f = fmtPrice(price);
   if (!f) return `<span class="item-price none">prix non renseigné</span>`;
-  const staleTag = stale ? `<span class="price-stale" title="La dernière mise à jour automatique du prix a échoué">⚠️ peut-être pas à jour</span>` : '';
-  return `<span class="item-price">${esc(f)}</span>${staleTag}`;
+  return `<span class="item-price">${esc(f)}</span>`;
 }
 function linkEl(url) {
   if (!url) return '';
@@ -838,7 +745,7 @@ function optionsEl(options) {
 function purchasedBanner(item) {
   if (!item.purchased) return '';
   const by = item.purchased_by ? esc(item.purchased_by) : '';
-  return `<div class="purchased-banner">✅ ${by ? `Acheté par ${by}` : 'Déjà acheté'}</div>`;
+  return `<div style="font-size:12px;color:var(--green);font-weight:600;margin-top:2px">✅ ${by ? `Acheté par ${by}` : 'Déjà acheté'}</div>`;
 }
 function chipsEl(item, isAdmin) {
   const parts = item.participants || [];
@@ -854,10 +761,6 @@ function buildCard(item, isAdmin) {
   const parts = item.participants||[], guestName = localStorage.getItem('guest_name')||'', myName = me ? me.pseudo : guestName;
   const joined = parts.some(p => me ? p.user_id===me.id : (myName && p.name===myName));
   const purchased = !!item.purchased;
-
-  // Libellé selon le contexte : "Je l'achète" si personne ne s'en occupe
-  // encore, "Rejoindre l'achat" si quelqu'un d'autre est déjà dessus —
-  // le bouton "Participer" générique ne disait pas ce qu'on participait à faire.
   const othersCount = parts.filter(p => !(me ? p.user_id===me.id : p.name===myName)).length;
   const joinLabel = othersCount > 0 ? "Rejoindre l'achat" : "Je l'achète";
 
@@ -866,7 +769,7 @@ function buildCard(item, isAdmin) {
     if (joined) {
       joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je m'en occupe</button>`;
     } else if (me) {
-      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})" aria-label="${joinLabel}">${joinLabel}</button>`;
+      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">${joinLabel}</button>`;
     } else {
       joinBlock = `<div class="join-row">
         <input class="join-inp" id="ji-${item.id}" placeholder="Prénom…" value="${esc(guestName)}" aria-label="Ton prénom" onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
@@ -875,7 +778,6 @@ function buildCard(item, isAdmin) {
     }
   }
 
-  // Bouton acheté / pas acheté — visible pour tous, admin compris
   const purchaseBtn = purchased
     ? `<button class="btn btn-secondary btn-xs" onclick="unmarkPurchased(${item.id})">↩ Pas encore acheté</button>`
     : `<button class="btn btn-success btn-xs" onclick="markPurchased(${item.id})">✅ Marquer comme acheté</button>`;
@@ -890,7 +792,7 @@ function buildCard(item, isAdmin) {
       <div class="item-body">
         <div class="item-info">
           <h3 class="item-title">${esc(item.title)}</h3>
-          <div class="item-meta">${priceEl(item.price, item.price_stale)}${linkEl(item.url)}</div>
+          <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
           ${purchasedBanner(item)}
           ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
           ${optionsEl(item.options)}
@@ -917,8 +819,7 @@ function renderAdmin() {
   empty.style.display='none'; list.innerHTML = items.map(i=>buildCard(i,true)).join('');
 }
 function renderArchive() {
-  const list  = $('archive-items');
-  const empty = $('archive-empty');
+  const list = $('archive-items'), empty = $('archive-empty');
   if (!me?.isAdmin) return;
   if (!archiveItems.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
@@ -932,7 +833,7 @@ function renderArchive() {
         <div class="item-body">
           <div class="item-info">
             <h3 class="item-title">${esc(item.title)}</h3>
-            <div class="item-meta">${priceEl(item.price, item.price_stale)}${linkEl(item.url)}</div>
+            <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
             ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
             ${optionsEl(item.options)}
             <div class="purchased-info">
@@ -942,8 +843,8 @@ function renderArchive() {
           </div>
           <div class="item-side">
             <div class="item-side-bottom">
-              <button class="btn btn-secondary btn-xs" onclick="restoreItem(${item.id})" aria-label="Remettre dans la liste">↩ Remettre</button>
-              <button class="btn btn-danger btn-xs" onclick="deleteArchivedItem(${item.id})" aria-label="Supprimer définitivement">Supprimer</button>
+              <button class="btn btn-secondary btn-xs" onclick="restoreItem(${item.id})">↩ Remettre</button>
+              <button class="btn btn-danger btn-xs" onclick="deleteArchivedItem(${item.id})">Supprimer</button>
             </div>
           </div>
         </div>
@@ -954,13 +855,8 @@ function renderArchive() {
 
 async function restoreItem(id) {
   const r = await fetch('/api/items/'+id+'/restore', { method: 'POST', headers: authHeaders() });
-  if (r.ok) {
-    archiveItems = archiveItems.filter(i => i.id !== id);
-    // L'article restauré doit réapparaître dans la liste principale
-    await loadItems(); render(); renderArchive();
-  }
+  if (r.ok) { archiveItems = archiveItems.filter(i => i.id !== id); await loadItems(); render(); renderArchive(); }
 }
-
 async function deleteArchivedItem(id) {
   if (!confirm('Supprimer définitivement cet article ?')) return;
   await fetch('/api/items/'+id, { method: 'DELETE', headers: authHeaders() });
@@ -976,16 +872,13 @@ function updateStats() {
   $('s-parts').textContent = items.reduce((s,i)=>s+(i.participants?.length||0),0);
 }
 
-// ── UI helpers ────────────────────────────────────────────────
 function $(id){return document.getElementById(id)}
 function v(id){return(document.getElementById(id)?.value||'').trim()}
 function esc(s){if(!s&&s!==0)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
 function openModal(id){const o=$('modal-'+id);o.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>{const f=o.querySelector('input,button:not(.modal-close)');if(f)f.focus()},50)}
 function closeModal(id){$('modal-'+id).setAttribute('aria-hidden','true');document.body.style.overflow=''}
-function toggleManual(){const f=$('manual-form'),b=$('manual-toggle-btn'),open=f.classList.toggle('open');f.setAttribute('aria-hidden',String(!open));b.setAttribute('aria-expanded',String(open))}
 function showAlert(el,msg,type){el.textContent=msg;el.className='alert alert-'+type;el.setAttribute('role','alert')}
 function hideAlert(el){el.className='alert';el.removeAttribute('role');el.textContent=''}
-function setBusy(b){const btn=$('fetch-btn');btn.disabled=b;btn.setAttribute('aria-busy',String(b));$('fetch-icon').innerHTML=b?'<span class="spin" aria-hidden="true"></span>':'↓';$('fetch-txt').textContent=b?'Récupération…':'Récupérer'}
 function switchTab(tab,btn,isMobile=false){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>{b.setAttribute('aria-selected','false');b.classList.remove('active')});

@@ -7,7 +7,6 @@ const path         = require('path');
 const cors         = require('cors');
 
 const db = require('./db');
-const { scrapeProduct, scrapePriceOnly, BotBlockedError } = require('./scraper');
 
 const app         = express();
 app.set('trust proxy', 1);
@@ -41,7 +40,6 @@ function optionalAuth(req, res, next) {
 
 // ── Invite token middleware ───────────────────────────────────
 async function requireInvite(req, res, next) {
-  // Admin always passes
   const user = getUser(req);
   if (user?.isAdmin) { req.user = user; return next(); }
 
@@ -55,11 +53,6 @@ async function requireInvite(req, res, next) {
 }
 
 // ── Email ─────────────────────────────────────────────────────
-// FROM_EMAIL : par défaut "onboarding@resend.dev" qui fonctionne sans
-// vérification de domaine, mais Resend n'autorise alors l'envoi QUE vers
-// l'adresse email du compte Resend lui-même. Pour envoyer vers n'importe
-// quelle adresse (ex: ADMIN_EMAIL différent), il faut vérifier un domaine
-// sur https://resend.com/domains et définir FROM_EMAIL=notif@tondomaine.fr
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Wishlist <onboarding@resend.dev>';
 
 async function sendEmail(subject, html) {
@@ -68,19 +61,12 @@ async function sendEmail(subject, html) {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: ADMIN_EMAIL,
-        subject,
-        html,
-      })
+      body: JSON.stringify({ from: FROM_EMAIL, to: ADMIN_EMAIL, subject, html })
     });
-    if (!r.ok) {
-      const body = await r.text();
-      console.error('Resend error:', r.status, body);
-    }
+    if (!r.ok) console.error('Resend error:', r.status, await r.text());
   } catch(e) { console.error('Email error:', e.message); }
 }
+
 // ── Auth routes ───────────────────────────────────────────────
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, pseudo } = req.body;
@@ -138,27 +124,20 @@ app.get('/api/invite/verify', async (req, res) => {
 
 // ── Notifications ─────────────────────────────────────────────
 app.get('/api/notifications', requireAdmin, async (req, res) => {
-  const notifs = await db.getNotifications();
-  res.json(notifs);
+  res.json(await db.getNotifications());
 });
-
 app.get('/api/notifications/unread', requireAdmin, async (req, res) => {
-  const count = await db.getUnreadCount();
-  res.json({ count });
+  res.json({ count: await db.getUnreadCount() });
 });
-
 app.post('/api/notifications/read', requireAdmin, async (req, res) => {
-  await db.markAllRead();
-  res.json({ ok: true });
+  await db.markAllRead(); res.json({ ok: true });
 });
 
 // ── Items ─────────────────────────────────────────────────────
 app.get('/api/items', requireInvite, async (req, res) => {
-  const sort = req.query.sort || 'position';
-  res.json(await db.getItems(sort));
+  res.json(await db.getItems(req.query.sort || 'position'));
 });
 
-// Archive — admin only
 app.get('/api/items/archive', requireAdmin, async (req, res) => {
   res.json(await db.getArchivedItems());
 });
@@ -167,38 +146,7 @@ app.post('/api/items/:id/restore', requireAdmin, async (req, res) => {
   res.json(await db.restoreFromArchive(req.params.id));
 });
 
-app.post('/api/scrape', requireAdmin, async (req, res) => {
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'URL manquante' });
-  try {
-    const data = await scrapeProduct(url);
-    if (!data.title) return res.status(422).json({ error: "Impossible d'extraire le titre. Essaie l'ajout manuel (✏️)." });
-    const item = await db.createItem(data);
-    // partial=true : fallback opengraph.io a fonctionné mais sans prix —
-    // on retourne l'article créé + un flag pour que le frontend ouvre
-    // le formulaire d'édition pré-rempli avec le prix à saisir.
-    if (data.partial) {
-      return res.json({ ...item, needsPrice: true });
-    }
-    res.json(item);
-  } catch(e) {
-    if (e.botBlocked) {
-      return res.status(422).json({ error: e.message, botBlocked: true });
-    }
-    if (e instanceof BotBlockedError) {
-      return res.status(422).json({
-        error: `Impossible de récupérer les infos (${e.host}). Utilise l'ajout manuel (✏️).`,
-        botBlocked: true,
-      });
-    }
-    const status = e.response?.status;
-    const msg = (status === 403 || status === 429)
-      ? "Ce site bloque les robots. Utilise l'ajout manuel (✏️)."
-      : "Erreur : " + e.message;
-    res.status(500).json({ error: msg });
-  }
-});
-
+// Ajout manuel uniquement (plus de scraping)
 app.post('/api/items', requireAdmin, async (req, res) => {
   const { title, price, image, url, details, options } = req.body;
   if (!title) return res.status(400).json({ error: 'Titre obligatoire' });
@@ -222,57 +170,12 @@ app.delete('/api/items/:id', requireAdmin, async (req, res) => {
   await db.deleteItem(req.params.id); res.json({ ok: true });
 });
 
-// Drag & drop reorder
 app.post('/api/items/reorder', requireAdmin, async (req, res) => {
   const { ids } = req.body;
   if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids requis' });
   await db.updatePositions(ids);
   res.json({ ok: true });
 });
-
-// ── Price refresh ────────────────────────────────────────────
-// Re-scrape le prix de tous les articles ayant une URL. Tourne automatiquement
-// 1x/jour, et peut aussi être déclenché manuellement par l'admin.
-async function refreshAllPrices() {
-  const items = await db.getItemsWithUrl();
-  let updated = 0, failed = 0;
-  for (const item of items) {
-    try {
-      const newPrice = await scrapePriceOnly(item.url);
-      if (newPrice !== null && newPrice !== undefined) {
-        const oldPrice = item.price !== null ? parseFloat(item.price) : null;
-        await db.updatePrice(item.id, newPrice, false);
-        if (oldPrice !== null && Math.abs(oldPrice - newPrice) > 0.01) {
-          await db.addNotification('price_change', `Prix mis à jour pour l'article #${item.id} : ${oldPrice}€ → ${newPrice}€`, item.id);
-        }
-        updated++;
-      } else {
-        await db.updatePrice(item.id, null, true);
-        failed++;
-      }
-    } catch (e) {
-      await db.updatePrice(item.id, null, true);
-      failed++;
-    }
-    // Pause entre chaque requête pour ne pas se faire bloquer par rate-limit
-    await new Promise(r => setTimeout(r, 2000));
-  }
-  console.log(`✓ Refresh prix : ${updated} mis à jour, ${failed} échoués`);
-  return { updated, failed, total: items.length };
-}
-
-app.post('/api/items/refresh-prices', requireAdmin, async (req, res) => {
-  // Ne bloque pas la requête HTTP si la liste est grande — répond immédiatement
-  // et laisse tourner en fond, le résultat sera visible au prochain chargement.
-  res.json({ ok: true, message: 'Mise à jour des prix lancée en arrière-plan.' });
-  refreshAllPrices().catch(e => console.error('Refresh prices error:', e));
-});
-
-// Cron interne : 1x/24h
-const DAY_MS = 24 * 60 * 60 * 1000;
-setInterval(() => {
-  refreshAllPrices().catch(e => console.error('Auto refresh prices error:', e));
-}, DAY_MS);
 
 // ── Participants ──────────────────────────────────────────────
 app.post('/api/items/:id/join', requireInvite, async (req, res) => {
@@ -301,8 +204,6 @@ app.delete('/api/items/:id/join', requireInvite, async (req, res) => {
 });
 
 // ── Purchased status ──────────────────────────────────────────
-// N'importe quel invité peut marquer/démarquer un article comme acheté —
-// c'est typiquement la personne qui vient d'acheter le cadeau qui le signale.
 app.post('/api/items/:id/purchased', requireInvite, async (req, res) => {
   const { purchased, name } = req.body;
   const finalName = req.user?.pseudo || name;
@@ -326,9 +227,4 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.ht
 
 db.initDB().then(() => {
   app.listen(PORT, () => console.log(`✓ Wishlist → http://localhost:${PORT}`));
-  // Premier refresh des prix 2 minutes après le démarrage (laisse le serveur
-  // se stabiliser), puis ensuite toutes les 24h via le setInterval ci-dessus.
-  setTimeout(() => {
-    refreshAllPrices().catch(e => console.error('Initial price refresh error:', e));
-  }, 2 * 60 * 1000);
 }).catch(e => { console.error('DB init failed:', e); process.exit(1); });
