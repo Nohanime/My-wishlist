@@ -54,26 +54,14 @@ async function initDB() {
       UNIQUE(item_id, name)
     );
 
-    CREATE TABLE IF NOT EXISTS messages (
-      id         SERIAL PRIMARY KEY,
-      item_id    INTEGER REFERENCES items(id) ON DELETE CASCADE,
-      author     TEXT NOT NULL,
-      user_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      content    TEXT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );
-
     ALTER TABLE items ADD COLUMN IF NOT EXISTS details TEXT;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS options TEXT;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased BOOLEAN DEFAULT false;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased_by TEXT;
     ALTER TABLE items ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMPTZ;
-    ALTER TABLE items ADD COLUMN IF NOT EXISTS price_updated_at TIMESTAMPTZ;
-    ALTER TABLE items ADD COLUMN IF NOT EXISTS price_stale BOOLEAN DEFAULT false;
   `);
 
-  // Generate invite token if not exists
   const { rows } = await pool.query(`SELECT value FROM settings WHERE key='invite_token'`);
   if (!rows.length) {
     const token = require('crypto').randomBytes(24).toString('hex');
@@ -89,7 +77,10 @@ async function getSetting(key) {
   return rows[0]?.value || null;
 }
 async function setSetting(key, value) {
-  await pool.query(`INSERT INTO settings (key,value) VALUES ($1,$2) ON CONFLICT (key) DO UPDATE SET value=$2`, [key, value]);
+  await pool.query(
+    `INSERT INTO settings (key,value) VALUES ($1,$2) ON CONFLICT (key) DO UPDATE SET value=$2`,
+    [key, value]
+  );
 }
 
 // ── Notifications ─────────────────────────────────────────────
@@ -115,7 +106,8 @@ async function getUnreadCount() {
 // ── Items ─────────────────────────────────────────────────────
 const ITEM_SELECT = `
   SELECT
-    i.*,
+    i.id, i.title, i.price, i.image, i.url, i.details, i.options,
+    i.position, i.purchased, i.purchased_by, i.purchased_at, i.created_at,
     COALESCE(
       json_agg(DISTINCT jsonb_build_object(
         'id', p.id, 'name', p.name, 'user_id', p.user_id
@@ -129,8 +121,9 @@ async function getItems(sort = 'position') {
   let orderBy = 'i.position ASC, i.created_at DESC';
   if (sort === 'price_asc')  orderBy = 'i.price ASC NULLS LAST, i.position ASC';
   if (sort === 'price_desc') orderBy = 'i.price DESC NULLS LAST, i.position ASC';
-
-  const { rows } = await pool.query(`${ITEM_SELECT} WHERE i.purchased = false GROUP BY i.id ORDER BY ${orderBy}`);
+  const { rows } = await pool.query(
+    `${ITEM_SELECT} WHERE i.purchased = false GROUP BY i.id ORDER BY ${orderBy}`
+  );
   return rows;
 }
 
@@ -144,15 +137,15 @@ async function createItem({ title, price, image, url, details, options }) {
   const pos = maxRows[0].next;
   const { rows } = await pool.query(
     `INSERT INTO items (title,price,image,url,details,options,position) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-    [title, price||null, image||null, url||null, details||null, options||null, pos]
+    [title, price || null, image || null, url || null, details || null, options || null, pos]
   );
   return { ...rows[0], participants: [] };
 }
 
 async function updateItem(id, { title, price, image, url, details, options }) {
   await pool.query(
-    `UPDATE items SET title=$1,price=$2,image=$3,url=$4,details=$5,options=$6 WHERE id=$7`,
-    [title, price||null, image||null, url||null, details||null, options||null, id]
+    `UPDATE items SET title=$1, price=$2, image=$3, url=$4, details=$5, options=$6 WHERE id=$7`,
+    [title, price || null, image || null, url || null, details || null, options || null, id]
   );
   return getItem(id);
 }
@@ -165,27 +158,6 @@ async function setPurchased(id, purchased, purchasedBy) {
   return getItem(id);
 }
 
-// ── Price refresh ────────────────────────────────────────────
-// Liste des articles ayant une URL et n'étant pas déjà marqués achetés
-// (pas la peine de continuer à vérifier le prix d'un cadeau déjà offert)
-async function getItemsWithUrl() {
-  const { rows } = await pool.query(
-    `SELECT id, url, price FROM items WHERE url IS NOT NULL AND url != '' AND purchased = false`
-  );
-  return rows;
-}
-
-async function updatePrice(id, newPrice, failed = false) {
-  if (failed) {
-    await pool.query(`UPDATE items SET price_stale=true WHERE id=$1`, [id]);
-    return;
-  }
-  await pool.query(
-    `UPDATE items SET price=$1, price_updated_at=NOW(), price_stale=false WHERE id=$2`,
-    [newPrice, id]
-  );
-}
-
 async function updatePositions(orderedIds) {
   const client = await pool.connect();
   try {
@@ -194,8 +166,12 @@ async function updatePositions(orderedIds) {
       await client.query(`UPDATE items SET position=$1 WHERE id=$2`, [i, orderedIds[i]]);
     }
     await client.query('COMMIT');
-  } catch(e) { await client.query('ROLLBACK'); throw e; }
-  finally { client.release(); }
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 async function deleteItem(id) {
@@ -208,7 +184,7 @@ async function addParticipant(itemId, name, userId = null) {
     const { rows } = await pool.query(
       `INSERT INTO participants (item_id, user_id, name) VALUES ($1,$2,$3)
        ON CONFLICT (item_id, name) DO NOTHING RETURNING *`,
-      [itemId, userId||null, name]
+      [itemId, userId || null, name]
     );
     return rows[0] || null;
   } catch { return null; }
@@ -218,7 +194,10 @@ async function removeParticipant(itemId, name, userId = null) {
   if (userId) {
     await pool.query(`DELETE FROM participants WHERE item_id=$1 AND user_id=$2`, [itemId, userId]);
   } else {
-    await pool.query(`DELETE FROM participants WHERE item_id=$1 AND name=$2 AND user_id IS NULL`, [itemId, name]);
+    await pool.query(
+      `DELETE FROM participants WHERE item_id=$1 AND name=$2 AND user_id IS NULL`,
+      [itemId, name]
+    );
   }
 }
 
@@ -237,13 +216,11 @@ async function createUser({ email, password, pseudo, isAdmin = false }) {
 }
 
 // ── Archive ───────────────────────────────────────────────────
-// Les articles achetés sont retirés de la liste principale et placés
-// dans l'archive — visible uniquement par l'admin.
-
 async function getArchivedItems() {
   const { rows } = await pool.query(`
     SELECT
-      i.*,
+      i.id, i.title, i.price, i.image, i.url, i.details, i.options,
+      i.position, i.purchased, i.purchased_by, i.purchased_at, i.created_at,
       COALESCE(
         json_agg(DISTINCT jsonb_build_object(
           'id', p.id, 'name', p.name, 'user_id', p.user_id
@@ -271,7 +248,7 @@ module.exports = {
   addNotification, getNotifications, markAllRead, getUnreadCount,
   getItems, getItem, createItem, updateItem, setPurchased, updatePositions, deleteItem,
   getArchivedItems, restoreFromArchive,
-  getItemsWithUrl, updatePrice,
   addParticipant, removeParticipant,
-  getUserByEmail, createUser, pool
+  getUserByEmail, createUser,
+  pool,
 };

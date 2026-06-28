@@ -7,16 +7,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
+/* ── Reset ─────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── Design tokens ─────────────────────────────────────────── */
 :root{
-  --bg:#f7f5f2;--surface:#fff;--surface2:#f0ede9;--surface3:#e8e4de;
-  --ink:#1a1a1a;--ink2:#555;--ink3:#888;
-  --border:#e4e0db;--border2:#ccc9c3;
+  --bg:#f7f5f2;
+  --surface:#fff;
+  --surface2:#f0ede9;
+  --surface3:#e8e4de;
+  --ink:#1a1a1a;
+  --ink2:#555;
+  --ink3:#888;
+  --border:#e4e0db;
+  --border2:#ccc9c3;
   --focus:2px solid #1a1a1a;
   --green:#2d6a4f;--green-bg:#edf5f0;--green-bd:#a8d5bc;
-  --red:#b83232;--red-bg:#fdf0ee;--red-bd:#e8b4ae;
-  --blue:#1d4ed8;--blue-bg:#eff4ff;--blue-bd:#93c5fd;
-  --gold:#92680a;--gold-bg:#fdf6e3;--gold-bd:#d4ad5a;
+  --red:#b83232;  --red-bg:#fdf0ee;  --red-bd:#e8b4ae;
+  --blue:#1d4ed8; --blue-bg:#eff4ff; --blue-bd:#93c5fd;
+  --gold:#92680a; --gold-bg:#fdf6e3; --gold-bd:#d4ad5a;
   --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
   --shadow-lg:0 8px 40px rgba(0,0,0,.14);
   --overlay:rgba(0,0,0,.5);
@@ -24,19 +33,26 @@
   --t:.18s ease;
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#0f0f11;--surface:#18181b;--surface2:#232328;--surface3:#2e2e35;
-  --ink:#f2f2f2;--ink2:#a0a0aa;--ink3:#606068;
-  --border:#2a2a32;--border2:#38383f;
-  --focus:2px solid #a0a0ff;
-  --green:#4ade80;--green-bg:#0a2018;--green-bd:#1a4530;
-  --red:#f87171;--red-bg:#200a0a;--red-bd:#4d1818;
-  --blue:#93c5fd;--blue-bg:#0a1525;--blue-bd:#1e3a5f;
-  --gold:#fbbf24;--gold-bg:#201500;--gold-bd:#4d3800;
-  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
-  --shadow-lg:0 8px 40px rgba(0,0,0,.5);
-  --overlay:rgba(0,0,0,.7);
+  --bg:#0f0f11;
+  --surface:#18181b;
+  --surface2:#232328;
+  --surface3:#2e2e35;
+  --ink:#f2f2f2;
+  --ink2:#a0a0aa;
+  --ink3:#606068;
+  --border:#2a2a32;
+  --border2:#38383f;
+  --focus:2px solid #818cf8;
+  --green:#4ade80;--green-bg:#052e16;--green-bd:#166534;
+  --red:#f87171;  --red-bg:#1c0a0a;  --red-bd:#7f1d1d;
+  --blue:#93c5fd; --blue-bg:#0c1a2e; --blue-bd:#1e3a5f;
+  --gold:#fbbf24; --gold-bg:#1c1000; --gold-bd:#78350f;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.25);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.6);
+  --overlay:rgba(0,0,0,.75);
 }}
 
+/* ── Base ──────────────────────────────────────────────────── */
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 :focus-visible{outline:var(--focus);outline-offset:3px;border-radius:4px}
@@ -45,32 +61,58 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--ink);color:var(--surface);padding:8px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:600;z-index:9999;text-decoration:none;transition:top .2s}
 .skip-link:focus{top:8px}
 
-/* ── HEADER ─── */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px}
+/* ── Header ────────────────────────────────────────────────── */
+.hdr{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 20px;height:56px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;
+}
 .logo{font-family:'Instrument Serif',serif;font-size:20px;flex-shrink:0;color:var(--ink);text-decoration:none}
 .logo em{font-style:italic;color:var(--ink3)}
-.hdr-nav{display:flex;gap:2px}
+.hdr-nav{display:flex;gap:2px;flex-shrink:0}
 .hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .hdr-user{display:none;align-items:center;gap:8px;font-size:13px;color:var(--ink2)}
 .hdr-user.visible{display:flex}
-.hdr-pseudo{font-weight:600;color:var(--ink)}
-.badge-admin{font-size:10px;font-weight:700;background:var(--ink);color:var(--surface);padding:2px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
+.hdr-pseudo{font-weight:600;color:var(--ink);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge-admin{font-size:10px;font-weight:700;background:var(--ink);color:var(--surface);padding:2px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0}
 
-/* notif bell */
-.notif-btn{position:relative;width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface2);color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background var(--t),color var(--t)}
+/* ── Notif bell ─────────────────────────────────────────────── */
+.notif-wrap{position:relative}
+.notif-btn{
+  width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border);
+  background:var(--surface2);color:var(--ink2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:background var(--t),color var(--t);flex-shrink:0;
+}
 .notif-btn:hover{background:var(--surface3);color:var(--ink)}
-.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:20px;display:flex;align-items:center;justify-content:center;padding:0 4px;display:none}
+.notif-badge{
+  position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;
+  font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:20px;
+  display:none;align-items:center;justify-content:center;padding:0 4px;
+  pointer-events:none;
+}
 .notif-badge.show{display:flex}
 
-/* ── TABS ─── */
-.tab-btn{padding:7px 15px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink2);background:transparent;transition:background var(--t),color var(--t);white-space:nowrap}
+/* ── Tabs ───────────────────────────────────────────────────── */
+.tab-btn{
+  padding:7px 14px;border-radius:var(--r-sm);border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:var(--ink2);background:transparent;transition:background var(--t),color var(--t);
+  white-space:nowrap;
+}
 .tab-btn:hover{background:var(--surface2);color:var(--ink)}
 .tab-btn[aria-selected="true"]{background:var(--ink);color:var(--surface);font-weight:600}
 
-/* ── BUTTONS ─── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;white-space:nowrap;transition:opacity var(--t),transform var(--t),background var(--t);text-decoration:none;user-select:none}
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:40px;padding:0 16px;border-radius:var(--r-sm);border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  white-space:nowrap;transition:opacity var(--t),transform var(--t),background var(--t);
+  text-decoration:none;user-select:none;flex-shrink:0;
+}
 .btn:active:not(:disabled){transform:scale(.97)}
-.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-full{width:100%}
 .btn-primary{background:var(--ink);color:var(--surface)}
 .btn-primary:hover:not(:disabled){opacity:.85}
@@ -81,173 +123,327 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 .btn-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
 .btn-success:hover:not(:disabled){opacity:.85}
 .btn-sm{height:32px;padding:0 12px;font-size:13px;border-radius:7px}
-.btn-xs{height:26px;padding:0 9px;font-size:11px;border-radius:6px}
+.btn-xs{height:26px;padding:0 9px;font-size:12px;border-radius:6px}
 
-/* ── FORM ─── */
+/* ── Form inputs ────────────────────────────────────────────── */
 .field{display:flex;flex-direction:column;gap:5px}
-.field label,.field-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
-.inp{width:100%;height:42px;padding:0 14px;border:1.5px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--surface2);outline:none;transition:border-color var(--t),background var(--t),box-shadow var(--t);appearance:none}
-.inp:focus{border-color:var(--ink);background:var(--surface);box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 10%,transparent)}
+.field label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.inp{
+  width:100%;height:42px;padding:0 14px;
+  border:1.5px solid var(--border2);border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);
+  background:var(--surface2);outline:none;
+  transition:border-color var(--t),background var(--t),box-shadow var(--t);
+  appearance:none;
+}
+.inp:focus{border-color:var(--ink);background:var(--surface);box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 8%,transparent)}
 .inp:hover:not(:focus){background:var(--surface)}
 .inp::placeholder{color:var(--ink3)}
 .inp[aria-invalid="true"]{border-color:var(--red)}
 textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-height:1.55}
 
-/* ── ALERTS ─── */
-.alert{display:none;padding:10px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;margin-top:10px}
-.alert[role="alert"]{display:block}
+/* ── Alerts ─────────────────────────────────────────────────── */
+.alert{
+  display:none;padding:10px 14px;border-radius:var(--r-sm);
+  font-size:13px;font-weight:500;line-height:1.4;
+}
+.alert.show{display:block}
 .alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
 .alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
 .alert-info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
 
-/* ── MODALS ─── */
-.overlay{position:fixed;inset:0;background:var(--overlay);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
-.overlay[aria-hidden="false"]{display:flex}
-.modal{background:var(--surface);border-radius:var(--r-lg);padding:28px 28px 24px;width:100%;max-width:480px;box-shadow:var(--shadow-lg);position:relative;max-height:90dvh;overflow-y:auto;border:1px solid var(--border);overscroll-behavior:contain}
-.modal-header{margin-bottom:18px;padding-right:32px}
+/* ── Modals ─────────────────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;background:var(--overlay);z-index:300;
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--surface);border-radius:var(--r-lg);padding:28px 28px 24px;
+  width:100%;max-width:480px;box-shadow:var(--shadow-lg);position:relative;
+  max-height:90dvh;overflow-y:auto;border:1px solid var(--border);
+  overscroll-behavior:contain;
+}
+.modal-header{margin-bottom:20px;padding-right:36px}
 .modal-title{font-family:'Instrument Serif',serif;font-size:22px;line-height:1.2}
-.modal-sub{font-size:13px;color:var(--ink3);margin-top:3px}
-.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--surface2);border:none;cursor:pointer;font-size:16px;color:var(--ink2);display:flex;align-items:center;justify-content:center;transition:background var(--t)}
+.modal-sub{font-size:13px;color:var(--ink3);margin-top:4px}
+.modal-close{
+  position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;
+  background:var(--surface2);border:none;cursor:pointer;font-size:18px;
+  color:var(--ink2);display:flex;align-items:center;justify-content:center;
+  transition:background var(--t),color var(--t);line-height:1;
+}
 .modal-close:hover{background:var(--surface3);color:var(--ink)}
-.modal form{display:flex;flex-direction:column;gap:12px}
-.modal-footer{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.modal-body{display:flex;flex-direction:column;gap:14px}
+.modal-footer{margin-top:20px;display:flex;flex-direction:column;gap:10px}
 .modal-switch{font-size:13px;color:var(--ink3);text-align:center}
 .modal-switch a{color:var(--ink);text-decoration:underline;cursor:pointer;font-weight:500}
 
-/* ── LAYOUT ─── */
+/* ── Layout ─────────────────────────────────────────────────── */
 .section{display:none}
 .section.active{display:block}
 .wrap{max-width:760px;margin:0 auto;padding:24px 16px 100px}
 
-/* ── INVITE GATE ─── */
-#invite-gate{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px}
-.invite-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:40px 32px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow-lg)}
+/* ── Invite gate ─────────────────────────────────────────────── */
+#invite-gate{
+  position:fixed;inset:0;background:var(--bg);z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.invite-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:40px 32px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow-lg);
+}
 .invite-box h1{font-family:'Instrument Serif',serif;font-size:28px;margin-bottom:8px}
 .invite-box p{font-size:14px;color:var(--ink2);margin-bottom:24px;line-height:1.6}
 
-/* ── TOOLBAR ─── */
+/* ── Toolbar ─────────────────────────────────────────────────── */
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.toolbar-left{display:flex;align-items:center;gap:8px}
-.sort-select{height:34px;padding:0 10px;border:1.5px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface2);outline:none;cursor:pointer;transition:border-color var(--t)}
-.sort-select:focus{border-color:var(--ink)}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sort-select{
+  height:34px;padding:0 10px;border:1.5px solid var(--border2);border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);
+  background:var(--surface2);outline:none;cursor:pointer;
+  transition:border-color var(--t),background var(--t);
+}
+.sort-select:focus{border-color:var(--ink);background:var(--surface)}
+.sort-hint{font-size:12px;color:var(--ink3)}
 
-/* ── ADD BOX ─── */
-.add-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:24px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.box-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:10px;display:block}
-.manual-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.manual-form .full{grid-column:1/-1}
+/* ── Add box ─────────────────────────────────────────────────── */
+.add-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);overflow:hidden;
+}
+.add-box-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;cursor:pointer;user-select:none;
+  transition:background var(--t);
+}
+.add-box-header:hover{background:var(--surface2)}
+.add-box-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.add-box-chevron{font-size:12px;color:var(--ink3);transition:transform .2s;line-height:1}
+.add-box-header[aria-expanded="true"] .add-box-chevron{transform:rotate(180deg)}
+.add-box-body{
+  display:none;padding:0 20px 20px;
+  border-top:1px solid var(--border);
+}
+.add-box-body.open{display:block}
+.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.add-grid .full{grid-column:1/-1}
 
-/* ── STATS ─── */
+/* ── Admin invite box ─────────────────────────────────────────── */
+.invite-admin-box{
+  background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.invite-url{font-size:12px;color:var(--blue);word-break:break-all;flex:1;font-family:monospace;min-width:0}
+.invite-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* ── Stats ──────────────────────────────────────────────────── */
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:center}
 .stat-n{font-family:'Instrument Serif',serif;font-size:28px;line-height:1;color:var(--ink);display:block}
 .stat-l{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
 
-/* ── ADMIN INVITE BOX ─── */
-.invite-admin-box{background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.invite-url{font-size:12px;color:var(--blue);word-break:break-all;flex:1;font-family:monospace}
+/* ── Item list ──────────────────────────────────────────────── */
+.item-list{display:flex;flex-direction:column;gap:8px}
 
-/* ── ITEM CARD ─── */
-.list{display:flex;flex-direction:column;gap:8px}
-.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow var(--t),border-color var(--t)}
+/* ── Item card ──────────────────────────────────────────────── */
+.item-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;transition:box-shadow var(--t),border-color var(--t),opacity var(--t);
+}
 .item-card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
-.item-card.dragging{opacity:.5;border:2px dashed var(--border2)}
-.item-card.drag-over{border-color:var(--blue);background:var(--blue-bg)}
+.item-card.dragging{opacity:.45;border-style:dashed}
+.item-card.drag-over{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-bd)}
+.item-card.is-purchased{opacity:.5}
+.item-card.is-purchased .item-title{text-decoration:line-through;color:var(--ink3)}
 
-.item-main{display:flex;align-items:stretch;min-height:88px}
-.drag-handle{display:none;width:28px;align-items:center;justify-content:center;color:var(--ink3);cursor:grab;font-size:14px;flex-shrink:0;border-right:1px solid var(--border)}
-.drag-handle:active{cursor:grabbing}
+.item-inner{display:flex;align-items:stretch;min-height:90px}
+
+/* drag handle */
+.drag-handle{
+  display:none;width:30px;align-items:center;justify-content:center;
+  color:var(--ink3);cursor:grab;font-size:14px;flex-shrink:0;
+  border-right:1px solid var(--border);touch-action:none;
+}
+.drag-handle:active{cursor:grabbing;color:var(--ink2)}
 .admin-mode .drag-handle{display:flex}
 
-.item-img-wrap{width:88px;min-width:88px;background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:10px;border-right:1px solid var(--border);flex-shrink:0}
-.item-img{max-width:100%;max-height:68px;object-fit:contain;display:block;border-radius:4px}
-.item-img-ph{font-size:24px;opacity:.18}
+/* image */
+.item-img-wrap{
+  width:90px;min-width:90px;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  padding:10px;border-right:1px solid var(--border);flex-shrink:0;
+}
+.item-img{max-width:100%;max-height:70px;object-fit:contain;display:block;border-radius:4px}
+.item-img-ph{font-size:26px;opacity:.15;user-select:none}
 
-.item-body{flex:1;padding:13px 14px;display:flex;align-items:flex-start;gap:10px;min-width:0}
-.item-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
-.item-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* body */
+.item-body{flex:1;padding:13px 14px;display:flex;align-items:flex-start;gap:8px;min-width:0}
+.item-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.item-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;word-break:break-word}
 .item-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.item-price{font-family:'Instrument Serif',serif;font-size:17px;color:var(--ink)}
+.item-price{font-family:'Instrument Serif',serif;font-size:17px;color:var(--ink);flex-shrink:0}
 .item-price.none{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink3);font-weight:400}
-.item-link{font-size:12px;color:var(--ink3);text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:color var(--t)}
-.item-link:hover{color:var(--ink)}
-.item-details{font-size:13px;color:var(--ink2);line-height:1.5;white-space:pre-wrap}
+.item-link{
+  font-size:12px;color:var(--ink3);text-decoration:none;
+  display:inline-flex;align-items:center;gap:3px;
+  transition:color var(--t);flex-shrink:0;
+}
+.item-link:hover{color:var(--blue)}
+.item-details{font-size:13px;color:var(--ink2);line-height:1.5;white-space:pre-wrap;word-break:break-word}
 .item-options{display:flex;flex-wrap:wrap;gap:5px}
-.opt-tag{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.opt-tag{
+  font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;
+  background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);
+}
 
-/* purchased status */
-.item-card.is-purchased{opacity:.55}
-.item-card.is-purchased .item-title{text-decoration:line-through;color:var(--ink3)}
-.purchased-info{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+/* purchased banner */
+.purchased-banner{font-size:12px;color:var(--green);font-weight:600}
 
 /* participants */
 .participants{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .part-empty{font-size:12px;color:var(--ink3);font-style:italic}
-.chip{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd);display:inline-flex;align-items:center;gap:4px}
-.chip-rm{cursor:pointer;opacity:.5;font-size:14px;line-height:1;background:none;border:none;color:inherit;padding:0;display:flex;align-items:center;border-radius:50%;transition:opacity var(--t)}
+.chip{
+  font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;
+  background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd);
+  display:inline-flex;align-items:center;gap:4px;
+}
+.chip-rm{
+  cursor:pointer;opacity:.5;font-size:14px;line-height:1;
+  background:none;border:none;color:inherit;padding:0;
+  display:flex;align-items:center;border-radius:50%;
+  transition:opacity var(--t);
+}
 .chip-rm:hover{opacity:1}
 
-.item-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;flex-shrink:0;padding:13px 12px 13px 0}
-.item-side-top{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-.item-side-bottom{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+/* side actions */
+.item-side{
+  display:flex;flex-direction:column;align-items:flex-end;
+  justify-content:flex-end;gap:5px;flex-shrink:0;
+  padding:12px 12px 12px 0;
+}
 
-.join-row{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
-.join-inp{height:32px;padding:0 10px;border:1.5px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface2);outline:none;transition:border-color var(--t),background var(--t);width:108px}
+/* join */
+.join-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.join-inp{
+  height:32px;padding:0 10px;border:1.5px solid var(--border2);border-radius:7px;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);
+  background:var(--surface2);outline:none;
+  transition:border-color var(--t),background var(--t);width:110px;
+}
 .join-inp:focus{border-color:var(--ink);background:var(--surface)}
 .join-inp::placeholder{color:var(--ink3)}
 .join-inp.shake{animation:shake .35s ease;border-color:var(--red)}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
-/* ── TIP ─── */
-.tip{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.5}
+/* ── Tip ────────────────────────────────────────────────────── */
+.tip{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 16px;font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.5;
+}
 .tip-icon{flex-shrink:0;font-size:16px;margin-top:1px}
 .tip a{color:var(--ink);font-weight:600;text-decoration:underline;cursor:pointer}
 .tip a:hover{text-decoration:none}
 
-/* ── NOTIF PANEL ─── */
-.notif-panel{position:absolute;top:52px;right:16px;width:340px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:400;display:none;overflow:hidden}
+/* ── Notification panel ─────────────────────────────────────── */
+.notif-panel{
+  position:absolute;top:calc(100% + 8px);right:0;width:340px;
+  max-width:calc(100vw - 32px);
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--shadow-lg);z-index:400;display:none;overflow:hidden;
+}
 .notif-panel.open{display:block}
-.notif-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.notif-header-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3)}
-.notif-list{max-height:320px;overflow-y:auto}
-.notif-item{padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink2);line-height:1.4;display:flex;gap:10px;align-items:flex-start}
+.notif-hdr{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.notif-hdr-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3)}
+.notif-list{max-height:320px;overflow-y:auto;overscroll-behavior:contain}
+.notif-item{
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--ink2);line-height:1.4;
+  display:flex;gap:10px;align-items:flex-start;
+}
 .notif-item.unread{background:var(--blue-bg);color:var(--ink)}
 .notif-item:last-child{border-bottom:none}
 .notif-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px}
+.notif-dot-placeholder{width:7px;flex-shrink:0}
 .notif-time{font-size:11px;color:var(--ink3);margin-top:2px}
-.notif-empty{padding:24px;text-align:center;color:var(--ink3);font-size:13px}
+.notif-empty{padding:28px;text-align:center;color:var(--ink3);font-size:13px}
 
-/* ── EMPTY ─── */
+/* ── Empty state ────────────────────────────────────────────── */
 .empty{text-align:center;padding:64px 24px;color:var(--ink3)}
-.empty-icon{font-size:40px;display:block;margin-bottom:14px;opacity:.3}
+.empty-icon{font-size:40px;display:block;margin-bottom:14px;opacity:.25;user-select:none}
 
-/* ── MOBILE NAV ─── */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;padding-bottom:max(8px,env(safe-area-inset-bottom));z-index:150;gap:8px}
+/* ── Spinner ─────────────────────────────────────────────────── */
+.spin{
+  display:inline-block;width:14px;height:14px;
+  border:2px solid rgba(255,255,255,.3);border-top-color:currentColor;
+  border-radius:50%;animation:rot .6s linear infinite;flex-shrink:0;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
 
+/* ── Mobile nav ─────────────────────────────────────────────── */
+.mobile-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:6px 16px;padding-bottom:max(6px,env(safe-area-inset-bottom));
+  z-index:150;gap:4px;
+}
+.mobile-nav .tab-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  height:auto;padding:6px 4px;font-size:11px;border-radius:var(--r-sm);
+}
+.mobile-nav .tab-btn .nav-icon{font-size:20px;line-height:1}
+.mobile-nav .tab-btn[aria-selected="true"]{background:var(--surface2);color:var(--ink)}
+
+/* ── Archive ─────────────────────────────────────────────────── */
+.archive-chip{
+  font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;
+  background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);
+  display:inline-flex;align-items:center;gap:4px;
+}
+.archive-date{font-size:11px;color:var(--ink3)}
+
+/* ── Responsive ─────────────────────────────────────────────── */
 @media(max-width:640px){
-  .hdr{padding:0 14px;height:52px}
+  .hdr{padding:0 12px;height:52px}
   .hdr-nav{display:none}
-  .hdr-pseudo{display:none}
-  .mobile-nav{display:flex;align-items:center;justify-content:space-around}
-  .mobile-nav .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:auto;padding:6px 4px;font-size:11px;border-radius:var(--r-sm)}
-  .mobile-nav .tab-btn .nav-icon{font-size:18px;line-height:1}
-  .mobile-nav .tab-btn[aria-selected="true"]{background:var(--surface2);color:var(--ink)}
+  .hdr-pseudo,.badge-admin{display:none}
+  .mobile-nav{display:flex}
+
   .wrap{padding:16px 12px 90px}
-  .item-img-wrap{width:68px;min-width:68px;padding:8px}
-  .item-img{max-height:52px}
-  .item-body{padding:10px}
+
+  .item-img-wrap{width:72px;min-width:72px;padding:8px}
+  .item-img{max-height:54px}
+  .item-body{padding:10px 10px 10px 12px}
   .item-side{padding:10px 10px 10px 0}
-  .join-inp{width:88px}
-  .manual-form{grid-template-columns:1fr}
-  .manual-form .full{grid-column:1}
-  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .join-inp{width:90px}
+  .item-title{font-size:13px}
+
+  .add-grid{grid-template-columns:1fr}
+  .add-grid .full{grid-column:1}
+
+  .stats{gap:8px}
   .stat{padding:10px}
   .stat-n{font-size:22px}
-  .modal{padding:22px 18px 20px;border-radius:var(--r) var(--r) 0 0;max-height:92dvh;margin-top:auto}
-  .overlay[aria-hidden="false"]{align-items:flex-end;padding:0}
-  .notif-panel{right:8px;top:48px}
-  .join-row{gap:4px}
+
+  .modal{
+    padding:20px 16px 20px;
+    border-radius:var(--r) var(--r) 0 0;
+    max-height:92dvh;margin-top:auto;
+  }
+  .overlay.open{align-items:flex-end;padding:0}
+
+  .notif-panel{width:calc(100vw - 16px);right:-4px}
+
   .invite-admin-box{flex-direction:column;align-items:flex-start}
+  .invite-actions{align-self:flex-end}
+
+  .btn-xs{height:28px;font-size:12px}
 }
 @media(min-width:641px){.mobile-nav{display:none !important}}
 </style>
@@ -255,38 +451,46 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 <body>
 <a href="#main-content" class="skip-link">Aller au contenu</a>
 
-<!-- INVITE GATE -->
+<!-- ── Invite gate ─────────────────────────────────────────── -->
 <div id="invite-gate" role="dialog" aria-labelledby="gate-title" aria-modal="true">
   <div class="invite-box">
-    <div style="font-size:40px;margin-bottom:12px">🎁</div>
+    <div style="font-size:44px;margin-bottom:12px" aria-hidden="true">🎁</div>
     <h1 id="gate-title">Liste privée</h1>
     <p>Tu as besoin d'un lien d'invitation pour accéder à cette liste.</p>
-    <div class="alert" id="gate-alert" role="alert"></div>
+    <div class="alert" id="gate-alert" role="alert" aria-live="assertive"></div>
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- ── Header ─────────────────────────────────────────────── -->
 <header class="hdr" role="banner">
-  <a href="/" class="logo" aria-label="Wishlist">wishlist<em>.</em></a>
-  <nav class="hdr-nav" aria-label="Navigation" role="tablist">
-    <button class="tab-btn" id="tab-list-btn" role="tab" aria-selected="true" aria-controls="tab-list" onclick="switchTab('list',this)">Liste</button>
-    <button class="tab-btn" id="tab-admin-btn" role="tab" aria-selected="false" aria-controls="tab-admin" onclick="switchTab('admin',this)" hidden>Gérer</button>
-    <button class="tab-btn" id="tab-archive-btn" role="tab" aria-selected="false" aria-controls="tab-archive" onclick="switchTab('archive',this)" hidden>🗃 Archive</button>
+  <a href="/" class="logo" aria-label="Wishlist — accueil">wishlist<em>.</em></a>
+
+  <nav class="hdr-nav" aria-label="Onglets" role="tablist">
+    <button class="tab-btn" id="tab-list-btn" role="tab" aria-selected="true"
+            aria-controls="tab-list" onclick="switchTab('list')">Liste</button>
+    <button class="tab-btn" id="tab-admin-btn" role="tab" aria-selected="false"
+            aria-controls="tab-admin" onclick="switchTab('admin')" hidden>Gérer</button>
+    <button class="tab-btn" id="tab-archive-btn" role="tab" aria-selected="false"
+            aria-controls="tab-archive" onclick="switchTab('archive')" hidden>🗃 Archive</button>
   </nav>
+
   <div class="hdr-right">
     <div id="hdr-user" class="hdr-user" aria-live="polite">
       <span class="hdr-pseudo" id="hdr-pseudo"></span>
       <span id="hdr-badge" class="badge-admin" hidden>admin</span>
       <button class="btn btn-secondary btn-sm" onclick="logout()">Déconnexion</button>
     </div>
-    <button id="btn-open-login" class="btn btn-secondary btn-sm" onclick="openModal('login')" aria-haspopup="dialog">Connexion</button>
-    <div style="position:relative" id="notif-wrap" hidden>
-      <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel()" aria-label="Notifications" aria-expanded="false" aria-haspopup="true">
-        🔔<span class="notif-badge" id="notif-badge" aria-live="polite"></span>
+    <button id="btn-open-login" class="btn btn-secondary btn-sm"
+            onclick="openModal('login')" aria-haspopup="dialog">Connexion</button>
+
+    <div class="notif-wrap" id="notif-wrap" hidden>
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel()"
+              aria-label="Notifications" aria-expanded="false" aria-haspopup="true">
+        🔔<span class="notif-badge" id="notif-badge" aria-live="polite" aria-atomic="true"></span>
       </button>
-      <div class="notif-panel" id="notif-panel" role="region" aria-label="Notifications">
-        <div class="notif-header">
-          <span class="notif-header-title">Notifications</span>
+      <div class="notif-panel" id="notif-panel" role="dialog" aria-label="Notifications">
+        <div class="notif-hdr">
+          <span class="notif-hdr-title">Notifications</span>
           <button class="btn btn-secondary btn-xs" onclick="markAllRead()">Tout marquer lu</button>
         </div>
         <div class="notif-list" id="notif-list"></div>
@@ -295,91 +499,145 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
   </div>
 </header>
 
+<!-- ── Main ───────────────────────────────────────────────── -->
 <main id="main-content">
 
-<!-- LIST TAB -->
+<!-- Liste (vue invités) -->
 <section class="section active" id="tab-list" role="tabpanel" aria-labelledby="tab-list-btn" tabindex="-1">
   <div class="wrap">
-    <div class="tip" id="guest-tip" role="note">
+    <div class="tip" id="guest-tip" role="note" aria-live="polite">
       <span class="tip-icon" aria-hidden="true">👋</span>
-      <span>Entre ton prénom pour participer — ou <a onclick="openModal('login')" tabindex="0" role="button">connecte-toi</a> pour mémoriser ton pseudo.</span>
+      <span>Entre ton prénom pour participer —
+        ou <a onclick="openModal('login')" role="button" tabindex="0"
+              onkeydown="if(event.key==='Enter'||event.key===' ')openModal('login')">connecte-toi</a>
+        pour mémoriser ton pseudo.</span>
     </div>
+
     <div class="toolbar">
       <div class="toolbar-left">
         <label for="sort-select" class="sr-only">Trier par</label>
-        <select class="sort-select" id="sort-select" onchange="changeSort(this.value)" aria-label="Trier les articles">
+        <select class="sort-select" id="sort-select" onchange="changeSort(this.value)"
+                aria-label="Trier les articles">
           <option value="position">Tri personnalisé</option>
           <option value="price_asc">Prix croissant</option>
           <option value="price_desc">Prix décroissant</option>
         </select>
       </div>
     </div>
-    <div class="list" id="list-items" aria-live="polite" aria-label="Liste de souhaits"></div>
-    <div class="empty" id="list-empty" style="display:none"><span class="empty-icon" aria-hidden="true">✦</span><p>La liste est vide pour l'instant.</p></div>
+
+    <div class="item-list" id="list-items" aria-live="polite" aria-label="Liste de souhaits"></div>
+    <div class="empty" id="list-empty" hidden>
+      <span class="empty-icon" aria-hidden="true">✦</span>
+      <p>La liste est vide pour l'instant.</p>
+    </div>
   </div>
 </section>
 
-<!-- ADMIN TAB -->
+<!-- Gérer (vue admin) -->
 <section class="section" id="tab-admin" role="tabpanel" aria-labelledby="tab-admin-btn" tabindex="-1">
   <div class="wrap">
 
-    <!-- Invite link -->
-    <div class="invite-admin-box" id="invite-admin-box" role="region" aria-label="Lien d'invitation">
-      <span style="font-size:13px;font-weight:600;color:var(--blue);flex-shrink:0">🔗 Lien d'invitation</span>
-      <span class="invite-url" id="invite-url">Chargement…</span>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-secondary btn-xs" onclick="copyInviteLink()" aria-label="Copier le lien">Copier</button>
-        <button class="btn btn-danger btn-xs" onclick="regenerateInvite()" aria-label="Générer un nouveau lien">Nouveau lien</button>
+    <!-- Lien d'invitation -->
+    <div class="invite-admin-box" role="region" aria-label="Lien d'invitation">
+      <span style="font-size:13px;font-weight:700;color:var(--blue);flex-shrink:0">🔗 Lien d'invitation</span>
+      <span class="invite-url" id="invite-url" aria-live="polite">Chargement…</span>
+      <div class="invite-actions">
+        <button class="btn btn-secondary btn-xs" onclick="copyInviteLink()">Copier</button>
+        <button class="btn btn-danger btn-xs" onclick="regenerateInvite()">Nouveau lien</button>
       </div>
     </div>
 
-    <!-- Add form (manuel uniquement) -->
+    <!-- Ajouter un article -->
     <div class="add-box" role="region" aria-label="Ajouter un article">
-      <span class="box-label">Ajouter un article</span>
-      <div class="manual-form" id="manual-form">
-        <div class="field full"><label for="m-title">Titre *</label><input class="inp" id="m-title" type="text" required /></div>
-        <div class="field"><label for="m-price">Prix (€)</label><input class="inp" id="m-price" type="text" placeholder="49.99" inputmode="decimal" /></div>
-        <div class="field"><label for="m-img">URL image</label><input class="inp" id="m-img" type="url" placeholder="https://…" /></div>
-        <div class="field full"><label for="m-url">Lien produit</label><input class="inp" id="m-url" type="url" placeholder="https://…" /></div>
-        <div class="field full"><label for="m-details">Détails</label><textarea class="inp" id="m-details" placeholder="Couleur souhaitée, modèle précis…"></textarea></div>
-        <div class="field full"><label for="m-options">Options <small style="font-weight:400;text-transform:none">(séparées par virgules)</small></label><input class="inp" id="m-options" type="text" placeholder="Taille L, Couleur noire…" /></div>
-        <div class="full"><button class="btn btn-primary" onclick="addManual()">Ajouter</button></div>
+      <div class="add-box-header" id="add-box-header"
+           role="button" tabindex="0" aria-expanded="false" aria-controls="add-box-body"
+           onclick="toggleAddBox()"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAddBox()}">
+        <span class="add-box-title">Ajouter un article</span>
+        <span class="add-box-chevron" aria-hidden="true">▼</span>
       </div>
-      <div id="add-alert" class="alert" role="alert"></div>
+      <div class="add-box-body" id="add-box-body" aria-hidden="true">
+        <div class="add-grid">
+          <div class="field full">
+            <label for="m-title">Titre *</label>
+            <input class="inp" id="m-title" type="text" required
+                   placeholder="Nom du produit" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="m-price">Prix (€)</label>
+            <input class="inp" id="m-price" type="text" placeholder="49.99" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="m-img">URL image</label>
+            <input class="inp" id="m-img" type="url" placeholder="https://…" />
+          </div>
+          <div class="field full">
+            <label for="m-url">Lien produit</label>
+            <input class="inp" id="m-url" type="url" placeholder="https://…" />
+          </div>
+          <div class="field full">
+            <label for="m-details">Détails</label>
+            <textarea class="inp" id="m-details" placeholder="Couleur souhaitée, modèle précis…"></textarea>
+          </div>
+          <div class="field full">
+            <label for="m-options">
+              Options
+              <span style="font-weight:400;text-transform:none;letter-spacing:0">(séparées par virgules)</span>
+            </label>
+            <input class="inp" id="m-options" type="text" placeholder="Taille L, Couleur noire…" />
+          </div>
+          <div class="full" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-primary" id="add-btn" onclick="addItem()">Ajouter</button>
+            <button class="btn btn-secondary" onclick="resetAddForm()">Effacer</button>
+            <div class="alert" id="add-alert" role="alert" aria-live="assertive"
+                 style="margin-top:0;flex:1;min-width:180px"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Stats -->
-    <div class="stats" id="stats" style="display:none">
-      <div class="stat"><span class="stat-n" id="s-total">0</span><span class="stat-l">articles</span></div>
-      <div class="stat"><span class="stat-n" id="s-parts">0</span><span class="stat-l">participations</span></div>
+    <div class="stats" id="stats" hidden>
+      <div class="stat">
+        <span class="stat-n" id="s-total">0</span>
+        <span class="stat-l">articles</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n" id="s-parts">0</span>
+        <span class="stat-l">participations</span>
+      </div>
     </div>
 
-    <!-- Sort toolbar in admin -->
+    <!-- Toolbar admin -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <select class="sort-select" id="admin-sort-select" onchange="changeSort(this.value)" aria-label="Trier les articles">
+        <select class="sort-select" id="admin-sort-select" onchange="changeSort(this.value)"
+                aria-label="Trier les articles">
           <option value="position">Tri personnalisé (drag)</option>
           <option value="price_asc">Prix croissant</option>
           <option value="price_desc">Prix décroissant</option>
         </select>
-        <span style="font-size:12px;color:var(--ink3)">← glisse pour réordonner</span>
+        <span class="sort-hint" aria-hidden="true">⠿ glisse pour réordonner</span>
       </div>
     </div>
 
-    <div class="list admin-mode" id="admin-items" aria-live="polite" aria-label="Articles à gérer"></div>
-    <div class="empty" id="admin-empty" style="display:none"><span class="empty-icon" aria-hidden="true">✦</span><p>Ajoute ton premier article.</p></div>
+    <div class="item-list admin-mode" id="admin-items" aria-live="polite" aria-label="Articles à gérer"></div>
+    <div class="empty" id="admin-empty" hidden>
+      <span class="empty-icon" aria-hidden="true">✦</span>
+      <p>Ajoute ton premier article ci-dessus.</p>
+    </div>
   </div>
 </section>
 
-<!-- ARCHIVE TAB -->
+<!-- Archive -->
 <section class="section" id="tab-archive" role="tabpanel" aria-labelledby="tab-archive-btn" tabindex="-1">
   <div class="wrap">
     <div class="tip" role="note">
       <span class="tip-icon" aria-hidden="true">🗃</span>
       <span>Articles déjà offerts — visible uniquement par toi.</span>
     </div>
-    <div class="list" id="archive-items" aria-live="polite" aria-label="Articles archivés"></div>
-    <div class="empty" id="archive-empty" style="display:none">
+    <div class="item-list" id="archive-items" aria-live="polite" aria-label="Articles archivés"></div>
+    <div class="empty" id="archive-empty" hidden>
       <span class="empty-icon" aria-hidden="true">✦</span>
       <p>Aucun article archivé pour l'instant.</p>
     </div>
@@ -388,108 +646,193 @@ textarea.inp{height:auto;padding:10px 14px;resize:vertical;min-height:72px;line-
 
 </main>
 
-<!-- MOBILE NAV -->
+<!-- ── Mobile nav ──────────────────────────────────────────── -->
 <nav class="mobile-nav" aria-label="Navigation mobile" role="tablist">
-  <button class="tab-btn" id="mob-list-btn" role="tab" aria-selected="true" aria-controls="tab-list" onclick="switchTab('list',this,true)">
+  <button class="tab-btn" id="mob-list-btn" role="tab" aria-selected="true"
+          aria-controls="tab-list" onclick="switchTab('list')">
     <span class="nav-icon" aria-hidden="true">🎁</span>Liste
   </button>
-  <button class="tab-btn" id="mob-admin-btn" role="tab" aria-selected="false" aria-controls="tab-admin" onclick="switchTab('admin',this,true)" hidden>
+  <button class="tab-btn" id="mob-admin-btn" role="tab" aria-selected="false"
+          aria-controls="tab-admin" onclick="switchTab('admin')" hidden>
     <span class="nav-icon" aria-hidden="true">⚙️</span>Gérer
   </button>
-  <button class="tab-btn" id="mob-archive-btn" role="tab" aria-selected="false" aria-controls="tab-archive" onclick="switchTab('archive',this,true)" hidden>
+  <button class="tab-btn" id="mob-archive-btn" role="tab" aria-selected="false"
+          aria-controls="tab-archive" onclick="switchTab('archive')" hidden>
     <span class="nav-icon" aria-hidden="true">🗃</span>Archive
   </button>
 </nav>
 
-<!-- MODAL LOGIN -->
-<div class="overlay" id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-title" aria-hidden="true">
+<!-- ── Modal connexion ────────────────────────────────────── -->
+<div class="overlay" id="modal-login" role="dialog" aria-modal="true"
+     aria-labelledby="login-title" aria-hidden="true">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('login')" aria-label="Fermer">✕</button>
-    <div class="modal-header"><h2 class="modal-title" id="login-title">Connexion</h2><p class="modal-sub">Connecte-toi pour mémoriser ton pseudo.</p></div>
-    <form onsubmit="doLogin();return false" novalidate>
-      <div class="field"><label for="l-email">Email</label><input class="inp" id="l-email" type="email" autocomplete="email" placeholder="ton@email.com" required /></div>
-      <div class="field"><label for="l-pwd">Mot de passe</label><input class="inp" id="l-pwd" type="password" autocomplete="current-password" placeholder="••••••••" required /></div>
-      <div id="l-alert" class="alert" role="alert"></div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
-        <p class="modal-switch">Pas de compte ? <a onclick="openModal('register');closeModal('login')">Créer un compte</a></p>
+    <div class="modal-header">
+      <h2 class="modal-title" id="login-title">Connexion</h2>
+      <p class="modal-sub">Connecte-toi pour mémoriser ton pseudo.</p>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="l-email">Email</label>
+        <input class="inp" id="l-email" type="email" autocomplete="email"
+               placeholder="ton@email.com" required />
       </div>
-    </form>
+      <div class="field">
+        <label for="l-pwd">Mot de passe</label>
+        <input class="inp" id="l-pwd" type="password" autocomplete="current-password"
+               placeholder="••••••••" required />
+      </div>
+      <div class="alert" id="l-alert" role="alert" aria-live="assertive"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Se connecter</button>
+      <p class="modal-switch">Pas de compte ?
+        <a onclick="openModal('register');closeModal('login')">Créer un compte</a>
+      </p>
+    </div>
   </div>
 </div>
 
-<!-- MODAL REGISTER -->
-<div class="overlay" id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-title" aria-hidden="true">
+<!-- ── Modal inscription ──────────────────────────────────── -->
+<div class="overlay" id="modal-register" role="dialog" aria-modal="true"
+     aria-labelledby="reg-title" aria-hidden="true">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('register')" aria-label="Fermer">✕</button>
-    <div class="modal-header"><h2 class="modal-title" id="reg-title">Créer un compte</h2><p class="modal-sub">Pour ne plus retaper ton prénom à chaque fois.</p></div>
-    <form onsubmit="doRegister();return false" novalidate>
-      <div class="field"><label for="r-pseudo">Pseudo</label><input class="inp" id="r-pseudo" type="text" autocomplete="nickname" placeholder="Mathieu" required /></div>
-      <div class="field"><label for="r-email">Email</label><input class="inp" id="r-email" type="email" autocomplete="email" placeholder="ton@email.com" required /></div>
-      <div class="field"><label for="r-pwd">Mot de passe <small style="font-weight:400">(6 min.)</small></label><input class="inp" id="r-pwd" type="password" autocomplete="new-password" placeholder="••••••••" required minlength="6" /></div>
-      <div id="r-alert" class="alert" role="alert"></div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
-        <p class="modal-switch">Déjà un compte ? <a onclick="openModal('login');closeModal('register')">Se connecter</a></p>
+    <div class="modal-header">
+      <h2 class="modal-title" id="reg-title">Créer un compte</h2>
+      <p class="modal-sub">Pour ne plus retaper ton prénom à chaque fois.</p>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="r-pseudo">Pseudo</label>
+        <input class="inp" id="r-pseudo" type="text" autocomplete="nickname"
+               placeholder="Mathieu" required />
       </div>
-    </form>
+      <div class="field">
+        <label for="r-email">Email</label>
+        <input class="inp" id="r-email" type="email" autocomplete="email"
+               placeholder="ton@email.com" required />
+      </div>
+      <div class="field">
+        <label for="r-pwd">Mot de passe
+          <span style="font-weight:400;text-transform:none;letter-spacing:0">(6 min.)</span>
+        </label>
+        <input class="inp" id="r-pwd" type="password" autocomplete="new-password"
+               placeholder="••••••••" required minlength="6" />
+      </div>
+      <div class="alert" id="r-alert" role="alert" aria-live="assertive"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Créer mon compte</button>
+      <p class="modal-switch">Déjà un compte ?
+        <a onclick="openModal('login');closeModal('register')">Se connecter</a>
+      </p>
+    </div>
   </div>
 </div>
 
-<!-- MODAL EDIT -->
-<div class="overlay" id="modal-edit" role="dialog" aria-modal="true" aria-labelledby="edit-title" aria-hidden="true">
+<!-- ── Modal édition article ──────────────────────────────── -->
+<div class="overlay" id="modal-edit" role="dialog" aria-modal="true"
+     aria-labelledby="edit-title" aria-hidden="true">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('edit')" aria-label="Fermer">✕</button>
-    <div class="modal-header"><h2 class="modal-title" id="edit-title">Modifier l'article</h2></div>
+    <div class="modal-header">
+      <h2 class="modal-title" id="edit-title">Modifier l'article</h2>
+    </div>
     <input type="hidden" id="edit-id" />
-    <form onsubmit="saveEdit();return false" novalidate>
-      <div class="field"><label for="edit-title-inp">Titre *</label><input class="inp" id="edit-title-inp" type="text" required /></div>
-      <div class="field"><label for="edit-price">Prix (€)</label><input class="inp" id="edit-price" type="text" placeholder="49.99" inputmode="decimal" /></div>
-      <div class="field"><label for="edit-image">URL image</label><input class="inp" id="edit-image" type="url" placeholder="https://…" /></div>
-      <div class="field"><label for="edit-url">Lien produit</label><input class="inp" id="edit-url" type="url" placeholder="https://…" /></div>
-      <div class="field"><label for="edit-details">Détails</label><textarea class="inp" id="edit-details" placeholder="Couleur souhaitée…"></textarea></div>
-      <div class="field"><label for="edit-options">Options <small style="font-weight:400;text-transform:none">(virgules)</small></label><input class="inp" id="edit-options" type="text" placeholder="Taille L, Noir…" /></div>
-      <div id="edit-alert" class="alert" role="alert"></div>
-      <div class="modal-footer"><button type="submit" class="btn btn-primary btn-full">Enregistrer</button></div>
-    </form>
+    <div class="modal-body">
+      <div class="field">
+        <label for="edit-title-inp">Titre *</label>
+        <input class="inp" id="edit-title-inp" type="text" required />
+      </div>
+      <div class="field">
+        <label for="edit-price">Prix (€)</label>
+        <input class="inp" id="edit-price" type="text" placeholder="49.99" inputmode="decimal" />
+      </div>
+      <div class="field">
+        <label for="edit-image">URL image</label>
+        <input class="inp" id="edit-image" type="url" placeholder="https://…" />
+      </div>
+      <div class="field">
+        <label for="edit-url">Lien produit</label>
+        <input class="inp" id="edit-url" type="url" placeholder="https://…" />
+      </div>
+      <div class="field">
+        <label for="edit-details">Détails</label>
+        <textarea class="inp" id="edit-details" placeholder="Couleur souhaitée…"></textarea>
+      </div>
+      <div class="field">
+        <label for="edit-options">Options
+          <span style="font-weight:400;text-transform:none;letter-spacing:0">(virgules)</span>
+        </label>
+        <input class="inp" id="edit-options" type="text" placeholder="Taille L, Noir…" />
+      </div>
+      <div class="alert" id="edit-alert" role="alert" aria-live="assertive"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" onclick="saveEdit()">Enregistrer</button>
+    </div>
   </div>
 </div>
 
+<!-- ── Script ──────────────────────────────────────────────── -->
 <script>
 'use strict';
-let me = null, items = [], currentSort = 'position', inviteToken = null;
-let dragSrcId = null;
 
+// ── State ──────────────────────────────────────────────────────
+let me = null, items = [], currentSort = 'position';
+let dragSrcId = null, notifOpen = false;
+let archiveItems = [];
+
+// ── Boot ───────────────────────────────────────────────────────
 (async () => { await checkInvite(); })();
 
 async function checkInvite() {
-  const gate = $('invite-gate');
+  // Récupère le token depuis l'URL ou le localStorage
   const urlParam = new URLSearchParams(location.search).get('invite');
-  if (urlParam) { localStorage.setItem('invite_token', urlParam); history.replaceState({}, '', location.pathname); }
+  if (urlParam) {
+    localStorage.setItem('invite_token', urlParam);
+    history.replaceState({}, '', location.pathname);
+  }
   const stored = localStorage.getItem('invite_token');
+
+  // L'admin bypass la gate
   await loadMe();
-  if (me?.isAdmin) { gate.style.display = 'none'; await boot(); return; }
+  if (me?.isAdmin) { hideGate(); await boot(); return; }
+
   if (!stored) { showGateError('Tu as besoin d\'un lien d\'invitation pour accéder à cette liste.'); return; }
+
   try {
     const r = await fetch(`/api/invite/verify?token=${encodeURIComponent(stored)}`);
     const d = await r.json();
-    if (!d.valid) { localStorage.removeItem('invite_token'); showGateError('Lien d\'invitation invalide ou expiré.'); return; }
-    gate.style.display = 'none';
+    if (!d.valid) {
+      localStorage.removeItem('invite_token');
+      showGateError('Lien d\'invitation invalide ou expiré.');
+      return;
+    }
+    hideGate();
     await boot();
-  } catch { showGateError('Erreur réseau, réessaie.'); }
+  } catch {
+    showGateError('Erreur réseau, réessaie.');
+  }
 }
 
+function hideGate() { $('invite-gate').style.display = 'none'; }
 function showGateError(msg) {
   const al = $('gate-alert');
-  al.textContent = msg; al.setAttribute('role','alert'); al.className = 'alert alert-error';
-  al.style.display = 'block'; al.style.marginTop = '12px';
+  al.textContent = msg;
+  al.className = 'alert alert-error show';
+  al.style.marginTop = '14px';
 }
 
 async function boot() {
-  await loadItems(); renderHeader(); render();
+  await loadItems();
+  renderHeader();
+  render();
   if (me?.isAdmin) { loadInviteLink(); pollNotifs(); }
 }
 
+// ── Auth helpers ───────────────────────────────────────────────
 function getInviteToken() { return localStorage.getItem('invite_token') || ''; }
 function authHeaders() {
   const t = getInviteToken();
@@ -497,166 +840,311 @@ function authHeaders() {
 }
 
 async function loadMe() {
-  try { const r = await fetch('/api/auth/me'); me = await r.json(); } catch { me = null; }
+  try { const r = await fetch('/api/auth/me'); me = await r.json(); }
+  catch { me = null; }
 }
+
 async function doLogin() {
   const al = $('l-alert');
+  const btn = event?.currentTarget;
+  if (btn) { btn.disabled = true; btn.textContent = 'Connexion…'; }
   try {
-    const r = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:v('l-email'), password:v('l-pwd') }) });
+    const r = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: v('l-email'), password: v('l-pwd') }),
+    });
     const d = await r.json();
     if (!r.ok) { showAlert(al, d.error, 'error'); return; }
-    me = d; closeModal('login'); renderHeader(); render();
+    me = d;
+    closeModal('login');
+    renderHeader();
     if (me?.isAdmin) { loadInviteLink(); pollNotifs(); }
-    await loadItems(); render();
+    await loadItems();
+    render();
   } catch { showAlert(al, 'Erreur réseau', 'error'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; } }
 }
+
 async function doRegister() {
   const al = $('r-alert');
   if (!v('r-pseudo')) { showAlert(al, 'Pseudo obligatoire', 'error'); return; }
+  const btn = event?.currentTarget;
+  if (btn) { btn.disabled = true; btn.textContent = 'Création…'; }
   try {
-    const r = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:v('r-email'), password:v('r-pwd'), pseudo:v('r-pseudo') }) });
+    const r = await fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: v('r-email'), password: v('r-pwd'), pseudo: v('r-pseudo') }),
+    });
     const d = await r.json();
     if (!r.ok) { showAlert(al, d.error, 'error'); return; }
-    me = d; closeModal('register'); renderHeader(); render();
-    await loadItems(); render();
+    me = d;
+    closeModal('register');
+    renderHeader();
+    await loadItems();
+    render();
   } catch { showAlert(al, 'Erreur réseau', 'error'); }
-}
-async function logout() {
-  await fetch('/api/auth/logout', { method:'POST' });
-  me = null; renderHeader(); render();
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Créer mon compte'; } }
 }
 
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  me = null;
+  renderHeader();
+  render();
+}
+
+// ── Invite admin ───────────────────────────────────────────────
 async function loadInviteLink() {
   try {
     const r = await fetch('/api/invite/token');
     const d = await r.json();
-    inviteToken = d.token;
     $('invite-url').textContent = d.url;
   } catch {}
 }
+
 async function copyInviteLink() {
   const url = $('invite-url').textContent;
-  await navigator.clipboard.writeText(url).catch(() => {});
-  const btn = event.target;
-  btn.textContent = 'Copié !'; setTimeout(() => btn.textContent = 'Copier', 2000);
+  const btn = event.currentTarget;
+  try {
+    await navigator.clipboard.writeText(url);
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  } catch {
+    // Fallback pour navigateurs sans clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => { btn.textContent = 'Copier'; }, 2000);
+  }
 }
+
 async function regenerateInvite() {
   if (!confirm('Générer un nouveau lien ? L\'ancien ne fonctionnera plus.')) return;
-  const r = await fetch('/api/invite/regenerate', { method:'POST' });
+  const r = await fetch('/api/invite/regenerate', { method: 'POST' });
   const d = await r.json();
-  inviteToken = d.token;
   $('invite-url').textContent = d.url;
 }
 
-let notifOpen = false;
+// ── Notifications ──────────────────────────────────────────────
 async function pollNotifs() {
   if (!me?.isAdmin) return;
   try {
     const r = await fetch('/api/notifications/unread');
     const d = await r.json();
     const badge = $('notif-badge');
-    if (d.count > 0) { badge.textContent = d.count > 99 ? '99+' : d.count; badge.classList.add('show'); }
-    else { badge.classList.remove('show'); }
+    if (d.count > 0) {
+      badge.textContent = d.count > 99 ? '99+' : d.count;
+      badge.classList.add('show');
+    } else {
+      badge.classList.remove('show');
+    }
   } catch {}
   setTimeout(pollNotifs, 30000);
 }
+
 async function toggleNotifPanel() {
   notifOpen = !notifOpen;
-  const panel = $('notif-panel'), btn = $('notif-btn');
-  panel.classList.toggle('open', notifOpen);
-  btn.setAttribute('aria-expanded', notifOpen);
+  $('notif-panel').classList.toggle('open', notifOpen);
+  $('notif-btn').setAttribute('aria-expanded', String(notifOpen));
   if (notifOpen) await loadNotifs();
 }
+
 async function loadNotifs() {
   try {
     const r = await fetch('/api/notifications');
     const notifs = await r.json();
     const list = $('notif-list');
-    if (!notifs.length) { list.innerHTML = '<div class="notif-empty">Aucune notification</div>'; return; }
+    if (!notifs.length) {
+      list.innerHTML = '<div class="notif-empty">Aucune notification</div>';
+      return;
+    }
     list.innerHTML = notifs.map(n => {
       const d = new Date(n.created_at);
-      const time = d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      const time = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+        + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       return `<div class="notif-item${n.read ? '' : ' unread'}">
-        ${!n.read ? '<span class="notif-dot" aria-hidden="true"></span>' : '<span style="width:7px;flex-shrink:0"></span>'}
-        <div><div>${esc(n.message)}</div><div class="notif-time">${time}</div></div>
+        ${!n.read
+          ? '<span class="notif-dot" aria-hidden="true"></span>'
+          : '<span class="notif-dot-placeholder" aria-hidden="true"></span>'}
+        <div>
+          <div>${esc(n.message)}</div>
+          <div class="notif-time">${time}</div>
+        </div>
       </div>`;
     }).join('');
   } catch {}
 }
+
 async function markAllRead() {
-  await fetch('/api/notifications/read', { method:'POST' });
+  await fetch('/api/notifications/read', { method: 'POST' });
   $('notif-badge').classList.remove('show');
   await loadNotifs();
 }
 
+// ── Items ──────────────────────────────────────────────────────
 async function loadItems() {
   try {
     const r = await fetch(`/api/items?sort=${currentSort}`, { headers: authHeaders() });
     if (r.ok) items = await r.json();
   } catch {}
 }
+
 async function changeSort(val) {
   currentSort = val;
-  ['sort-select','admin-sort-select'].forEach(id => { const el=$(id); if(el) el.value=val; });
-  await loadItems(); render();
+  [$('sort-select'), $('admin-sort-select')].forEach(el => { if (el) el.value = val; });
+  await loadItems();
+  render();
 }
 
-async function addManual() {
-  const al = $('add-alert');
-  if (!v('m-title')) { showAlert(al, 'Titre obligatoire', 'error'); return; }
-  try {
-    const r = await fetch('/api/items', { method:'POST', headers:authHeaders(), body: JSON.stringify({ title:v('m-title'), price:v('m-price')||null, image:v('m-img')||null, url:v('m-url')||null, details:v('m-details')||null, options:v('m-options')||null }) });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
-    items.unshift(d);
-    ['m-title','m-price','m-img','m-url','m-details','m-options'].forEach(id => { const el=$(id); if(el) el.value=''; });
-    showAlert(al, '✓ Article ajouté !', 'success');
-    render(); setTimeout(() => hideAlert(al), 2500);
-  } catch(e) { showAlert(al, e.message, 'error'); }
+// ── Add form ───────────────────────────────────────────────────
+function toggleAddBox() {
+  const hdr = $('add-box-header'), body = $('add-box-body');
+  const open = hdr.getAttribute('aria-expanded') === 'true';
+  hdr.setAttribute('aria-expanded', String(!open));
+  body.setAttribute('aria-hidden', String(open));
+  body.classList.toggle('open', !open);
+  if (!open) setTimeout(() => $('m-title')?.focus(), 50);
 }
+
+function resetAddForm() {
+  ['m-title', 'm-price', 'm-img', 'm-url', 'm-details', 'm-options'].forEach(id => {
+    const el = $(id); if (el) el.value = '';
+  });
+  hideAlert($('add-alert'));
+  $('m-title')?.focus();
+}
+
+async function addItem() {
+  const al = $('add-alert'), btn = $('add-btn');
+  const title = v('m-title');
+  if (!title) {
+    showAlert(al, 'Le titre est obligatoire.', 'error');
+    $('m-title').focus();
+    return;
+  }
+  btn.disabled = true;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spin" aria-hidden="true"></span> Ajout…';
+  try {
+    const r = await fetch('/api/items', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({
+        title,
+        price: v('m-price') || null,
+        image: v('m-img') || null,
+        url: v('m-url') || null,
+        details: v('m-details') || null,
+        options: v('m-options') || null,
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Erreur serveur');
+    items.unshift(d);
+    resetAddForm();
+    showAlert(al, '✓ Article ajouté !', 'success');
+    setTimeout(() => hideAlert(al), 3000);
+    render();
+  } catch (e) {
+    showAlert(al, e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
 async function deleteItem(id) {
-  if (!confirm('Supprimer cet article ?')) return;
-  await fetch('/api/items/'+id, { method:'DELETE', headers:authHeaders() });
+  if (!confirm('Supprimer cet article définitivement ?')) return;
+  await fetch('/api/items/' + id, { method: 'DELETE', headers: authHeaders() });
   items = items.filter(i => i.id !== id);
   render();
 }
 
+// ── Edit ───────────────────────────────────────────────────────
 function openEdit(id) {
-  const item = items.find(i => i.id === id); if (!item) return;
-  $('edit-id').value = id; $('edit-title-inp').value = item.title||'';
-  $('edit-price').value = item.price!=null ? item.price : ''; $('edit-image').value = item.image||'';
-  $('edit-url').value = item.url||''; $('edit-details').value = item.details||''; $('edit-options').value = item.options||'';
-  hideAlert($('edit-alert')); openModal('edit');
-  setTimeout(() => $('edit-title-inp').focus(), 50);
-}
-async function saveEdit() {
-  const id = parseInt($('edit-id').value), title = v('edit-title-inp');
-  if (!title) { showAlert($('edit-alert'), 'Titre obligatoire', 'error'); return; }
-  try {
-    const r = await fetch('/api/items/'+id, { method:'PUT', headers:authHeaders(), body: JSON.stringify({ title, price:v('edit-price')||null, image:v('edit-image')||null, url:v('edit-url')||null, details:v('edit-details')||null, options:v('edit-options')||null }) });
-    const d = await r.json(); if (!r.ok) throw new Error(d.error);
-    const idx = items.findIndex(i => i.id === id); if (idx !== -1) items[idx] = d;
-    closeModal('edit'); render();
-  } catch(e) { showAlert($('edit-alert'), e.message, 'error'); }
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  $('edit-id').value = id;
+  $('edit-title-inp').value = item.title || '';
+  $('edit-price').value = item.price != null ? item.price : '';
+  $('edit-image').value = item.image || '';
+  $('edit-url').value = item.url || '';
+  $('edit-details').value = item.details || '';
+  $('edit-options').value = item.options || '';
+  hideAlert($('edit-alert'));
+  openModal('edit');
+  setTimeout(() => $('edit-title-inp')?.focus(), 60);
 }
 
+async function saveEdit() {
+  const id = parseInt($('edit-id').value);
+  const title = v('edit-title-inp');
+  const al = $('edit-alert');
+  if (!title) { showAlert(al, 'Le titre est obligatoire.', 'error'); return; }
+  const btn = event?.currentTarget;
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    const r = await fetch('/api/items/' + id, {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({
+        title,
+        price: v('edit-price') || null,
+        image: v('edit-image') || null,
+        url: v('edit-url') || null,
+        details: v('edit-details') || null,
+        options: v('edit-options') || null,
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    const idx = items.findIndex(i => i.id === id);
+    if (idx !== -1) items[idx] = d;
+    closeModal('edit');
+    render();
+  } catch (e) {
+    showAlert(al, e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+  }
+}
+
+// ── Participants ───────────────────────────────────────────────
 async function joinItem(id) {
   let name;
-  if (me) { name = me.pseudo; }
-  else {
-    const inp = $('ji-'+id); if (!inp) return;
+  if (me) {
+    name = me.pseudo;
+  } else {
+    const inp = $('ji-' + id);
+    if (!inp) return;
     name = inp.value.trim();
-    if (!name) { inp.classList.add('shake'); inp.setAttribute('aria-invalid','true'); setTimeout(()=>{inp.classList.remove('shake');inp.removeAttribute('aria-invalid')},600); return; }
+    if (!name) {
+      inp.classList.add('shake');
+      inp.setAttribute('aria-invalid', 'true');
+      inp.focus();
+      setTimeout(() => { inp.classList.remove('shake'); inp.removeAttribute('aria-invalid'); }, 500);
+      return;
+    }
     localStorage.setItem('guest_name', name);
   }
-  const r = await fetch('/api/items/'+id+'/join', { method:'POST', headers:authHeaders(), body: JSON.stringify({ name }) });
-  if (r.ok) { updateItem(await r.json()); render(); }
-}
-async function leaveItem(id, name) {
-  const r = await fetch('/api/items/'+id+'/join', { method:'DELETE', headers:authHeaders(), body: JSON.stringify({ name }) });
+  const r = await fetch('/api/items/' + id + '/join', {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ name }),
+  });
   if (r.ok) { updateItem(await r.json()); render(); }
 }
 
+async function leaveItem(id, name) {
+  const r = await fetch('/api/items/' + id + '/join', {
+    method: 'DELETE', headers: authHeaders(),
+    body: JSON.stringify({ name }),
+  });
+  if (r.ok) { updateItem(await r.json()); render(); }
+}
+
+// ── Purchased ──────────────────────────────────────────────────
 async function markPurchased(id) {
   let name = me?.pseudo;
   if (!name) {
@@ -665,22 +1153,62 @@ async function markPurchased(id) {
     if (!name) return;
     localStorage.setItem('guest_name', name);
   }
-  const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: true, name }) });
-  if (r.ok) { items = items.filter(i => i.id !== id); render(); }
+  const r = await fetch('/api/items/' + id + '/purchased', {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ purchased: true, name }),
+  });
+  if (r.ok) {
+    // L'article disparaît de la liste principale (passe en archive)
+    items = items.filter(i => i.id !== id);
+    render();
+  }
 }
+
 async function unmarkPurchased(id) {
-  const r = await fetch('/api/items/'+id+'/purchased', { method:'POST', headers:authHeaders(), body: JSON.stringify({ purchased: false, name: me?.pseudo || '' }) });
-  if (r.ok) { updateItem(await r.json()); render(); }
+  const r = await fetch('/api/items/' + id + '/purchased', {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ purchased: false, name: me?.pseudo || '' }),
+  });
+  if (r.ok) {
+    // L'article revient dans la liste active
+    const updated = await r.json();
+    archiveItems = archiveItems.filter(i => i.id !== id);
+    items.push(updated);
+    render();
+    renderArchive();
+  }
 }
 
-function updateItem(d) { const idx = items.findIndex(i => i.id === d.id); if (idx !== -1) items[idx] = d; }
+function updateItem(d) {
+  const idx = items.findIndex(i => i.id === d.id);
+  if (idx !== -1) items[idx] = d;
+}
 
-function onDragStart(e, id) { dragSrcId = id; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
-function onDragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over')); }
-function onDragOver(e, id) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (id !== dragSrcId) e.currentTarget.classList.add('drag-over'); }
-function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+// ── Drag & drop ────────────────────────────────────────────────
+function onDragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id); // requis Firefox
+  requestAnimationFrame(() => e.currentTarget.classList.add('dragging'));
+}
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
+}
+function onDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (id !== dragSrcId) {
+    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
+    e.currentTarget.classList.add('drag-over');
+  }
+}
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
 async function onDrop(e, id) {
-  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
   if (!dragSrcId || dragSrcId === id) return;
   const srcIdx = items.findIndex(i => i.id === dragSrcId);
   const dstIdx = items.findIndex(i => i.id === id);
@@ -688,29 +1216,202 @@ async function onDrop(e, id) {
   const reordered = [...items];
   const [moved] = reordered.splice(srcIdx, 1);
   reordered.splice(dstIdx, 0, moved);
-  items = reordered; render();
-  await fetch('/api/items/reorder', { method:'POST', headers:authHeaders(), body: JSON.stringify({ ids: items.map(i => i.id) }) });
+  items = reordered;
+  render();
+  await fetch('/api/items/reorder', {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ ids: items.map(i => i.id) }),
+  });
 }
 
+// ── Render ─────────────────────────────────────────────────────
 function renderHeader() {
   const isAdmin = !!me?.isAdmin;
   const userEl = $('hdr-user');
   if (me) {
     userEl.classList.add('visible');
     $('hdr-pseudo').textContent = me.pseudo;
-    const badge = $('hdr-badge'); badge.hidden = !isAdmin; if(isAdmin) badge.removeAttribute('hidden');
-  } else { userEl.classList.remove('visible'); }
+    const badge = $('hdr-badge');
+    if (isAdmin) { badge.hidden = false; } else { badge.hidden = true; }
+  } else {
+    userEl.classList.remove('visible');
+  }
   $('btn-open-login').style.display = me ? 'none' : '';
-  ['tab-admin-btn','mob-admin-btn','tab-archive-btn','mob-archive-btn'].forEach(id => { const el=$(id); if(!el) return; if(isAdmin){ el.hidden=false; el.removeAttribute('hidden'); } else { el.hidden=true; } });
+
+  // Onglets admin
+  ['tab-admin-btn', 'mob-admin-btn', 'tab-archive-btn', 'mob-archive-btn'].forEach(id => {
+    const el = $(id);
+    if (!el) return;
+    if (isAdmin) { el.hidden = false; } else { el.hidden = true; }
+  });
+
+  // Notif bell
   const notifWrap = $('notif-wrap');
-  if (isAdmin) notifWrap.removeAttribute('hidden'); else notifWrap.hidden = true;
+  if (isAdmin) { notifWrap.hidden = false; } else { notifWrap.hidden = true; }
+
+  // Tip invité
   $('guest-tip').style.display = me ? 'none' : '';
-  if (!isAdmin && ($('tab-admin').classList.contains('active') || $('tab-archive').classList.contains('active'))) switchTabById('list');
+
+  // Si non admin et on est sur un onglet admin → redirect liste
+  if (!isAdmin) {
+    const activeTab = document.querySelector('.section.active')?.id;
+    if (activeTab === 'tab-admin' || activeTab === 'tab-archive') switchTab('list');
+  }
 }
 
 function render() { renderList(); renderAdmin(); updateStats(); }
 
-let archiveItems = [];
+// ── Card builders ──────────────────────────────────────────────
+function imgCell(item) {
+  if (item.image) {
+    return `<div class="item-img-wrap">
+      <img class="item-img" src="${esc(item.image)}" alt="" loading="lazy"
+           onerror="this.outerHTML='<span class=\\'item-img-ph\\'aria-hidden=\\'true\\'>✦</span>'">
+    </div>`;
+  }
+  return `<div class="item-img-wrap"><span class="item-img-ph" aria-hidden="true">✦</span></div>`;
+}
+
+function fmtPrice(p) {
+  if (p == null) return null;
+  const n = parseFloat(p);
+  return isNaN(n) ? null : n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function priceEl(price) {
+  const f = fmtPrice(price);
+  return f
+    ? `<span class="item-price">${esc(f)}</span>`
+    : `<span class="item-price none">prix non renseigné</span>`;
+}
+
+function linkEl(url) {
+  if (!url) return '';
+  return `<a class="item-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer"
+    aria-label="Voir le produit (nouvelle fenêtre)">
+    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>Voir
+  </a>`;
+}
+
+function optionsEl(options) {
+  if (!options?.trim()) return '';
+  const tags = options.split(',').map(s => s.trim()).filter(Boolean);
+  return tags.length
+    ? `<div class="item-options">${tags.map(t => `<span class="opt-tag">${esc(t)}</span>`).join('')}</div>`
+    : '';
+}
+
+function chipsEl(item, isAdmin) {
+  const parts = item.participants || [];
+  if (!parts.length) return `<span class="part-empty">Personne pour l'instant</span>`;
+  const guestName = localStorage.getItem('guest_name') || '';
+  return parts.map(p => {
+    const isMine = me ? me.id === p.user_id : (guestName && p.name === guestName);
+    const canRemove = isMine || isAdmin;
+    const rm = canRemove
+      ? `<button class="chip-rm" onclick="leaveItem(${item.id},'${esc(p.name)}')"
+           aria-label="Retirer ${esc(p.name)}">×</button>`
+      : '';
+    return `<span class="chip">${esc(p.name)}${rm}</span>`;
+  }).join('');
+}
+
+function buildCard(item, isAdmin) {
+  const parts = item.participants || [];
+  const guestName = localStorage.getItem('guest_name') || '';
+  const myName = me ? me.pseudo : guestName;
+  const joined = parts.some(p => me ? p.user_id === me.id : (myName && p.name === myName));
+  const purchased = !!item.purchased;
+
+  const othersCount = parts.filter(p => !(me ? p.user_id === me.id : p.name === myName)).length;
+  const joinLabel = othersCount > 0 ? "Rejoindre l'achat" : "Je l'achète";
+
+  let joinBlock = '';
+  if (!purchased) {
+    if (joined) {
+      joinBlock = `<button class="btn btn-success btn-sm"
+        onclick="leaveItem(${item.id},'${esc(myName)}')"
+        aria-pressed="true">✓ Je m'en occupe</button>`;
+    } else if (me) {
+      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">${joinLabel}</button>`;
+    } else {
+      joinBlock = `<div class="join-row">
+        <input class="join-inp" id="ji-${item.id}" type="text"
+               placeholder="Prénom…" value="${esc(guestName)}"
+               aria-label="Ton prénom"
+               onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
+        <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">${joinLabel}</button>
+      </div>`;
+    }
+  }
+
+  const purchaseBtn = purchased
+    ? `<button class="btn btn-secondary btn-xs" onclick="unmarkPurchased(${item.id})">↩ Pas encore acheté</button>`
+    : `<button class="btn btn-success btn-xs" onclick="markPurchased(${item.id})">✅ Marquer acheté</button>`;
+
+  const adminBtns = isAdmin
+    ? `<button class="btn btn-secondary btn-xs" onclick="openEdit(${item.id})">✏️ Modifier</button>
+       <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})">Supprimer</button>`
+    : '';
+
+  const dragAttrs = isAdmin
+    ? `draggable="true"
+       ondragstart="onDragStart(event,${item.id})"
+       ondragend="onDragEnd(event)"
+       ondragover="onDragOver(event,${item.id})"
+       ondragleave="onDragLeave(event)"
+       ondrop="onDrop(event,${item.id})"`
+    : '';
+
+  const purchasedBanner = purchased && item.purchased_by
+    ? `<div class="purchased-banner">✅ Acheté par ${esc(item.purchased_by)}</div>`
+    : purchased
+    ? `<div class="purchased-banner">✅ Déjà acheté</div>`
+    : '';
+
+  return `
+  <article class="item-card${purchased ? ' is-purchased' : ''}"
+           id="card-${item.id}" aria-label="${esc(item.title)}" ${dragAttrs}>
+    <div class="item-inner">
+      ${isAdmin ? `<div class="drag-handle" aria-hidden="true" title="Glisser pour réordonner">⠿</div>` : ''}
+      ${imgCell(item)}
+      <div class="item-body">
+        <div class="item-info">
+          <h3 class="item-title">${esc(item.title)}</h3>
+          <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
+          ${purchasedBanner}
+          ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
+          ${optionsEl(item.options)}
+          <div class="participants" aria-label="Participants">${chipsEl(item, isAdmin)}</div>
+          ${joinBlock}
+        </div>
+        <div class="item-side">
+          ${purchaseBtn}
+          ${adminBtns}
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderList() {
+  const list = $('list-items'), empty = $('list-empty');
+  if (!items.length) { list.innerHTML = ''; empty.hidden = false; return; }
+  empty.hidden = true;
+  list.innerHTML = items.map(i => buildCard(i, false)).join('');
+}
+
+function renderAdmin() {
+  if (!me?.isAdmin) return;
+  const list = $('admin-items'), empty = $('admin-empty');
+  if (!items.length) { list.innerHTML = ''; empty.hidden = false; return; }
+  empty.hidden = true;
+  list.innerHTML = items.map(i => buildCard(i, true)).join('');
+}
+
 async function loadAndRenderArchive() {
   try {
     const r = await fetch('/api/items/archive', { headers: authHeaders() });
@@ -719,116 +1420,20 @@ async function loadAndRenderArchive() {
   renderArchive();
 }
 
-function imgCell(item) {
-  return item.image
-    ? `<div class="item-img-wrap"><img class="item-img" src="${esc(item.image)}" alt="${esc(item.title)}" loading="lazy" onerror="this.parentNode.innerHTML='<span class=\\'item-img-ph\\'aria-hidden=\\'true\\'>✦</span>'"></div>`
-    : `<div class="item-img-wrap"><span class="item-img-ph" aria-hidden="true">✦</span></div>`;
-}
-function fmtPrice(p) {
-  if (p==null) return null;
-  const n = parseFloat(p); return isNaN(n) ? null : n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
-}
-function priceEl(price) {
-  const f = fmtPrice(price);
-  if (!f) return `<span class="item-price none">prix non renseigné</span>`;
-  return `<span class="item-price">${esc(f)}</span>`;
-}
-function linkEl(url) {
-  if (!url) return '';
-  return `<a class="item-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Voir le produit"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Voir</a>`;
-}
-function optionsEl(options) {
-  if (!options?.trim()) return '';
-  const tags = options.split(',').map(s=>s.trim()).filter(Boolean);
-  return tags.length ? `<div class="item-options">${tags.map(t=>`<span class="opt-tag">${esc(t)}</span>`).join('')}</div>` : '';
-}
-function purchasedBanner(item) {
-  if (!item.purchased) return '';
-  const by = item.purchased_by ? esc(item.purchased_by) : '';
-  return `<div style="font-size:12px;color:var(--green);font-weight:600;margin-top:2px">✅ ${by ? `Acheté par ${by}` : 'Déjà acheté'}</div>`;
-}
-function chipsEl(item, isAdmin) {
-  const parts = item.participants || [];
-  if (!parts.length) return `<span class="part-empty">Personne pour l'instant</span>`;
-  const guestName = localStorage.getItem('guest_name') || '';
-  return parts.map(p => {
-    const isMine = (me && me.id === p.user_id) || (!me && p.name === guestName);
-    const rm = (isMine || isAdmin) ? `<button class="chip-rm" onclick="leaveItem(${item.id},'${esc(p.name)}')" aria-label="Retirer ${esc(p.name)}">×</button>` : '';
-    return `<span class="chip">${esc(p.name)}${rm}</span>`;
-  }).join('');
-}
-function buildCard(item, isAdmin) {
-  const parts = item.participants||[], guestName = localStorage.getItem('guest_name')||'', myName = me ? me.pseudo : guestName;
-  const joined = parts.some(p => me ? p.user_id===me.id : (myName && p.name===myName));
-  const purchased = !!item.purchased;
-  const othersCount = parts.filter(p => !(me ? p.user_id===me.id : p.name===myName)).length;
-  const joinLabel = othersCount > 0 ? "Rejoindre l'achat" : "Je l'achète";
-
-  let joinBlock = '';
-  if (!purchased) {
-    if (joined) {
-      joinBlock = `<button class="btn btn-success btn-sm" onclick="leaveItem(${item.id},'${esc(myName)}')" aria-pressed="true">✓ Je m'en occupe</button>`;
-    } else if (me) {
-      joinBlock = `<button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">${joinLabel}</button>`;
-    } else {
-      joinBlock = `<div class="join-row">
-        <input class="join-inp" id="ji-${item.id}" placeholder="Prénom…" value="${esc(guestName)}" aria-label="Ton prénom" onkeydown="if(event.key==='Enter')joinItem(${item.id})" />
-        <button class="btn btn-primary btn-sm" onclick="joinItem(${item.id})">${joinLabel}</button>
-      </div>`;
-    }
-  }
-
-  const purchaseBtn = purchased
-    ? `<button class="btn btn-secondary btn-xs" onclick="unmarkPurchased(${item.id})">↩ Pas encore acheté</button>`
-    : `<button class="btn btn-success btn-xs" onclick="markPurchased(${item.id})">✅ Marquer comme acheté</button>`;
-
-  const adminActions = isAdmin ? `<button class="btn btn-secondary btn-xs" onclick="openEdit(${item.id})">✏️ Modifier</button><button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})">Supprimer</button>` : '';
-  const dragAttrs = isAdmin ? `draggable="true" ondragstart="onDragStart(event,${item.id})" ondragend="onDragEnd(event)" ondragover="onDragOver(event,${item.id})" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${item.id})"` : '';
-
-  return `<article class="item-card${purchased ? ' is-purchased' : ''}" id="card-${item.id}" aria-label="${esc(item.title)}" ${dragAttrs}>
-    <div class="item-main">
-      ${isAdmin ? `<div class="drag-handle" aria-hidden="true" title="Glisser pour réordonner">⠿</div>` : ''}
-      ${imgCell(item)}
-      <div class="item-body">
-        <div class="item-info">
-          <h3 class="item-title">${esc(item.title)}</h3>
-          <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
-          ${purchasedBanner(item)}
-          ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
-          ${optionsEl(item.options)}
-          <div class="participants" aria-label="Participants">${chipsEl(item, isAdmin)}</div>
-          ${joinBlock}
-        </div>
-        <div class="item-side">
-          <div class="item-side-bottom">${purchaseBtn}${adminActions}</div>
-        </div>
-      </div>
-    </div>
-  </article>`;
-}
-
-function renderList() {
-  const list=$('list-items'), empty=$('list-empty');
-  if (!items.length) { list.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none'; list.innerHTML = items.map(i=>buildCard(i,false)).join('');
-}
-function renderAdmin() {
-  const list=$('admin-items'), empty=$('admin-empty');
-  if (!me?.isAdmin) return;
-  if (!items.length) { list.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none'; list.innerHTML = items.map(i=>buildCard(i,true)).join('');
-}
 function renderArchive() {
-  const list = $('archive-items'), empty = $('archive-empty');
   if (!me?.isAdmin) return;
-  if (!archiveItems.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
+  const list = $('archive-items'), empty = $('archive-empty');
+  if (!archiveItems.length) { list.innerHTML = ''; empty.hidden = false; return; }
+  empty.hidden = true;
   list.innerHTML = archiveItems.map(item => {
     const by = item.purchased_by ? esc(item.purchased_by) : null;
-    const d  = item.purchased_at ? new Date(item.purchased_at) : null;
-    const dateStr = d ? d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-    return `<article class="item-card is-purchased" id="arc-${item.id}" aria-label="${esc(item.title)}">
-      <div class="item-main">
+    const d = item.purchased_at ? new Date(item.purchased_at) : null;
+    const dateStr = d
+      ? d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '';
+    return `
+    <article class="item-card is-purchased" id="arc-${item.id}" aria-label="${esc(item.title)}">
+      <div class="item-inner">
         ${imgCell(item)}
         <div class="item-body">
           <div class="item-info">
@@ -836,16 +1441,14 @@ function renderArchive() {
             <div class="item-meta">${priceEl(item.price)}${linkEl(item.url)}</div>
             ${item.details ? `<p class="item-details">${esc(item.details)}</p>` : ''}
             ${optionsEl(item.options)}
-            <div class="purchased-info">
-              ${by ? `<span class="chip">✅ Offert par ${by}</span>` : '<span class="chip">✅ Offert</span>'}
-              ${dateStr ? `<span style="font-size:12px;color:var(--ink3)">${dateStr}</span>` : ''}
+            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px">
+              ${by ? `<span class="archive-chip">✅ Offert par ${by}</span>` : '<span class="archive-chip">✅ Offert</span>'}
+              ${dateStr ? `<span class="archive-date">${dateStr}</span>` : ''}
             </div>
           </div>
           <div class="item-side">
-            <div class="item-side-bottom">
-              <button class="btn btn-secondary btn-xs" onclick="restoreItem(${item.id})">↩ Remettre</button>
-              <button class="btn btn-danger btn-xs" onclick="deleteArchivedItem(${item.id})">Supprimer</button>
-            </div>
+            <button class="btn btn-secondary btn-xs" onclick="restoreItem(${item.id})">↩ Remettre</button>
+            <button class="btn btn-danger btn-xs" onclick="deleteArchivedItem(${item.id})">Supprimer</button>
           </div>
         </div>
       </div>
@@ -854,46 +1457,131 @@ function renderArchive() {
 }
 
 async function restoreItem(id) {
-  const r = await fetch('/api/items/'+id+'/restore', { method: 'POST', headers: authHeaders() });
-  if (r.ok) { archiveItems = archiveItems.filter(i => i.id !== id); await loadItems(); render(); renderArchive(); }
+  const r = await fetch('/api/items/' + id + '/restore', { method: 'POST', headers: authHeaders() });
+  if (r.ok) {
+    archiveItems = archiveItems.filter(i => i.id !== id);
+    await loadItems();
+    render();
+    renderArchive();
+  }
 }
+
 async function deleteArchivedItem(id) {
   if (!confirm('Supprimer définitivement cet article ?')) return;
-  await fetch('/api/items/'+id, { method: 'DELETE', headers: authHeaders() });
+  await fetch('/api/items/' + id, { method: 'DELETE', headers: authHeaders() });
   archiveItems = archiveItems.filter(i => i.id !== id);
   renderArchive();
 }
 
 function updateStats() {
-  const el=$('stats');
-  if (!items.length||!me?.isAdmin) { el.style.display='none'; return; }
-  el.style.display='grid';
+  const el = $('stats');
+  if (!items.length || !me?.isAdmin) { el.hidden = true; return; }
+  el.hidden = false;
   $('s-total').textContent = items.length;
-  $('s-parts').textContent = items.reduce((s,i)=>s+(i.participants?.length||0),0);
+  $('s-parts').textContent = items.reduce((s, i) => s + (i.participants?.length || 0), 0);
 }
 
-function $(id){return document.getElementById(id)}
-function v(id){return(document.getElementById(id)?.value||'').trim()}
-function esc(s){if(!s&&s!==0)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
-function openModal(id){const o=$('modal-'+id);o.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>{const f=o.querySelector('input,button:not(.modal-close)');if(f)f.focus()},50)}
-function closeModal(id){$('modal-'+id).setAttribute('aria-hidden','true');document.body.style.overflow=''}
-function showAlert(el,msg,type){el.textContent=msg;el.className='alert alert-'+type;el.setAttribute('role','alert')}
-function hideAlert(el){el.className='alert';el.removeAttribute('role');el.textContent=''}
-function switchTab(tab,btn,isMobile=false){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>{b.setAttribute('aria-selected','false');b.classList.remove('active')});
-  $('tab-'+tab).classList.add('active');
-  ['tab-'+tab+'-btn','mob-'+tab+'-btn'].forEach(id=>{const el=$(id);if(el){el.setAttribute('aria-selected','true');el.classList.add('active')}});
-  $('tab-'+tab)?.focus();
-  if(tab==='archive') loadAndRenderArchive(); else render();
+// ── Tab switching ──────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', 'false'));
+
+  $('tab-' + tab).classList.add('active');
+  [$('tab-' + tab + '-btn'), $('mob-' + tab + '-btn')].forEach(el => {
+    if (el) el.setAttribute('aria-selected', 'true');
+  });
+
+  // Focus section pour SR
+  $('tab-' + tab)?.focus();
+
+  if (tab === 'archive') loadAndRenderArchive();
+  else render();
 }
-function switchTabById(tab){switchTab(tab,null)}
-document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id.replace('modal-',''))}));
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){['login','register','edit'].forEach(id=>{const el=$('modal-'+id);if(el?.getAttribute('aria-hidden')==='false')closeModal(id)})}
-  if(e.key==='Escape'&&notifOpen){notifOpen=false;$('notif-panel').classList.remove('open');$('notif-btn').setAttribute('aria-expanded','false')}
+
+// ── Modal helpers ──────────────────────────────────────────────
+function openModal(id) {
+  const o = $('modal-' + id);
+  o.classList.add('open');
+  o.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  // Focus premier champ interactif
+  setTimeout(() => {
+    const f = o.querySelector('input:not([type=hidden]),textarea,button:not(.modal-close)');
+    if (f) f.focus();
+  }, 60);
+}
+
+function closeModal(id) {
+  const o = $('modal-' + id);
+  o.classList.remove('open');
+  o.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+// ── Alert helpers ──────────────────────────────────────────────
+function showAlert(el, msg, type) {
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `alert alert-${type} show`;
+  el.setAttribute('role', 'alert');
+}
+
+function hideAlert(el) {
+  if (!el) return;
+  el.className = 'alert';
+  el.removeAttribute('role');
+  el.textContent = '';
+}
+
+// ── Micro utils ────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+function v(id) { return (document.getElementById(id)?.value || '').trim(); }
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// ── Global event listeners ─────────────────────────────────────
+// Fermeture modale au clic sur l'overlay
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if (e.target === el) closeModal(el.id.replace('modal-', ''));
+  });
 });
-document.addEventListener('click',e=>{if(notifOpen&&!e.target.closest('#notif-wrap')){notifOpen=false;$('notif-panel').classList.remove('open');$('notif-btn').setAttribute('aria-expanded','false')}});
+
+// Fermeture au clavier Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['login', 'register', 'edit'].forEach(id => {
+      const el = $('modal-' + id);
+      if (el?.getAttribute('aria-hidden') === 'false') closeModal(id);
+    });
+    if (notifOpen) {
+      notifOpen = false;
+      $('notif-panel').classList.remove('open');
+      $('notif-btn').setAttribute('aria-expanded', 'false');
+    }
+  }
+});
+
+// Fermeture panel notif en cliquant ailleurs
+document.addEventListener('click', e => {
+  if (notifOpen && !e.target.closest('.notif-wrap')) {
+    notifOpen = false;
+    $('notif-panel').classList.remove('open');
+    $('notif-btn').setAttribute('aria-expanded', 'false');
+  }
+});
+
+// Soumission modale login / register au clavier
+$('l-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+$('r-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+$('edit-options').addEventListener('keydown', e => { if (e.key === 'Enter') saveEdit(); });
 </script>
 </body>
 </html>
