@@ -14,7 +14,7 @@ export async function addItem(
   const { error } = await supabase
     .from("items")
     .insert([
-      { wishlist_id: wishlistId, title, url, image_url: imageUrl, price },
+      { profile_id: wishlistId, title, url, image_url: imageUrl, price },
     ]);
   if (error) throw new Error(error.message);
   revalidatePath(`/wishlist/${wishlistId}`);

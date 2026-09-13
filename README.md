@@ -1,5 +1,18 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Configuration
+
+Add these variables to `.env.local` and to the Vercel project settings:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
+
+The app also accepts the existing local names `NEXT_SUPABASE_URL` and
+`NEXT_SUPABASE_PUBLISHABLE_KEY` through `next.config.ts`, but Vercel should use
+the `NEXT_PUBLIC_*` names so browser authentication can access them.
+
 ## Getting Started
 
 First, run the development server:

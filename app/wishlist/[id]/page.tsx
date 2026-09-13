@@ -19,7 +19,7 @@ type SecureItem = {
   image_url: string | null;
   price: number | null;
   url: string | null;
-  is_reserved: boolean;
+  reserved_by_id: string | null;
 };
 
 function getProfileName(profile: Profile) {
@@ -45,8 +45,8 @@ export default async function WishlistPage({
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", id).single(),
     supabase
-      .from("secure_items")
-      .select("id, title, image_url, price, url, is_reserved")
+      .from("items")
+      .select("id, title, image_url, price, url, reserved_by_id")
       .eq("profile_id", id)
       .order("created_at", { ascending: false }),
     supabase.auth.getUser(),
@@ -118,65 +118,69 @@ export default async function WishlistPage({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {wishlistItems.map((item) => (
-              <article
-                key={item.id}
-                className={`overflow-hidden rounded-2xl border border-[#d9ddd4] bg-[#fffdf8] ${item.is_reserved ? "opacity-60" : ""}`}
-              >
-                <div className="aspect-4/3 bg-[#edf0e9]">
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex size-full items-center justify-center text-[#829184]">
-                      <Gift className="size-10" />
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-3 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h2 className="font-heading text-xl font-semibold text-[#1f3b32]">
-                      {item.title || "Cadeau sans titre"}
-                    </h2>
-                    {item.price != null && (
-                      <span className="shrink-0 text-sm font-semibold text-[#63805d]">
-                        {item.price.toFixed(2)} €
-                      </span>
+            {wishlistItems.map((item) => {
+              const isReserved = item.reserved_by_id !== null;
+
+              return (
+                <article
+                  key={item.id}
+                  className={`overflow-hidden rounded-2xl border border-[#d9ddd4] bg-[#fffdf8] ${isReserved ? "opacity-60" : ""}`}
+                >
+                  <div className="aspect-4/3 bg-[#edf0e9]">
+                    {item.image_url ? (
+                      // Product images come from arbitrary retailer domains.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.image_url}
+                        alt=""
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center text-[#829184]">
+                        <Gift className="size-10" />
+                      </div>
                     )}
                   </div>
-                  {item.is_reserved ? (
-                    <p className="text-sm font-medium text-[#78827c]">
-                      Déjà réservé 🎁
-                    </p>
-                  ) : item.url ? (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm font-medium text-[#477052] underline underline-offset-4 hover:text-[#1f3b32]"
-                    >
-                      Voir le cadeau
-                    </a>
-                  ) : null}
-                  {!isOwner && (
-                    <form action={toggleReserveItem.bind(null, item.id, id)}>
-                      <button
-                        type="submit"
-                        disabled={item.is_reserved}
-                        className="w-full rounded-xl bg-[#1f3b32] px-4 py-2.5 text-sm font-semibold text-[#f6f4ee] transition-colors hover:bg-[#315848] disabled:cursor-not-allowed disabled:bg-[#c8d1c5]"
+                  <div className="space-y-3 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h2 className="font-heading text-xl font-semibold text-[#1f3b32]">
+                        {item.title || "Cadeau sans titre"}
+                      </h2>
+                      {item.price != null && (
+                        <span className="shrink-0 text-sm font-semibold text-[#63805d]">
+                          {item.price.toFixed(2)} €
+                        </span>
+                      )}
+                    </div>
+                    {isReserved ? (
+                      <p className="text-sm font-medium text-[#78827c]">
+                        Déjà réservé 🎁
+                      </p>
+                    ) : item.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-medium text-[#477052] underline underline-offset-4 hover:text-[#1f3b32]"
                       >
-                        {item.is_reserved
-                          ? "Déjà réservé"
-                          : "Réserver ce cadeau"}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              </article>
-            ))}
+                        Voir le cadeau
+                      </a>
+                    ) : null}
+                    {!isOwner && (
+                      <form action={toggleReserveItem.bind(null, item.id, id)}>
+                        <button
+                          type="submit"
+                          disabled={isReserved}
+                          className="w-full rounded-xl bg-[#1f3b32] px-4 py-2.5 text-sm font-semibold text-[#f6f4ee] transition-colors hover:bg-[#315848] disabled:cursor-not-allowed disabled:bg-[#c8d1c5]"
+                        >
+                          {isReserved ? "Déjà réservé" : "Réserver ce cadeau"}
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </main>

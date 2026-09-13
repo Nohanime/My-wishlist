@@ -44,31 +44,43 @@ export function AddGiftDialog({ profileId }: { profileId: string }) {
     setProduct((current) => ({ ...current, url }));
     setIsScraping(true);
     setError("");
-    const result = await scrapeProductData(url);
-    setProduct(result);
-    setIsScraping(false);
+    try {
+      const result = await scrapeProductData(url);
+      setProduct(result);
+    } catch {
+      setError("Impossible de récupérer les informations de ce lien.");
+    } finally {
+      setIsScraping(false);
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSaving(true);
     setError("");
-    const { error: insertError } = await createClient()
-      .from("items")
-      .insert({
+    try {
+      const { error: insertError } = await createClient().from("items").insert({
         profile_id: profileId,
         title: product.title,
         image_url: product.image_url,
         price: product.price,
         url: product.url,
       });
-    setIsSaving(false);
-    if (insertError) {
-      setError("Impossible d'ajouter ce cadeau.");
-      return;
+      if (insertError) {
+        setError(insertError.message);
+        return;
+      }
+      setOpen(false);
+      window.location.reload();
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Impossible d'ajouter ce cadeau.",
+      );
+    } finally {
+      setIsSaving(false);
     }
-    setOpen(false);
-    window.location.reload();
   }
 
   return (

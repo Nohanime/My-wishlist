@@ -50,31 +50,42 @@ export default function LoginPage() {
     setMessage("");
     setError("");
 
-    const supabase = createClient();
-    const result = isSignup
-      ? await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { name } },
-        })
-      : await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const result = isSignup
+        ? await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { name },
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          })
+        : await supabase.auth.signInWithPassword({ email, password });
 
-    setIsLoading(false);
+      if (result.error) {
+        setError(result.error.message);
+        return;
+      }
 
-    if (result.error) {
-      setError(result.error.message);
-      return;
-    }
+      if (isSignup && !result.data.session) {
+        setMessage(
+          "Compte cree. Consultez votre boite mail pour confirmer votre adresse.",
+        );
+        setPassword("");
+        return;
+      }
 
-    if (isSignup && !result.data.session) {
-      setMessage(
-        "Compte cree. Consultez votre boite mail pour confirmer votre adresse.",
+      router.push("/");
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Impossible de contacter Supabase. Vérifiez votre connexion.",
       );
-      setPassword("");
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    router.push("/");
   }
 
   return (
