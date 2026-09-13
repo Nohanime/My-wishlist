@@ -1,78 +1,36 @@
-# Wishlist v2
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Liste de souhaits avec auth, rôles admin/guest et participants multiples par cadeau.
+## Getting Started
 
-## Stack
-- **Backend** : Node.js / Express
-- **DB** : PostgreSQL (Railway)
-- **Auth** : JWT en cookie httpOnly + bcrypt
-
----
-
-## Déploiement sur Railway
-
-### 1. Créer le projet
-
-1. Va sur [railway.app](https://railway.app) → New Project
-2. **Add PostgreSQL** → Railway crée la DB et injecte `DATABASE_URL` automatiquement
-3. **Add Service → GitHub Repo** (ou "Deploy from local" avec le CLI)
-
-### 2. Variables d'environnement
-
-Dans Railway → ton service → Variables, ajoute :
-
-| Variable | Valeur |
-|---|---|
-| `ADMIN_EMAIL` | ton@email.com ← **ton vrai email** |
-| `JWT_SECRET` | une longue chaîne aléatoire (ex: `openssl rand -hex 32`) |
-| `NODE_ENV` | `production` |
-
-`DATABASE_URL` est injectée automatiquement par Railway, pas besoin de la mettre.
-
-### 3. Premier déploiement
-
-Railway détecte Node.js, lit `package.json` et lance `npm start` automatiquement.
-
-### 4. Créer ton compte admin
-
-Une fois le site en ligne :
-1. Va sur ton URL Railway
-2. Clique **Connexion → Créer un compte**
-3. Utilise **exactement l'email** que tu as mis dans `ADMIN_EMAIL`
-4. Tu auras automatiquement le badge admin et l'onglet "Gérer"
-
----
-
-## Dev local
+First, run the development server:
 
 ```bash
-# 1. Copier le fichier d'env
-cp .env.example .env
-# Remplir DATABASE_URL avec une Postgres locale ou Railway
-
-# 2. Installer
-npm install
-
-# 3. Lancer
-npm run dev   # avec nodemon
-# ou
-npm start
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Fonctionnement
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### Rôles
-- **Admin** : l'email dans `ADMIN_EMAIL` — peut ajouter/supprimer des articles, voir les participations, retirer n'importe qui d'un cadeau
-- **Connecté** : pseudo mémorisé, peut participer sans retaper son nom, peut se retirer
-- **Invité** : entre son prénom à la main, mémorisé en localStorage, peut participer et se retirer
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### Participer à un cadeau
-- Plusieurs personnes peuvent rejoindre le même cadeau (participation libre)
-- Les participants apparaissent en chips dorées sous chaque article
-- Chacun peut se retirer en cliquant le × sur son chip
+## Learn More
 
-### Scraping
-Fonctionne sur Amazon, Fnac, Cdiscount, LDLC, Boulanger, Darty et la majorité des sites e-commerce via og:title / og:image / JSON-LD.
-Si un site bloque les robots → bouton ✏️ pour ajout manuel.
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
