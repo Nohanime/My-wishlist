@@ -19,7 +19,7 @@ type SecureItem = {
   image_url: string | null;
   price: number | null;
   url: string | null;
-  reserved_by_id: string | null;
+  is_reserved: boolean;
 };
 
 function getProfileName(profile: Profile) {
@@ -45,8 +45,8 @@ export default async function WishlistPage({
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", id).single(),
     supabase
-      .from("items")
-      .select("id, title, image_url, price, url, reserved_by_id")
+      .from("secure_items")
+      .select("id, title, image_url, price, url, is_reserved")
       .eq("wishlist_id", id)
       .order("created_at", { ascending: false }),
     supabase.auth.getUser(),
@@ -119,7 +119,7 @@ export default async function WishlistPage({
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {wishlistItems.map((item) => {
-              const isReserved = item.reserved_by_id !== null;
+              const isReserved = item.is_reserved;
 
               return (
                 <article

@@ -4,6 +4,7 @@ import { ClipboardPaste, Gift, LoaderCircle, Plus } from "lucide-react";
 import { useState, type ClipboardEvent, type FormEvent } from "react";
 
 import { scrapeProductData } from "@/actions/scraper";
+import { addItem } from "@/actions/wishlist-actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,8 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/lib/client";
-
 type ProductData = {
   title: string;
   image_url: string;
@@ -59,17 +58,13 @@ export function AddGiftDialog({ profileId }: { profileId: string }) {
     setIsSaving(true);
     setError("");
     try {
-      const { error: insertError } = await createClient().from("items").insert({
-        wishlist_id: profileId,
-        title: product.title,
-        image_url: product.image_url,
-        price: product.price,
-        url: product.url,
-      });
-      if (insertError) {
-        setError(insertError.message);
-        return;
-      }
+      await addItem(
+        profileId,
+        product.title,
+        product.url,
+        product.image_url,
+        product.price ?? undefined,
+      );
       setOpen(false);
       window.location.reload();
     } catch (caughtError) {
