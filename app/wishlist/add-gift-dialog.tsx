@@ -1,7 +1,12 @@
 "use client";
 
 import { ClipboardPaste, Gift, LoaderCircle, Plus } from "lucide-react";
-import { useState, type ClipboardEvent, type FormEvent } from "react";
+import {
+  startTransition,
+  useState,
+  type ClipboardEvent,
+  type FormEvent,
+} from "react";
 
 import { scrapeProductData } from "@/actions/scraper";
 import { addItem } from "@/actions/wishlist-actions";
@@ -53,29 +58,31 @@ export function AddGiftDialog({ profileId }: { profileId: string }) {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSaving(true);
     setError("");
-    try {
-      await addItem(
-        profileId,
-        product.title,
-        product.url,
-        product.image_url,
-        product.price ?? undefined,
-      );
-      setOpen(false);
-      window.location.reload();
-    } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Impossible d'ajouter ce cadeau.",
-      );
-    } finally {
-      setIsSaving(false);
-    }
+    startTransition(async () => {
+      try {
+        await addItem(
+          profileId,
+          product.title,
+          product.url,
+          product.image_url,
+          product.price ?? undefined,
+        );
+        setOpen(false);
+        window.location.reload();
+      } catch (caughtError) {
+        setError(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Impossible d'ajouter ce cadeau.",
+        );
+      } finally {
+        setIsSaving(false);
+      }
+    });
   }
 
   return (
