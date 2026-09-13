@@ -11,6 +11,14 @@ export async function addItem(
   price?: number,
 ) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Session expirée. Veuillez vous reconnecter.");
+  if (user.id !== wishlistId) {
+    throw new Error("Vous ne pouvez modifier que votre propre wishlist.");
+  }
+
   const { error } = await supabase
     .from("items")
     .insert([
