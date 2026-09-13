@@ -60,7 +60,7 @@ export function AddGiftDialog({ profileId }: { profileId: string }) {
     setError("");
     try {
       const { error: insertError } = await createClient().from("items").insert({
-        profile_id: profileId,
+        wishlist_id: profileId,
         title: product.title,
         image_url: product.image_url,
         price: product.price,
