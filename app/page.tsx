@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Gift, Sparkles } from "lucide-react";
 
-import { createClient } from "@/lib/server";
+import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/logout-button";
 
 type Profile = {

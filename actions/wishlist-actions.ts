@@ -40,6 +40,29 @@ export async function addItem(
   revalidatePath(`/wishlist/${wishlistId}`);
 }
 
+export async function deleteItem(itemId: string, wishlistId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Non authentifié");
+  if (user.id !== wishlistId) {
+    throw new Error(
+      "Vous ne pouvez supprimer que des cadeaux de votre propre wishlist.",
+    );
+  }
+
+  const { error } = await supabase
+    .from("items")
+    .delete()
+    .eq("id", itemId)
+    .eq("wishlist_id", wishlistId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath(`/wishlist/${wishlistId}`);
+}
+
 // Réserver un cadeau (Tous sauf le propriétaire)
 export async function toggleReserveItem(itemId: string, wishlistId: string) {
   const supabase = await createClient();
@@ -65,8 +88,8 @@ export async function toggleReserveItem(itemId: string, wishlistId: string) {
     throw new Error("Ce cadeau est déjà réservé par un autre membre");
   }
 
-  // Toggle de la réservation
-  const newReservedId = item.reserved_by_id ? null : user.id;
+  // Toggle de la réservation : annule ou attribue la réservation à l'utilisateur courant
+  const newReservedId = item.reserved_by_id === user.id ? null : user.id;
   const { error } = await supabase
     .from("items")
     .update({ reserved_by_id: newReservedId })

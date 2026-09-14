@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LogOut, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { createClient } from "@/lib/client";
+import { createClient } from "@/lib/supabase/client";
 
 export function LogoutButton() {
   const router = useRouter();

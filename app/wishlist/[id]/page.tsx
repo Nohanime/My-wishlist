@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft, Gift, Sparkles } from "lucide-react";
+import { ArrowLeft, Gift, Sparkles, Trash2 } from "lucide-react";
 
 import { AddGiftDialog } from "@/app/wishlist/add-gift-dialog";
-import { toggleReserveItem } from "@/actions/wishlist-actions";
+import { deleteItem, toggleReserveItem } from "@/actions/wishlist-actions";
 import { LogoutButton } from "@/components/logout-button";
-import { createClient } from "@/lib/server";
+import { createClient } from "@/lib/supabase/server";
 
 type Profile = {
   id: string;
@@ -19,6 +19,7 @@ type SecureItem = {
   image_url: string | null;
   price: number | null;
   url: string | null;
+  reserved_by_id: string | null;
   is_reserved: boolean;
 };
 
@@ -46,14 +47,17 @@ export default async function WishlistPage({
     supabase.from("profiles").select("*").eq("id", id).single(),
     supabase
       .from("secure_items")
-      .select("id, title, image_url, price, url, is_reserved")
+      .select("id, title, image_url, price, url, reserved_by_id, is_reserved")
       .eq("wishlist_id", id),
     supabase.auth.getUser(),
   ]);
 
   const wishlistProfile = profile as Profile | null;
-  const wishlistItems = (items ?? []) as SecureItem[];
-  const isOwner = user.user?.id === id;
+  const wishlistItems = ((items ?? []) as SecureItem[]).sort(
+    (a, b) => Number(a.is_reserved) - Number(b.is_reserved),
+  );
+  const currentUserId = user.user?.id ?? null;
+  const isOwner = currentUserId === id;
   const error = profileError || itemsError;
 
   return (
@@ -112,13 +116,23 @@ export default async function WishlistPage({
               Aucun cadeau pour le moment
             </p>
             <p className="mt-2 text-sm text-[#78827c]">
-              Les envies ajoutées apparaîtront ici.
+              {isOwner
+                ? "Ajoutez la première envie pour commencer votre liste."
+                : "Les envies ajoutées apparaîtront ici."}
             </p>
+            {isOwner && wishlistProfile && (
+              <div className="mt-6 flex justify-center">
+                <AddGiftDialog profileId={id} />
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {wishlistItems.map((item) => {
               const isReserved = item.is_reserved;
+              const isMineReservation =
+                Boolean(item.reserved_by_id) &&
+                item.reserved_by_id === currentUserId;
 
               return (
                 <article
@@ -153,7 +167,9 @@ export default async function WishlistPage({
                     </div>
                     {isReserved ? (
                       <p className="text-sm font-medium text-[#78827c]">
-                        Déjà réservé 🎁
+                        {isMineReservation
+                          ? "Réservé par vous 🎁"
+                          : "Déjà réservé 🎁"}
                       </p>
                     ) : item.url ? (
                       <a
@@ -165,14 +181,27 @@ export default async function WishlistPage({
                         Voir le cadeau
                       </a>
                     ) : null}
-                    {!isOwner && (
+                    {isOwner ? (
+                      <form action={deleteItem.bind(null, item.id, id)}>
+                        <button
+                          type="submit"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#d9b1a8] bg-[#fff8f5] px-4 py-2.5 text-sm font-semibold text-[#9b4b3d] transition-colors hover:bg-[#fceae4]"
+                        >
+                          <Trash2 className="size-4" /> Supprimer
+                        </button>
+                      </form>
+                    ) : (
                       <form action={toggleReserveItem.bind(null, item.id, id)}>
                         <button
                           type="submit"
-                          disabled={isReserved}
+                          disabled={isReserved && !isMineReservation}
                           className="w-full rounded-xl bg-[#1f3b32] px-4 py-2.5 text-sm font-semibold text-[#f6f4ee] transition-colors hover:bg-[#315848] disabled:cursor-not-allowed disabled:bg-[#c8d1c5]"
                         >
-                          {isReserved ? "Déjà réservé" : "Réserver ce cadeau"}
+                          {isMineReservation
+                            ? "Annuler ma réservation"
+                            : isReserved
+                              ? "Déjà réservé"
+                              : "Réserver ce cadeau"}
                         </button>
                       </form>
                     )}

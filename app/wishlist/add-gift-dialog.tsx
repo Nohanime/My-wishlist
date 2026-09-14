@@ -71,8 +71,13 @@ export function AddGiftDialog({ profileId }: { profileId: string }) {
           product.image_url,
           product.price ?? undefined,
         );
+        setProduct({
+          title: "",
+          image_url: "",
+          price: null,
+          url: "",
+        });
         setOpen(false);
-        window.location.reload();
       } catch (caughtError) {
         setError(
           caughtError instanceof Error
