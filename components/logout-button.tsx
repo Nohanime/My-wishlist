@@ -20,6 +20,7 @@ export function LogoutButton() {
   return (
     <button
       type="button"
+      aria-label="Se déconnecter"
       onClick={handleLogout}
       disabled={isLoading}
       className="flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[#66716b] transition-colors hover:bg-white/70 hover:text-[#1f3b32] disabled:opacity-60"

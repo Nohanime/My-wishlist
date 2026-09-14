@@ -47,8 +47,7 @@ export default async function WishlistPage({
     supabase
       .from("secure_items")
       .select("id, title, image_url, price, url, is_reserved")
-      .eq("wishlist_id", id)
-      .order("created_at", { ascending: false }),
+      .eq("wishlist_id", id),
     supabase.auth.getUser(),
   ]);
 
